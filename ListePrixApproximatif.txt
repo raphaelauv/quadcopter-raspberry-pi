@@ -1,0 +1,49 @@
+Capteurs :
+Adafruit 10-DOF IMU BreakOut
+30$
+
+Controleurs :
+ESC 30A SIMONK OPTO RCTIMER (drotek)
+4 * 17$ = 68$
+
+Moteurs:
+SunnySky X2212 KV980 Brushless Motor
+53$
+
+Chassis :
+Chassis MultiRotors Reptile
+27$
+
+
+Helices :
+1 Paire Helice 10x435" EPP1045 CW CCW
+2 * 3.5$ = 7$
+
+Batterie :
+Python Power 35C Cont. 70 Burst 3300 Mah 3S1P
+43$
+
+Allim Raspberry :
+TeckNet PowerZen
+25$
+
+Chargeur :
+Chargeur de batterie Rapide LIPO 2S et 3S Xciterc
+18$
+
+Testeur de tension :
+1-8s Lipo Battery Tester Low Voltage Buzzer Alarm Rc 1s
+6$
+
+Distribution de courant:
+QuadCopteur Power Distribution Board
+5$
+
+Raspberry :
+Raspberry 2
+43$
+
+Cables :
+
+
+Total : 326$ (Sans frais de port ni cablage)
