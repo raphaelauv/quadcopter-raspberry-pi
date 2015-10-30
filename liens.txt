@@ -15,65 +15,62 @@ https://github.com/DavidEGrayson/minimu9-ahrs
 *Un drone comment ca vole ?
 http://www.droneaddict.net/comment-ca-vole/
 
-*
+*projet de quelqu'un d'autre
 http://www.magdiblog.fr/boa-pi-drone/1-raspberry-pi-boa-drone/
 
-*
+*un accéléromtètre
 http://www.generationrobots.com/fr/402072-accelerometre-3-axes-microstack-pour-raspberry-pi.html
 
-*
-http://www.generationrobots.com/fr/402072-accelerometre-3-axes-microstack-pour-raspberry-pi.html
-
-*
+* carte d'extension pour Raspberry
 http://www.framboise314.fr/7-cartes-d-extension-dtronixs-pour-votre-raspberry-pi/
 
-*
+*Thèse d'un etudiant en electronique sur la cration d'un quadricoptère
 http://www.botched.co.uk/wp-content/uploads/2013/10/The-Design-and-Implementation-of-a-Robust-AHRS-for-Implementation-on-a-Quadrotor.pdf
 
-*
+*Tuto servo-moteur
 http://razzpisampler.oreilly.com/ch05.html
 
-*
+* distribution courant
 http://hobbyking.com/hobbyking/store/__23140__Hobby_King_Quadcopter_Power_Distribution_Board.html
 
-*
+*Bibliotheque (obsolète) pour central inertiel
 https://github.com/richards-tech/RTIMULib
 
-*
+*gyroscope
 http://mpolaczyk.pl/raspberry-pi-series-l3gd20-gyroscope-minimu-9-v2-python-library/
 
-*
+*extension GPIO Raspberry
 http://fr.aliexpress.com/item/high-quality-Raspberry-pi-2-model-b-b-GPIO-extension-board-1-to-3-NEW-40/32390151127.html?adminSeq=221224290&shopNumber=1270976
 
-*
+*idem
 http://www.kubii.fr/cartes-extension-cameras-raspberry-pi/751-piface-relay-extension-port-raspberry-pi-640522710485.html
 
-*
+*doc microcontroleur
 http://www.atmel.com/Images/doc8008.pdf
 
-*
+*controleur de vol avec central inertiel
 http://www.arobose.com/shop/drones-quadricopters/254-controleur-de-vol-flymaple-avec-centrale-inertielle-imu-10-ddl.html
 
-*
+*Linux temps réel
 http://2014.capitoledulibre.org/schedule/presentation/1/
 
-*
+*choisir la batterie
 http://www.heli4.com/article303.html
 
-*
+*controleur de tension Lipo
 http://www.robotshop.com/ca/fr/alarme-tension-faible-batterie.html
 
-*
+*definition BEC
 https://en.wikipedia.org/wiki/Battery_eliminator_circuit
 
-*
+*ESC
 http://www.hobbyking.com/hobbyking/store/uh_listCategoriesAndProducts.asp?idCategory=61
 
-*
+*utilisation et recuperation des information par Raspberry
 http://innovelectronique.fr/2013/06/09/raspberrypi-a-tout-faire/
 
-*
+*librairie servoblaster ?
 https://github.com/richardghirst/PiBits/tree/master/ServoBlaster
 
-*
+* Tuto servomoetur
 http://razzpisampler.oreilly.com/ch05.html
