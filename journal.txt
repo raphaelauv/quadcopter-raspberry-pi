@@ -4,3 +4,10 @@
 ** A faire:
    - Finir l'analyse et fournir un devis
 
+Ven  6 nov 2015 15:42:38 CET
+** Fait
+	- devis (reste à commander JBY s'en occupe)
+	- blog sur le projet (projetdroneamateur.wordpress.com)
+** À faire
+	- Linux RT pour générer des impulsions régulières (documentation).
+
