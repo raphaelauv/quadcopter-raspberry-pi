@@ -1,3 +1,4 @@
+
 * vendredi 9 octobre 2015, 16:46:19 (UTC+0200)
 ** Fait:
    - Début d'analyse pour l'achat de composants
@@ -10,4 +11,13 @@ Ven  6 nov 2015 15:42:38 CET
 	- blog sur le projet (projetdroneamateur.wordpress.com)
 ** À faire
 	- Linux RT pour générer des impulsions régulières (documentation).
+
+Mar 17 nov 2015 15:35:06 CET
+	[JBY] commande effectuée sauf
+	Rupture de stock pour
+		MINI ESC 30A OPTO BLHELI RCTIMER 
+	Introuvable (sur Drotek, il faut me donner des pistes)
+		Testeur de tension Lipo 1S-8S 
+		CABLE D'ALIMENTATION 1M 12AWG Noir NOIR 
+		CABLE D'ALIMENTATION 1M 12AWG NoirRouge 
 
