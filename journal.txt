@@ -15,11 +15,12 @@ Ven  6 nov 2015 15:42:38 CET
 Mar 17 nov 2015 15:35:06 CET
 	[JBY] commande effectuée sauf
 	Rupture de stock pour
-		MINI ESC 30A OPTO BLHELI RCTIMER 
+		MINI ESC 30A OPTO BLHELI RCTIMER
+	->http://www.drotek.com/shop/fr/home/459-esc-simonk-opto-30a-hs-maytech-.html?search_query=ESC+30A&results=8 
 	Introuvable (sur Drotek, il faut me donner des pistes)
-		Testeur de tension Lipo 1S-8S 
-		CABLE D'ALIMENTATION 1M 12AWG Noir NOIR 
-		CABLE D'ALIMENTATION 1M 12AWG NoirRouge 
+		Testeur de tension Lipo 1S-8S ->http://www.drotek.com/shop/fr/home/197-testeur-tension-lipo.html
+		CABLE D'ALIMENTATION 1M 12AWG Noir NOIR -> http://www.drotek.com/shop/fr/home/522-cable-d-alimentation-1m.html
+		CABLE D'ALIMENTATION 1M 12AWG NoirRouge ->http://www.drotek.com/shop/fr/home/522-cable-d-alimentation-1m.html
 
 Ven 20 nov 2015 16:02:08 CET
 	A FAIRE JBY: repasser commande sur drotek + pièce épuisée (donner nouvelle references)
