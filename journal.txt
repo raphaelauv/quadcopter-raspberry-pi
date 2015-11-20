@@ -21,3 +21,10 @@ Mar 17 nov 2015 15:35:06 CET
 		CABLE D'ALIMENTATION 1M 12AWG Noir NOIR 
 		CABLE D'ALIMENTATION 1M 12AWG NoirRouge 
 
+Ven 20 nov 2015 16:02:08 CET
+	A FAIRE JBY: repasser commande sur drotek + pièce épuisée (donner nouvelle references)
+*Fait
+	- placement de processus sur un cpu, idem thread; travail sur Linux/RT
+**A Faire
+	- continuer sur Linux/RT
+	
