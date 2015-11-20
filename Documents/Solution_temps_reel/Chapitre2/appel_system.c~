@@ -1,0 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+int main(){
+  char * meassage="Message\n";
+  write(STOUT_FILENO,message, strlen(message));
+  return 0;
+}
