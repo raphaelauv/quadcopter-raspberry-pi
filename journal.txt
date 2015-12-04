@@ -29,3 +29,5 @@ Ven 20 nov 2015 16:02:08 CET
 **A Faire
 	- continuer sur Linux/RT
 	
+Ven  4 déc 2015 10:01:13 CET
+	- commande pièces manquantes effectuée...
