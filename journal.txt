@@ -1,4 +1,3 @@
-
 * vendredi 9 octobre 2015, 16:46:19 (UTC+0200)
 ** Fait:
    - Début d'analyse pour l'achat de composants
@@ -24,10 +23,21 @@ Mar 17 nov 2015 15:35:06 CET
 
 Ven 20 nov 2015 16:02:08 CET
 	A FAIRE JBY: repasser commande sur drotek + pièce épuisée (donner nouvelle references)
-*Fait
+* Fait
 	- placement de processus sur un cpu, idem thread; travail sur Linux/RT
-**A Faire
+** A Faire
 	- continuer sur Linux/RT
-	
+
 Ven  4 déc 2015 10:01:13 CET
 	- commande pièces manquantes effectuée...
+
+ven. janv. 15, 2016  4:56
+
+FAIT:
+	- Montage
+	- Un programme C qui contrôle les moteurs
+	- Expérimentation avec linux/RT et oscillo.
+A FAIRE:
+	- Interfacage de la centrale inertielle
+	- Se définir un protocole d'expérimentation
+	- Programmer le vol stationnaire.
