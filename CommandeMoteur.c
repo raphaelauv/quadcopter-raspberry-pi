@@ -6,10 +6,10 @@
             |   2 |   8 |   SDA.1 | ALT0 | 1 |  3 || 4  |   |      | 5V      |     |     |
             |   3 |   9 |   SCL.1 | ALT0 | 1 |  5 || 6  |   |      | 0v      |     |     |
             |   4 |   7 | GPIO. 7 |   IN | 1 |  7 || 8  | 1 | ALT0 | TxD     | 15  | 14  |
-            |     |     |      0v |      |   |  9 || 10 | 1 | ALT0 | RxD     | 16  | 15  |
-        ----|  17 |   0 | GPIO. 0 |   IN | 0 | 11 || 12 | 0 | IN   | GPIO. 1 | 1   | 18  |
-        |   |  27 |   2 | GPIO. 2 |   IN | 0 | 13 || 14 |   |      | 0v      |     |     |----
- Motor 3<---|  22 |   3 | GPIO. 3 |   IN | 0 | 15 || 16 | 0 | IN   | GPIO. 4 | 4   | 23  |   |
+        ----|     |     |      0v |      |   |  9 || 10 | 1 | ALT0 | RxD     | 16  | 15  |
+        |   |  17 |   0 | GPIO. 0 |   IN | 0 | 11 || 12 | 0 | IN   | GPIO. 1 | 1   | 18  |
+  Motor 3<--|  27 |   2 | GPIO. 2 |   IN | 0 | 13 || 14 |   |      | 0v      |     |     |----
+            |  22 |   3 | GPIO. 3 |   IN | 0 | 15 || 16 | 0 | IN   | GPIO. 4 | 4   | 23  |   |
             |     |     |    3.3v |      |   | 17 || 18 | 0 | IN   | GPIO. 5 | 5   | 24  |--->Motor 1
             |  10 |  12 |    MOSI | ALT0 | 0 | 19 || 20 |   |      | 0v      |     |     |
             |   9 |  13 |    MISO | ALT0 | 0 | 21 || 22 | 0 | IN   | GPIO. 6 | 6   | 25  |
@@ -63,13 +63,14 @@ void * moteur_1 (void * args){
     if (wiringPiSetup () == -1)
         return;
     pinMode (info->broche, OUTPUT);
+    int high, low;
     for (;;){
-        pthread_mutex_lock(&lock_m1);
-        digitalWrite(info->broche, 1) ;       // On
-        usleep((int)info->high_time);
-        digitalWrite(info->broche,0);         //Off
-        pthread_mutex_unlock(&lock_m1);
-        usleep((int)(info->low_time));
+      high = (int)info->high_time;
+      low = (int)info->low_time;
+      digitalWrite(info->broche, 1) ;       // On
+      usleep(high);
+      digitalWrite(info->broche,0);         //off
+      usleep(low);
     }
 }
 void * moteur_2 (void * args){
@@ -77,13 +78,14 @@ void * moteur_2 (void * args){
     if (wiringPiSetup () == -1)
         return;
     pinMode (info->broche, OUTPUT);
+int high, low;
     for (;;){
-        pthread_mutex_lock(&lock_m2);
-        digitalWrite(info->broche, 1) ;       // On
-        usleep((int)info->high_time);
-        digitalWrite(info->broche,0);         //off
-        pthread_mutex_unlock(&lock_m2);
-        usleep((int)(info->low_time));
+      high = (int)info->high_time;
+      low = (int)info->low_time;
+      digitalWrite(info->broche, 1) ;       // On
+      usleep(high);
+      digitalWrite(info->broche,0);         //off
+      usleep(low);
     }
 }
 void * moteur_3 (void * args){
@@ -91,13 +93,14 @@ void * moteur_3 (void * args){
     if (wiringPiSetup () == -1)
         return;
     pinMode (info->broche, OUTPUT);
+    int high, low;
     for (;;){
-        pthread_mutex_lock(&lock_m3);
-        digitalWrite(info->broche, 1) ;       // On
-        usleep((int)info->high_time);
-        digitalWrite(info->broche,0);         //off
-        pthread_mutex_unlock(&lock_m3);
-        usleep((int)(info->low_time));
+      high = (int)info->high_time;
+      low = (int)info->low_time;
+      digitalWrite(info->broche, 1) ;       // On
+      usleep(high);
+      digitalWrite(info->broche,0);         //off
+      usleep(low);
     }
 }
 void * moteur_4 (void * args){
@@ -105,13 +108,14 @@ void * moteur_4 (void * args){
     if (wiringPiSetup () == -1)
         return;
     pinMode (info->broche, OUTPUT);
+    int high, low;
     for (;;){
-        pthread_mutex_lock(&lock_m4);
-        digitalWrite(info->broche, 1) ;       // On
-        usleep((int)info->high_time);
-        digitalWrite(info->broche,0);         //off
-        pthread_mutex_unlock(&lock_m4);
-        usleep((int)(info->low_time));
+      high = (int)info->high_time;
+      low = (int)info->low_time;
+      digitalWrite(info->broche, 1) ;       // On
+      usleep(high);
+      digitalWrite(info->broche,0);         //off
+      usleep(low);
     }
 }
 //init les parametre des moteur, le numero de broche le temps d'etat haut a 5%(donc 0 pour cent de puissance) et le temps bas (en microS), il faut definir la periode au paravant.
