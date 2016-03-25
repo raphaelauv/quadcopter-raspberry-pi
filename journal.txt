@@ -41,3 +41,12 @@ A FAIRE:
 	- Interfacage de la centrale inertielle
 	- Se définir un protocole d'expérimentation
 	- Programmer le vol stationnaire.
+
+ven. janv. 29, 2016  1:48
+FAIT:
+	- Interfacage de la centrale inertielle
+A FAIRE:
+        - Contacter le créateur de la bibliothéque I2C.
+	- Se définir un protocole d'expérimentation
+	- Programmer le vol stationnaire.
+
