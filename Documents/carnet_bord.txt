@@ -1,8 +1,0 @@
--Recherche des composant/ information FAIT
--Faire le devis FAIT
--S’informer sur LINUX TEMPS REEL/Faire le linux. EN COURS
-	-Livre en cours de lecture: Solution temps réel sous Linux 
-					Linux embarqué Pierre Ficheux
--PHYSIQUE
--TEST Raspberry
-
