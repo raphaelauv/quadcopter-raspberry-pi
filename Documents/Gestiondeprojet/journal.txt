@@ -57,6 +57,7 @@
 	- Interfacage de la centrale inertielle
 	- Se définir un protocole d'expérimentation
 	- Programmer le vol stationnaire.
+
 ******************************************************************************
 *ven. janv. 29, 2016  1:48
 ******************************************************************************
@@ -71,12 +72,7 @@
 *ven. sept. 23, 2016  1:48
 ******************************************************************************
 
-**Fait:
-	-relancer projet , etat des lieux et repartision du travail
+**A Faire:
+	-relancer projet , etat des lieux.
 	-Ecrire protocol de securité pour les tests
 
-**A Faire:
-
-	-Programmer thread de gestion des moteurs , son ordonnancement , son execution en temps reel
-	-programmer la protocol reseaux d'extinxtion de securite pour les futur tests
-	
