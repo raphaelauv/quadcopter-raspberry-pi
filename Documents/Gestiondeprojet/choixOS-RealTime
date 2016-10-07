@@ -1,0 +1,29 @@
+COUCHE VIRTUEL ->
+	 Adeos ->
+	 https://www.osadl.org/fileadmin/dam/rtlws/12/Brown.pdf
+
+	 	RTAI
+	 		https://www.rtai.org/
+
+	 	XENOMAI
+	 		http://xenomai.org/
+
+
+LINUX MODIFIER ->
+	Linux-rt -> PREEMPT_RT
+		https://rt.wiki.kernel.org/index.php/Main_Page
+
+
+	Yoctoproject ->
+		https://www.yoctoproject.org/
+
+	RTLinux PROPIETAIRE
+		http://www.rtlinuxfree.com/
+
+
+	Open RTLinux PAS ACCESSIBLE
+		http://www.rtlinuxfree.com/products/linux/open-source-leadership/#open_source_lab
+
+OS REAL TIME ->
+	freertos
+		http://www.freertos.org/
