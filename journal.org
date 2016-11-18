@@ -1,3 +1,8 @@
+* <2016-11-18>
+** A faire:
+- librarire et above al une specification du API pour controller le drone
+
+
 * <2016-10-21>
 ** Fait:
    - une démo de visualisation 3D des capteurs
