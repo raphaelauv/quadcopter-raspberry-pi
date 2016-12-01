@@ -1,73 +1,84 @@
-* <2016-10-07>
-** Fait:
-   - Protocole de sécurité
+* <2016-11-18>
 ** A faire:
-   - Programmer les capteurs pour obtenir l'assiette en temps réel
+- librarire et above al une specification du API pour controller le drone
 
-* vendredi 9 octobre 2015, 16:46:19 (UTC+0200)
+
+* <2016-10-21>
 ** Fait:
-   - Début d'analyse pour l'achat de composants
+   - une démo de visualisation 3D des capteurs
 ** A faire:
-   - Finir l'analyse et fournir un devis
-
-* Ven  6 nov 2015 15:42:38 CET
-
-** Fait
-	- devis (reste à commander JBY s'en occupe)
-	- blog sur le projet (projetdroneamateur.wordpress.com)
-** À faire
-	- Linux RT pour générer des impulsions régulières (documentation).
-
-* Mar 17 nov 2015 15:35:06 CET
-
-
-	[JBY] commande effectuée sauf
-	Rupture de stock pour
-		MINI ESC 30A OPTO BLHELI RCTIMER
-	->http://www.drotek.com/shop/fr/home/459-esc-simonk-opto-30a-hs-maytech-.html?search_query=ESC+30A&results=8 
-	Introuvable (sur Drotek, il faut me donner des pistes)
-		Testeur de tension Lipo 1S-8S ->http://www.drotek.com/shop/fr/home/197-testeur-tension-lipo.html
-		CABLE D'ALIMENTATION 1M 12AWG Noir NOIR -> http://www.drotek.com/shop/fr/home/522-cable-d-alimentation-1m.html
-		CABLE D'ALIMENTATION 1M 12AWG NoirRouge ->http://www.drotek.com/shop/fr/home/522-cable-d-alimentation-1m.html
-
-* Ven 20 nov 2015 16:02:08 CET
-
-
-	A FAIRE JBY: repasser commande sur drotek + pièce épuisée (donner nouvelle references)
-** Fait
-	- placement de processus sur un cpu, idem thread; travail sur Linux/RT
-** A Faire
-	- continuer sur Linux/RT
-
-* Ven  4 déc 2015 10:01:13 CET
-
-	- commande pièces manquantes effectuée...
-
-* ven. janv. 15, 2016  4:56
-
-
-** Fait:
-	- Montage
-	- Un programme C qui contrôle les moteurs
-	- Expérimentation avec linux/RT et oscillo.
-** A Faire:
-	- Interfacage de la centrale inertielle
-	- Se définir un protocole d'expérimentation
-	- Programmer le vol stationnaire.
-
-* ven. janv. 29, 2016  1:48
-
-** Fait:
-	- Interfacage de la centrale inertielle
-** A Faire:
-        - Contacter le créateur de la bibliothéque I2C.
-	- Se définir un protocole d'expérimentation
-	- Programmer le vol stationnaire.
+   - comprendre l'algorithme de stabilisation dans un cas
+     simple (deux moteurs allumés, maintien d'un angle)
 
 * ven. sept. 23, 2016  1:48
-
-
 ** A Faire:
 	-relancer projet , etat des lieux.
 	-Ecrire protocol de securité pour les tests
+
+* Archives
+** <2016-10-07>
+*** Fait:
+    - Protocole de sécurité
+*** A faire:
+    - Programmer les capteurs pour obtenir l'assiette en temps réel
+
+** vendredi 9 octobre 2015, 16:46:19 (UTC+0200)
+*** Fait:
+    - Début d'analyse pour l'achat de composants
+*** A faire:
+    - Finir l'analyse et fournir un devis
+
+** Ven  6 nov 2015 15:42:38 CET
+
+*** Fait
+	 - devis (reste à commander JBY s'en occupe)
+	 - blog sur le projet (projetdroneamateur.wordpress.com)
+*** À faire
+	 - Linux RT pour générer des impulsions régulières (documentation).
+
+** Mar 17 nov 2015 15:35:06 CET
+
+
+	 [JBY] commande effectuée sauf
+	 Rupture de stock pour
+		 MINI ESC 30A OPTO BLHELI RCTIMER
+	 ->http://www.drotek.com/shop/fr/home/459-esc-simonk-opto-30a-hs-maytech-.html?search_query=ESC+30A&results=8 
+	 Introuvable (sur Drotek, il faut me donner des pistes)
+		 Testeur de tension Lipo 1S-8S ->http://www.drotek.com/shop/fr/home/197-testeur-tension-lipo.html
+		 CABLE D'ALIMENTATION 1M 12AWG Noir NOIR -> http://www.drotek.com/shop/fr/home/522-cable-d-alimentation-1m.html
+		 CABLE D'ALIMENTATION 1M 12AWG NoirRouge ->http://www.drotek.com/shop/fr/home/522-cable-d-alimentation-1m.html
+
+** Ven 20 nov 2015 16:02:08 CET
+
+
+	 A FAIRE JBY: repasser commande sur drotek + pièce épuisée (donner nouvelle references)
+*** Fait
+	 - placement de processus sur un cpu, idem thread; travail sur Linux/RT
+*** A Faire
+	 - continuer sur Linux/RT
+
+** Ven  4 déc 2015 10:01:13 CET
+
+	 - commande pièces manquantes effectuée...
+
+** ven. janv. 15, 2016  4:56
+
+
+*** Fait:
+	 - Montage
+	 - Un programme C qui contrôle les moteurs
+	 - Expérimentation avec linux/RT et oscillo.
+*** A Faire:
+	 - Interfacage de la centrale inertielle
+	 - Se définir un protocole d'expérimentation
+	 - Programmer le vol stationnaire.
+
+** ven. janv. 29, 2016  1:48
+
+*** Fait:
+	 - Interfacage de la centrale inertielle
+*** A Faire:
+         - Contacter le créateur de la bibliothéque I2C.
+	 - Se définir un protocole d'expérimentation
+	 - Programmer le vol stationnaire.
 
