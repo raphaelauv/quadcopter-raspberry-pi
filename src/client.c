@@ -63,8 +63,14 @@ void TCP(int port, char * adresse) {
 
 }
 
-int main() {
-	TCP(8888, "192.168.1.101");
-	return 0;
+int main (int argc, char *argv[]){
+	if(argc<2){
+		perror("Indiquer l'adresse IP du drone en argument");
+		return EXIT_FAILURE;
+	}else{
+		printf("adresse choisit : %s\n",argv[1]);
+		TCP(8888, argv[1]);
+		return 0;
+	}
 }
 
