@@ -1,3 +1,12 @@
+* <2016-12-02>
+** Fait
+   - Implémenté le protocole de sécurité
+   - Contrôlé les moteurs
+   - Donnée des capteurs filtrée
+
+** A faire
+   - PID dont les valeurs sont déterminées par tâtonnement
+
 * <2016-11-18>
 ** A faire:
 - librarire et above al une specification du API pour controller le drone
