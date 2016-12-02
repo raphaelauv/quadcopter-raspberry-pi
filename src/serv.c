@@ -1,5 +1,21 @@
 #include "serv.h"
 
+void clean_boolMutex(boolMutex * arg){
+	if(arg!=NULL){
+		pthread_mutex_destroy(&arg->mutex);
+		free(arg);
+	}
+}
+
+void clean_args_SERVER(args_SERVER * arg){
+	if(arg!=NULL){
+		if(arg->booleanMutex!=NULL){
+			clean_boolMutex(arg->booleanMutex);
+		}
+		free(arg);
+	}
+}
+
 void getIP(char * adresse) {
 
 	struct ifaddrs *myaddrs, *addrsTMP;
@@ -47,8 +63,10 @@ void getIP(char * adresse) {
 
 }
 
-void *thread_TCP_SERVER(void *arg){
+void *thread_TCP_SERVER(void *args) {
 	printf("SERVEUR\n");
+
+	args_SERVER *argSERV = args;
 
 	int sock = socket(PF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in address_sock;
@@ -71,48 +89,71 @@ void *thread_TCP_SERVER(void *arg){
 			if (sock2 >= 0) {
 
 				int fini = 1;
+
+				pthread_mutex_lock(&argSERV->booleanMutex->mutex);
+
+				pthread_cond_signal(&argSERV->booleanMutex->condition);
+
+				pthread_mutex_unlock(&argSERV->booleanMutex->mutex);
+
 				do {
 					char *mess = "HELLO\n";
 					int result = write(sock2, mess,
 							strlen(mess) * sizeof(char));
 
-					if (result != 0) {
+					//TODO do a WHILE SUR le WRITE
+					fcntl(sock2, F_SETFL, O_NONBLOCK);
 
-					}
-					int messageRead = 0;
+					int fd_max=sock2;
 
-					char buff[100];
-					while (messageRead < 1) {
-						int bytesRead = read(sock2, buff, 1 - messageRead);
-						messageRead += bytesRead;
-						if (bytesRead == 0)
+					struct timeval tv;
+					tv.tv_sec = 2;
+					tv.tv_usec = 500000;
+
+					while (fini) {
+						fd_set rdfs;
+						FD_ZERO(&rdfs);
+						FD_SET(sock2, &rdfs);
+						int ret = select(fd_max + 1, &rdfs, NULL, NULL, &tv);
+
+						if (FD_ISSET(sock2, &rdfs)) {
+							int messageRead = 0;
+							char buff[2];
+							while (messageRead < 1) {
+								int bytesRead = read(sock2, buff,
+										1 - messageRead);
+								messageRead += bytesRead;
+								if (bytesRead == 0)
+									fini = 0;
+							}
+							buff[1] = '\0';
+
+							printf("Message recu : %s\n", buff);
+							char str1[2];
+							char str2[2];
+							int res = 0;
+							strcpy(str1, "x");
+							strcpy(str2, buff);
+							res = strcmp(str1, str2);
+							if (res == 0) {
+								fini = 0;
+								printf("c'est fini !!\n");
+							}
+							ret=0;
+						} else {
+							printf("Timed out\n");
+							ret=0;
 							fini = 0;
-					}
-					buff[1] = '\0';
 
-					printf("Message recu : %s\n", buff);
-
-					char str1[15];
-					char str2[15];
-
-					int ret = 0;
-
-					strcpy(str1, "END");
-					strcpy(str2, buff);
-
-					ret = strcmp(str1, str2);
-					if (ret == 0) {
-						fini = 0;
-						printf("c'est fini !!\n");
+						}
 					}
 
 				} while (fini);
 				close(sock2);
+
+			} else {
+				printf("Bind fail");
 			}
 		}
-	} else {
-		printf("Bind fail");
 	}
-	close(sock);
-
 }

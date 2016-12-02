@@ -9,6 +9,10 @@
 #include <sys/socket.h>
 #include <termios.h>
 #include <unistd.h>
+#include <sys/select.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void TCP(int port, char * adresse) {
 
@@ -30,32 +34,57 @@ void TCP(int port, char * adresse) {
 		printf("Message RECU : %s\n", buff);
 
 		char mess;
+		/*
 		struct termios oldt, newt;
 
 		tcgetattr(STDIN_FILENO, &oldt);
 		newt = oldt;
 		newt.c_lflag &= ~(ICANON | ECHO);
 		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+		*/
 		while (continu) {
 
+			struct timeval tv;
+			fd_set readfds;
+			int ret=0;
+			tv.tv_sec = 0;
+			tv.tv_usec = 500000;
+
+			FD_ZERO(&readfds);
+			FD_SET(STDIN_FILENO, &readfds);
+
+			// don't care about writefds and exceptfds:
+			ret=select(STDIN_FILENO+1 + 1, &readfds, NULL, NULL, &tv);
+
+			if (FD_ISSET(STDIN_FILENO, &readfds)){
+				printf("A key was pressed!\n");
+				read(STDIN_FILENO,&mess,1);
+				//printf("user enter : %c\n", mess);
+			}
+			else{
+				mess='N';
+			}
+			printf("SENDING : %c\n", mess);
+			/*
 			mess = getchar();
-			printf("user enter : %c\n", mess);
+			*/
+
 			char str1[1];
 			char str2[1];
 
-			int ret = 0;
+			int cmp = 0;
 
 			strcpy(str1, "X");
 			strcpy(str2, &mess);
 
-			ret = strcmp(str1, str2);
+			cmp = strcmp(str1, str2);
 
-			if (ret == 0) {
+			if (cmp == 0) {
 				printf("CLIENT EXIT ASK !! \n");
 				continu=0;
 			}else{
 				int result = write(descr, &mess, 1);
-				printf("write is : %d\n", result);
+				//printf("write is : %d\n", result);
 			}
 		}
 		close(descr);
