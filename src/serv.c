@@ -1,15 +1,15 @@
 #include "serv.h"
 
-void clean_boolMutex(boolMutex * arg){
-	if(arg!=NULL){
+void clean_boolMutex(boolMutex * arg) {
+	if (arg != NULL) {
 		pthread_mutex_destroy(&arg->mutex);
 		free(arg);
 	}
 }
 
-void clean_args_SERVER(args_SERVER * arg){
-	if(arg!=NULL){
-		if(arg->booleanMutex!=NULL){
+void clean_args_SERVER(args_SERVER * arg) {
+	if (arg != NULL) {
+		if (arg->booleanMutex != NULL) {
 			clean_boolMutex(arg->booleanMutex);
 		}
 		free(arg);
@@ -96,44 +96,41 @@ void *thread_TCP_SERVER(void *args) {
 
 				pthread_mutex_unlock(&argSERV->booleanMutex->mutex);
 
-				do {
-					char *mess = "HELLO\n";
-					int result = write(sock2, mess,
-							strlen(mess) * sizeof(char));
+				char *mess = "HELLO\n";
+				int result = write(sock2, mess, strlen(mess) * sizeof(char));
 
-					//TODO do a WHILE SUR le WRITE
+				//TODO do a WHILE SUR le WRITE
 
-					fcntl(sock2, F_SETFL, O_NONBLOCK);
+				fcntl(sock2, F_SETFL, O_NONBLOCK);
 
-					int fd_max=sock2+1;
+				int fd_max = sock2 + 1;
 
-					struct timeval tv;
-					fd_set rdfs;
+				struct timeval tv;
+				fd_set rdfs;
 
-					while (fini) {
-						FD_ZERO(&rdfs);
-						FD_SET(sock2, &rdfs);
-						tv.tv_sec = 0;
-						tv.tv_usec = 600000;
-						int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
-						printf("valeur de ret : %d\n",ret);
-						if (ret == 0) {
-							printf("Timed out\n");
-							ret = 0;
-							fini = 0;
+				while (fini) {
+					FD_ZERO(&rdfs);
+					FD_SET(sock2, &rdfs);
+					tv.tv_sec = 0;
+					tv.tv_usec = 500000;
+					int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
+					//printf("valeur de retour de select : %d\n", ret);
+					if (ret == 0) {
+						printf("Timed out\n");
+						fini = 0;
+					}
+					else if (FD_ISSET(sock2, &rdfs)) {
+						int messageRead = 0;
+						int iter=0;
+						char buff[2];
+						while (messageRead < 1 && iter <10) {
+							iter++;
+							//printf("try to read\n");
+							int bytesRead = read(sock2, buff, 1 - messageRead);
+							messageRead += bytesRead;
 						}
-						if (FD_ISSET(sock2, &rdfs) ) {
-							int messageRead = 0;
-							char buff[2];
-							while (messageRead < 1) {
-								int bytesRead = read(sock2, buff,
-										1 - messageRead);
-								messageRead += bytesRead;
-								if (bytesRead == 0)
-									fini = 0;
-							}
+						if (messageRead >0) {
 							buff[1] = '\0';
-
 							printf("Message recu : %s\n", buff);
 							char str1[2];
 							char str2[2];
@@ -145,11 +142,15 @@ void *thread_TCP_SERVER(void *args) {
 								fini = 0;
 								printf("c'est fini !!\n");
 							}
-							ret=0;
+						}else{
+							printf("NOTHING TO READ !!\n");
+							fini=0;
 						}
 					}
-
-				} while (fini);
+					else{
+						printf("??\n");
+					}
+				}
 				close(sock2);
 
 			} else {

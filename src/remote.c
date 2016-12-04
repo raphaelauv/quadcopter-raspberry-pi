@@ -29,26 +29,26 @@ void TCP(int port, char * adresse) {
 		int continu = 1;
 		char buff[100];
 		int size_rec = read(descr, buff, 99 * sizeof(char));
+		//TODO do a WHILE SUR le READ
 		buff[size_rec] = '\0';
 
 		printf("Message RECU : %s\n", buff);
 
 		char mess;
-		/*
+
 		struct termios oldt, newt;
 
 		tcgetattr(STDIN_FILENO, &oldt);
 		newt = oldt;
 		newt.c_lflag &= ~(ICANON | ECHO);
 		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-		*/
-		while (continu) {
 
-			struct timeval tv;
-			fd_set readfds;
-			int ret=0;
+		struct timeval tv;
+		fd_set readfds;
+		int ret=0;
+		while (continu) {
 			tv.tv_sec = 0;
-			tv.tv_usec = 500000;
+			tv.tv_usec = 300000;
 
 			FD_ZERO(&readfds);
 			FD_SET(STDIN_FILENO, &readfds);
@@ -57,7 +57,7 @@ void TCP(int port, char * adresse) {
 			ret=select(STDIN_FILENO+1 + 1, &readfds, NULL, NULL, &tv);
 
 			if (FD_ISSET(STDIN_FILENO, &readfds)){
-				printf("A key was pressed!\n");
+				//printf("A key was pressed!\n");
 				read(STDIN_FILENO,&mess,1);
 				//printf("user enter : %c\n", mess);
 			}
@@ -66,20 +66,19 @@ void TCP(int port, char * adresse) {
 			}
 			printf("SENDING : %c\n", mess);
 			/*
-			mess = getchar();
-			*/
+
 
 			char str1='X';
 			char str2[1];
 
 			int cmp = 0;
 
-			//strcpy(str1, (char)'X');
+			strcpy(str1, (char)'X');
 			strcpy(str2, &mess);
 
 			cmp = strcmp(&str1, str2);
-
-			if (cmp == 0) {
+			 */
+			if (mess=='X') {
 				printf("CLIENT EXIT ASK !! \n");
 				continu=0;
 			}else{
@@ -87,6 +86,7 @@ void TCP(int port, char * adresse) {
 				//printf("write is : %d\n", result);
 			}
 		}
+		shutdown(descr, SHUT_RDWR);
 		close(descr);
 	}
 
