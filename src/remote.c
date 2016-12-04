@@ -69,15 +69,15 @@ void TCP(int port, char * adresse) {
 			mess = getchar();
 			*/
 
-			char str1[1];
+			char str1='X';
 			char str2[1];
 
 			int cmp = 0;
 
-			strcpy(str1, "X");
+			//strcpy(str1, (char)'X');
 			strcpy(str2, &mess);
 
-			cmp = strcmp(str1, str2);
+			cmp = strcmp(&str1, str2);
 
 			if (cmp == 0) {
 				printf("CLIENT EXIT ASK !! \n");

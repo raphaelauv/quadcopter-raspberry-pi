@@ -102,21 +102,27 @@ void *thread_TCP_SERVER(void *args) {
 							strlen(mess) * sizeof(char));
 
 					//TODO do a WHILE SUR le WRITE
+
 					fcntl(sock2, F_SETFL, O_NONBLOCK);
 
-					int fd_max=sock2;
+					int fd_max=sock2+1;
 
 					struct timeval tv;
-					tv.tv_sec = 2;
-					tv.tv_usec = 500000;
+					fd_set rdfs;
 
 					while (fini) {
-						fd_set rdfs;
 						FD_ZERO(&rdfs);
 						FD_SET(sock2, &rdfs);
-						int ret = select(fd_max + 1, &rdfs, NULL, NULL, &tv);
-
-						if (FD_ISSET(sock2, &rdfs)) {
+						tv.tv_sec = 0;
+						tv.tv_usec = 600000;
+						int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
+						printf("valeur de ret : %d\n",ret);
+						if (ret == 0) {
+							printf("Timed out\n");
+							ret = 0;
+							fini = 0;
+						}
+						if (FD_ISSET(sock2, &rdfs) ) {
 							int messageRead = 0;
 							char buff[2];
 							while (messageRead < 1) {
@@ -132,7 +138,7 @@ void *thread_TCP_SERVER(void *args) {
 							char str1[2];
 							char str2[2];
 							int res = 0;
-							strcpy(str1, "x");
+							strcpy(str1, "X\0");
 							strcpy(str2, buff);
 							res = strcmp(str1, str2);
 							if (res == 0) {
@@ -140,11 +146,6 @@ void *thread_TCP_SERVER(void *args) {
 								printf("c'est fini !!\n");
 							}
 							ret=0;
-						} else {
-							printf("Timed out\n");
-							ret=0;
-							fini = 0;
-
 						}
 					}
 
