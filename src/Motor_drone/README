@@ -1,0 +1,3 @@
+#compilation
+gcc  -lwiringPi -lphread -c motors.c
+gcc  -lwiringPi -lphread -o test motors.o test.c
