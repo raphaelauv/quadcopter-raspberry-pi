@@ -1,0 +1,13 @@
+----------------------------
+pour compilé :
+
+gcc remote.c -o remote
+gcc -c serv.c
+gcc serv.o main.c -lpthread -o serv
+
+-----------------------------
+pour executé :
+
+./serv
+
+puis ./remote 127.0.0.1
