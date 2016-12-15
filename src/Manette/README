@@ -1,0 +1,8 @@
+installé SDL
+	 sudo apt-get install libsdl1.2-dev
+	 //Faudra include "SDL/SDL.h" dans vos programme.
+	 
+Compilation
+	gcc -o myprogram mysource.cpp -lSDLmain -lSDL
+	g++ -o myprogram mysource.cpp -lSDLmain -lSDL
+
