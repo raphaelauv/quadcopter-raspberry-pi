@@ -1,26 +1,15 @@
-#include <arpa/inet.h>
-#include <asm-generic/socket.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <termios.h>
-#include <unistd.h>
-#include <sys/select.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "remote.h"
+#include "Manette/manette.h"
 
-void TCP(int port, char * adresse) {
+void *thread_TCP_CLIENT(void *args) {
+
+	args_CLIENT *argClient = args;
 
 	printf("CLIENT\n");
 	struct sockaddr_in adress_sock;
 	adress_sock.sin_family = AF_INET;
-	adress_sock.sin_port = htons(port);
-	inet_aton(adresse, &adress_sock.sin_addr);
+	adress_sock.sin_port = htons(argClient->port);
+	inet_aton(argClient->adresse, &adress_sock.sin_addr);
 	int descr = socket(PF_INET, SOCK_STREAM, 0);
 	int r = connect(descr, (struct sockaddr *) &adress_sock,
 			sizeof(struct sockaddr_in));
@@ -88,8 +77,45 @@ void TCP(int port, char * adresse) {
 		}
 		shutdown(descr, SHUT_RDWR);
 		close(descr);
+	}else{
+		perror("Connection FAIL , drone server not answering");
 	}
 
+}
+
+void *thread_XBOX_CONTROLER(void *args) {
+
+	test1();
+}
+
+int startRemote(char * adresse){
+	pthread_t threadClient;
+	pthread_t threadControler;
+
+	args_CLIENT * argClient = malloc(sizeof(args_CLIENT));
+	argClient->port=8888;
+	argClient->adresse=adresse;
+
+
+	if (pthread_create(&threadClient, NULL, thread_TCP_CLIENT, argClient)) {
+			perror("pthread_create");
+			return EXIT_FAILURE;
+	}
+	if (pthread_create(&threadControler, NULL, thread_XBOX_CONTROLER, NULL)) {
+			perror("pthread_create");
+			return EXIT_FAILURE;
+	}
+
+	if (pthread_join(threadClient, NULL)){
+			perror("pthread_join");
+			return EXIT_FAILURE;
+	}
+	if (pthread_join(threadControler, NULL)){
+			perror("pthread_join");
+			return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
 }
 
 int main (int argc, char *argv[]){
@@ -98,8 +124,6 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}else{
 		printf("adresse choisit : %s\n",argv[1]);
-		TCP(8888, argv[1]);
-		return 0;
+		return startRemote(argv[1]);
 	}
 }
-

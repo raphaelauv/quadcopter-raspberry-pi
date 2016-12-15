@@ -32,3 +32,8 @@ void initialiserInput(struct Input *input, int numeroJoystick); // initialise en
 void detruireInput(struct Input *input); // libère la mémoire allouée
 
 void updateEvent(struct Input *input); // récupère les évènements
+
+
+int test1();
+
+int test2();

@@ -1,6 +1,8 @@
 #include "manette.h"
 
-int main(int argc, char **argv) {
+//int main(int argc, char **argv) {
+
+int test1() {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
 
 	struct Input input; // on crée la structure

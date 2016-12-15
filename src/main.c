@@ -24,8 +24,8 @@ int main() {
 	pthread_mutex_lock(&boolConnectRemote->mutex);
 
 	if (pthread_create(&threadServer, NULL, thread_TCP_SERVER, argServ)) {
-			perror("pthread_create");
-			return EXIT_FAILURE;
+		perror("pthread_create");
+		return EXIT_FAILURE;
 	}
 
 	pthread_cond_wait(&boolConnectRemote->condition, &boolConnectRemote->mutex);
