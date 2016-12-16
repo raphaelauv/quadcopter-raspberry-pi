@@ -1,7 +1,6 @@
 
 #include "serv.h"
 
-
 int main() {
 
 	boolMutex * boolConnectRemote = malloc(sizeof(boolMutex));

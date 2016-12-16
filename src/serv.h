@@ -16,14 +16,7 @@
 #include <fcntl.h>
 
 
-typedef struct boolMutex {
-	int var;
-	pthread_mutex_t mutex;
-	pthread_cond_t condition;
-
-} boolMutex;
-
-void clean_boolMutex(boolMutex * arg);
+#include "concurrent.h"
 
 typedef struct args_SERVER {
 	boolMutex * booleanMutex;
@@ -34,6 +27,5 @@ void clean_args_SERVER(args_SERVER * arg);
 
 void getIP(char * adresse);
 void *thread_TCP_SERVER(void *args);
-
 
 #endif /* SERV_H_ */

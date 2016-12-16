@@ -18,10 +18,12 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+#include "concurrent.h"
 
 typedef struct args_CLIENT {
 	int port;
 	char * adresse;
+	boolMutex * booleanMutex;
 } args_CLIENT;
 
 

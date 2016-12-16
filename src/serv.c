@@ -1,12 +1,5 @@
 #include "serv.h"
 
-void clean_boolMutex(boolMutex * arg) {
-	if (arg != NULL) {
-		pthread_mutex_destroy(&arg->mutex);
-		free(arg);
-	}
-}
-
 void clean_args_SERVER(args_SERVER * arg) {
 	if (arg != NULL) {
 		if (arg->booleanMutex != NULL) {

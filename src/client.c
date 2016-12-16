@@ -1,7 +1,10 @@
 #include "client.h"
+#include "concurrent.h"
 #include "Manette/manette.h"
 
 void *thread_TCP_CLIENT(void *args) {
+
+
 
 	args_CLIENT *argClient = args;
 
@@ -90,19 +93,31 @@ void *thread_XBOX_CONTROLER(void *args) {
 
 
 int startRemote(char * adresse){
-	pthread_t threadClient;
-	pthread_t threadControler;
+
+	boolMutex * boolConnectControler = malloc(sizeof(boolMutex));
+	init_boolMutex(boolConnectControler);
 
 	args_CLIENT * argClient = malloc(sizeof(args_CLIENT));
 	argClient->port=8888;
 	argClient->adresse=adresse;
+	argClient->booleanMutex=boolConnectControler;
 
+	pthread_t threadClient;
+	pthread_t threadControler;
+
+	pthread_mutex_lock(&boolConnectControler->mutex);
+
+
+	if (pthread_create(&threadControler, NULL, thread_XBOX_CONTROLER, NULL)) {
+				perror("pthread_create");
+				return EXIT_FAILURE;
+	}
+
+	pthread_cond_wait(&boolConnectControler->condition, &boolConnectControler->mutex);
+
+	pthread_mutex_unlock(&boolConnectControler->mutex);
 
 	if (pthread_create(&threadClient, NULL, thread_TCP_CLIENT, argClient)) {
-			perror("pthread_create");
-			return EXIT_FAILURE;
-	}
-	if (pthread_create(&threadControler, NULL, thread_XBOX_CONTROLER, NULL)) {
 			perror("pthread_create");
 			return EXIT_FAILURE;
 	}
