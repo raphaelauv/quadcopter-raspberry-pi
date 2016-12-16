@@ -1,4 +1,4 @@
-#include "remote.h"
+#include "client.h"
 #include "Manette/manette.h"
 
 void *thread_TCP_CLIENT(void *args) {
@@ -85,8 +85,9 @@ void *thread_TCP_CLIENT(void *args) {
 
 void *thread_XBOX_CONTROLER(void *args) {
 
-	test1();
+	test2();
 }
+
 
 int startRemote(char * adresse){
 	pthread_t threadClient;
