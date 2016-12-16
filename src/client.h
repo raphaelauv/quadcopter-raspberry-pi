@@ -1,5 +1,5 @@
-#ifndef REMOTE_H_
-#define REMOTE_H
+#ifndef CLIENT_H_
+#define CLIENT_H
 
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
@@ -19,6 +19,7 @@
 #include <pthread.h>
 
 #include "concurrent.h"
+#include "Manette/controller.h"
 
 typedef struct args_CLIENT {
 	int port;
@@ -26,5 +27,12 @@ typedef struct args_CLIENT {
 	boolMutex * booleanMutex;
 } args_CLIENT;
 
+typedef struct args_CONTROLER {
+	struct dataController * manette;
+	boolMutex * mutexReadDataController;
+} args_CONTROLER;
 
-#endif /* REMOTE_H_ */
+
+
+
+#endif /* CLIENT_H_ */

@@ -1,17 +1,21 @@
+#ifndef MANETTE_H_
+#define MANETTE_H
+
 #include <SDL/SDL.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+
 // Copier sur cette adresse ->https://openclassrooms.com/courses/la-gestion-du-joystick-avec-la-sdl;
 
-struct InputTrackball // je crée une structure car les trackballs ont 2 variables à prendre en compte
+typedef struct inputTrackball{ // je crée une structure car les trackballs ont 2 variables à prendre en compte
 
-{
 	int xrel; // valeur x réelle
 
 	int yrel; // valeur y réelle
-};
+} inputTrackball;
 
-struct Input {
+typedef struct inputt {
 
 	SDL_Joystick *joystick; // le joystick
 
@@ -21,19 +25,20 @@ struct Input {
 
 	int *chapeaux; // les chapeaux
 
-	struct InputTrackball * trackballs; // les trackballs
+	inputTrackball * trackballs; // les trackballs
 
 	int numero; // le numero
 
-};
+} inputt;
 
-void initialiserInput(struct Input *input, int numeroJoystick); // initialise en fonction du numéro du joystick
+void initialiserInput(inputt *input, int numeroJoystick); // initialise en fonction du numéro du joystick
 
-void detruireInput(struct Input *input); // libère la mémoire allouée
+void detruireInput(inputt *input); // libère la mémoire allouée
 
-void updateEvent(struct Input *input); // récupère les évènements
-
+void updateEvent(inputt *input); // récupère les évènements
 
 int test1();
 
 int test2();
+
+#endif /* MANETTE_H */

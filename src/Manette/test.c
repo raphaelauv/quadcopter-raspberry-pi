@@ -5,7 +5,7 @@
 int test1() {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
 
-	struct Input input; // on crée la structure
+	inputt input; // on crée la structure
 	initialiserInput(&input, 0); // on l'initialise au joystick n°0
 
 	int quitter = 0;

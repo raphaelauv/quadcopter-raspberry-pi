@@ -1,4 +1,5 @@
 #include "controller.h"
+
 char is_connect(){
 	char name[100];
 	strcpy(name,"Microsoft X-Box 360 pad");
@@ -8,18 +9,19 @@ char is_connect(){
 	}
 	return 0;
 }
-void controller(struct controller * manette){
+void control(struct dataController * manette){
 		manette->moteur_active=0;
 	  SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
 
-	  struct Input input; // on crée la structure
+	  inputt input; // on crée la structure
 	  initialiserInput(&input,0); // on l'initialise au joystick n°0
 
 	  int quitter = 0;
 
 	  while(!quitter)
 	  {
-		  usleep(Update_Frequence);
+
+		  sleep(Update_Frequence);
 		  updateEvent(&input); // on récupère les évènements
 
 	      if(input.boutons[4] && input.boutons[5] && input.boutons[6] && input.boutons[7]){

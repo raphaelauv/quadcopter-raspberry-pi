@@ -10,7 +10,8 @@ typedef struct boolMutex {
 	pthread_cond_t condition;
 } boolMutex;
 
-void clean_boolMutex(boolMutex * arg);
+void init_boolMutex(boolMutex * arg);
 
+void clean_boolMutex(boolMutex * arg);
 
 #endif /* CONCURRENT_H_ */

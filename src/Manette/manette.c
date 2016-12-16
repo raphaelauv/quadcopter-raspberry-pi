@@ -1,6 +1,6 @@
 #include "manette.h"
 
-void initialiserInput(struct Input *input, int numeroJoystick) {
+void initialiserInput(inputt *input, int numeroJoystick) {
 	if (numeroJoystick < SDL_NumJoysticks()) // on vérifie qu'il y a bien un bon numéro de joystick
 			{
 		SDL_JoystickEventState(SDL_ENABLE);
@@ -14,9 +14,9 @@ void initialiserInput(struct Input *input, int numeroJoystick) {
 				SDL_JoystickNumAxes(input->joystick) * sizeof(int));
 		input->chapeaux = (int*) malloc(
 				SDL_JoystickNumHats(input->joystick) * sizeof(int));
-		input->trackballs = (struct InputTrackball*) malloc(
+		input->trackballs = (inputTrackball*) malloc(
 				SDL_JoystickNumBalls(input->joystick)
-						* sizeof(struct InputTrackball));
+						* sizeof(inputTrackball));
 
 		for (int i = 0; i < SDL_JoystickNumButtons(input->joystick); i++) // tant qu'on a pas atteint le nombre max de boutons
 			input->boutons[i] = 0; // on met les valeurs à 0
@@ -42,7 +42,7 @@ void initialiserInput(struct Input *input, int numeroJoystick) {
 		input->trackballs = NULL;
 	}
 }
-void detruireInput(struct Input *input) {
+void detruireInput(inputt *input) {
 	if (input->joystick != NULL) // on vérifie que le joystick existe bien
 	{
 		input->numero = 0; // on le remet à zéro
@@ -56,7 +56,7 @@ void detruireInput(struct Input *input) {
 	}
 }
 
-void updateEvent(struct Input *input) {
+void updateEvent(inputt *input) {
 	static SDL_Event evenements; // en statique car appelle plusieurs fois par seconde
 	for (int i = 0; i < SDL_JoystickNumBalls(input->joystick); i++) {
 		//on met à zéro

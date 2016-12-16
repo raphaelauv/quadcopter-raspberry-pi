@@ -1,16 +1,23 @@
+#ifndef CONTROLLER_H_
+#define CONTROLLER_H_
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "manette.h"
 #include <string.h>
-#define Update_Frequence 20
 
-struct controller{
+#include "manette.h"
+
+#define Update_Frequence 1
+
+typedef struct dataController{
 	char moteur_active;
 	float moteur0;
 	float moteur1;
 	float moteur2;
 	float moteur3;
-};
+}dataController;
 
-void controller(struct controller * manette);
+void control(dataController * manette);
+
+#endif /* CONTROLLER_H_ */
