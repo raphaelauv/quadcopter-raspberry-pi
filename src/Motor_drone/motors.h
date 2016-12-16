@@ -26,7 +26,13 @@
             | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
             +-----+-----+---------+------+---+---Pi 2---+---+------+---------+-----+-----+
  */
-
+/*
+ * Controle les motors avec 4 thread RT sur le meme coeur:
+ * Les motors son controle par des ESCs qui prenne en entré un signal carré de 50hz(Par default)
+ * On controle donc le rapport cyclique de ce signal pour controlé la vitesse du drone.
+ * 1 milliseconde -> 0% de puissance
+ * 2 milliseconde -> 100% de puissance
+ * */
 
 #ifndef _TYPES_H_
 #define _TYPES_H_
@@ -42,14 +48,14 @@
 #include <sys/mman.h>
 
 struct motor_info{
-    int broche;
-    double high_time;
-    double low_time;
-    pthread_mutex_t * lock;
+	char bool_arret_moteur; // En cas d'arret d'urgenre =1
+    int broche; // nemero de la broche de sorti du signal.
+    double high_time; // temps haut du signal
+    double low_time; // temps bas du signal.
+    pthread_mutex_t * lock; // Mutex pour que set_power() ne modifie pas les valeurs au mauvais moment.
 };
 //Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
 int  set_power(struct  motor_info * info,double power);
-void init_motor_info(struct motor_info *info,int broche, pthread_mutex_t * lock1);
 //Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
 void init_motors(struct motor_info * info_m0,struct motor_info * info_m1,struct motor_info * info_m2,struct motor_info * info_m3,
                  pthread_mutex_t * lock_m0,pthread_mutex_t *lock_m1,pthread_mutex_t *lock_m2,pthread_mutex_t *lock_m3);
