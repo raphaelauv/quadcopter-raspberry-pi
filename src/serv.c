@@ -56,6 +56,17 @@ void getIP(char * adresse) {
 
 }
 
+MessageToStruc(char * message,int sizeFloat){
+
+	float a=strtof(message,0);
+
+	float b=strtof(message+sizeFloat-1,0);
+
+	printf ("float a = %.6f\n", a);
+
+	printf ("float b = %.6f\n", b);
+}
+
 void *thread_TCP_SERVER(void *args) {
 	printf("SERVEUR\n");
 
@@ -104,7 +115,7 @@ void *thread_TCP_SERVER(void *args) {
 				while (fini) {
 					FD_ZERO(&rdfs);
 					FD_SET(sock2, &rdfs);
-					tv.tv_sec = 0;
+					tv.tv_sec = 3;
 					tv.tv_usec = 500000;
 					int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
 					//printf("valeur de retour de select : %d\n", ret);
@@ -115,16 +126,19 @@ void *thread_TCP_SERVER(void *args) {
 					else if (FD_ISSET(sock2, &rdfs)) {
 						int messageRead = 0;
 						int iter=0;
-						char buff[2];
+						char buff[100];
 						while (messageRead < 1 && iter <10) {
 							iter++;
 							//printf("try to read\n");
-							int bytesRead = read(sock2, buff, 1 - messageRead);
+							int bytesRead = read(sock2, buff, 100 - messageRead);
 							messageRead += bytesRead;
 						}
 						if (messageRead >0) {
-							buff[1] = '\0';
+							buff[99] = '\0';
 							printf("Message recu : %s\n", buff);
+							MessageToStruc(buff,10);
+
+
 							char str1[2];
 							char str2[2];
 							int res = 0;
