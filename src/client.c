@@ -1,6 +1,7 @@
 #include "client.h"
 #include "concurrent.h"
 #include "Manette/manette.h"
+#include "Manette/controller.h"
 
 void *thread_TCP_CLIENT(void *args) {
 
@@ -87,8 +88,8 @@ void *thread_TCP_CLIENT(void *args) {
 }
 
 void *thread_XBOX_CONTROLER(void *args) {
-
-	test2();
+	struct controller manette;
+	controller( &manette);
 }
 
 
