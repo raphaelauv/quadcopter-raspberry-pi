@@ -1,11 +1,28 @@
 #include "client.h"
 #include "concurrent.h"
 
+
+char * dataControllerToMessage(int sizeFloat,struct dataController* dataController){
+
+	char * output=malloc(sizeof(char)*(sizeFloat*4));
+
+	snprintf(output, sizeFloat, "%f", dataController->moteur0);
+
+	output[sizeFloat-2]=' ';
+
+	snprintf(output+sizeFloat-1, sizeFloat, "%f", dataController->moteur1);
+
+	printf("%s\n", output);
+
+	return output;
+}
+
+
 void *thread_TCP_CLIENT(void *args) {
 
 
 
-	args_CLIENT *argClient = args;
+	struct args_CLIENT *argClient = args;
 
 	printf("CLIENT\n");
 	struct sockaddr_in adress_sock;
@@ -25,37 +42,53 @@ void *thread_TCP_CLIENT(void *args) {
 
 		printf("Message RECU : %s\n", buff);
 
-		char mess;
 
+		/*
 		struct termios oldt, newt;
-
 		tcgetattr(STDIN_FILENO, &oldt);
 		newt = oldt;
 		newt.c_lflag &= ~(ICANON | ECHO);
 		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+		*/
 
 		struct timeval tv;
 		fd_set readfds;
 		int ret=0;
 		while (continu) {
-			tv.tv_sec = 0;
-			tv.tv_usec = 300000;
 
-			FD_ZERO(&readfds);
-			FD_SET(STDIN_FILENO, &readfds);
 
-			// don't care about writefds and exceptfds:
-			ret=select(STDIN_FILENO+1 + 1, &readfds, NULL, NULL, &tv);
+			char * message;
 
-			if (FD_ISSET(STDIN_FILENO, &readfds)){
-				//printf("A key was pressed!\n");
-				read(STDIN_FILENO,&mess,1);
-				//printf("user enter : %c\n", mess);
+			struct timespec timeToWait;
+			struct timeval now;
+			int rt;
+
+			gettimeofday(&now, NULL);
+
+			int mili=1000;
+			timeToWait.tv_sec = now.tv_sec + 5;
+			timeToWait.tv_nsec = (now.tv_usec + 1000UL * mili) * 1000UL;
+
+
+			pthread_mutex_lock(&argClient->argControler->mutexReadDataController->mutex);
+
+			printf("THREAD CLIENT DU nouveau ?\n");
+			int resultWait;
+			if(!argClient->argControler->new){
+				printf("THREAD CLIENT NON alors j'attends?\n");
+				resultWait=pthread_cond_timedwait(&argClient->argControler->mutexReadDataController->condition, &argClient->argControler->mutexReadDataController->mutex,&timeToWait);
 			}
-			else{
-				mess='N';
+
+			if(!resultWait){
+				printf("terminé avant timer");
+				message="RIEN";
 			}
-			printf("SENDING : %c\n", mess);
+			argClient->argControler->new=0;
+			printf("THREAD CLIENT OUI alors je regarde?\n");
+			message=dataControllerToMessage(10,argClient->argControler->manette);
+			pthread_mutex_unlock(&argClient->argControler->mutexReadDataController->mutex);
+
+			printf("THREAD CLIENT SENDING : %s\n", message);
 			/*
 
 
@@ -69,11 +102,11 @@ void *thread_TCP_CLIENT(void *args) {
 
 			cmp = strcmp(&str1, str2);
 			 */
-			if (mess=='X') {
+			if (*message=='X') {
 				printf("CLIENT EXIT ASK !! \n");
 				continu=0;
 			}else{
-				int result = write(descr, &mess, 1);
+				int result = write(descr, message, 100);//TODO
 				//printf("write is : %d\n", result);
 			}
 		}
@@ -87,44 +120,50 @@ void *thread_TCP_CLIENT(void *args) {
 
 void *thread_XBOX_CONTROLER(void *args) {
 
-	args_CONTROLER *argClient = args;
+	struct args_CONTROLER *argClient = args;
 
-	control( argClient->manette);
+	control( argClient);
+
 }
+
 
 
 int startRemote(char * adresse){
 
-	boolMutex * boolConnectControler = malloc(sizeof(boolMutex));
-	init_boolMutex(boolConnectControler);
+	boolMutex * boolControllerPlug = malloc(sizeof(boolMutex));
+	init_boolMutex(boolControllerPlug);
 
 
 	boolMutex * boolRead = malloc(sizeof(boolMutex));
 	init_boolMutex(boolRead);
 
-	args_CLIENT * argClient = malloc(sizeof(args_CLIENT));
+	struct args_CONTROLER * argControler = malloc(sizeof(args_CONTROLER));
+	argControler->new=0;
+	argControler->manette=malloc(sizeof( dataController));
+	argControler->mutexReadDataController=boolRead;
+	argControler->mutexControlerPlug=boolControllerPlug;
+
+
+	struct args_CLIENT * argClient = malloc(sizeof(args_CLIENT));
 	argClient->port=8888;
 	argClient->adresse=adresse;
-	argClient->booleanMutex=boolConnectControler;
 
-	args_CONTROLER * argControler = malloc(sizeof(args_CONTROLER));
-	argControler->manette=malloc(sizeof(struct dataController));
-	argControler->mutexReadDataController=boolRead;
+	argClient->argControler=argControler;
 
 	pthread_t threadClient;
 	pthread_t threadControler;
 
 
-	pthread_mutex_lock(&boolConnectControler->mutex);
+	pthread_mutex_lock(&boolControllerPlug->mutex);
 
 	if (pthread_create(&threadControler, NULL, thread_XBOX_CONTROLER, argControler)) {
 				perror("pthread_create");
 				return EXIT_FAILURE;
 	}
 	//wait for XBOX CONTROLER
-	pthread_cond_wait(&boolConnectControler->condition, &boolConnectControler->mutex);
+	pthread_cond_wait(&boolControllerPlug->condition, &boolControllerPlug->mutex);
 
-	pthread_mutex_unlock(&boolConnectControler->mutex);
+	pthread_mutex_unlock(&boolControllerPlug->mutex);
 
 	//XBOX CONTROLER IS ON , we can start the client socket thread
 	if (pthread_create(&threadClient, NULL, thread_TCP_CLIENT, argClient)) {

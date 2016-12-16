@@ -9,8 +9,14 @@ char is_connect(){
 	}
 	return 0;
 }
-void control(struct dataController * manette){
-		manette->moteur_active=0;
+
+
+void control( args_CONTROLER * argsControl){
+
+
+	dataController * manette= argsControl->manette;
+
+	manette->moteur_active=0;
 	  SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
 
 	  inputt input; // on crée la structure
@@ -29,8 +35,14 @@ void control(struct dataController * manette){
 	    	  input.boutons[4]= input.boutons[5] = input.boutons[6] = input.boutons[7]=0;
 	    	  printf("bool_moteur_active= %d\n",manette->moteur_active);
 	    	  sleep(3);
+
+	    	  pthread_cond_signal(&argsControl->mutexControlerPlug->condition);
 	      }
 	      if(manette->moteur_active){
+
+				pthread_mutex_lock(&argsControl->mutexReadDataController->mutex);
+				argsControl->new=1;
+
 	    	  manette->moteur0= (input.axes[0]<0)?(float)input.axes[0]*-1*5.0/32768+5:(float)input.axes[0]*5.0/32768+5;
 	    	  manette->moteur1=(input.axes[1]<0)?(float)input.axes[1]*-1*5.0/32768+5:(float)input.axes[1]*5.0/32768+5;
 	    	  manette->moteur2=(input.axes[3]<0)?(float)input.axes[3]*-1*5.0/32768+5:(float)input.axes[3]*5.0/32768+5;
@@ -41,6 +53,8 @@ void control(struct dataController * manette){
 		       , manette->moteur2
 		       , manette->moteur3);
 	      }
+
+			pthread_mutex_unlock(&argsControl->mutexReadDataController->mutex);
 
 	      if(!is_connect()){
 	    	  manette->moteur_active=0;
