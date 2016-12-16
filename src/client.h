@@ -1,7 +1,7 @@
 #ifndef CLIENT_H_
 #define CLIENT_H
 
-#include <sys/time.h>
+
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
 #include <netdb.h>
@@ -21,14 +21,6 @@
 
 #include "concurrent.h"
 
-
-typedef struct dataController{
-	char moteur_active;
-	float moteur0;
-	float moteur1;
-	float moteur2;
-	float moteur3;
-}dataController;
 
 typedef struct args_CONTROLER {
 	int new;

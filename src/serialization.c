@@ -1,6 +1,5 @@
 #include <stdlib.h>
 
-
 MessageToStruc(char * message,int sizeFloat){
 
 	float a=strtof(message,0);

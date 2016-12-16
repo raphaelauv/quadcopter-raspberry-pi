@@ -51,9 +51,6 @@ void *thread_TCP_CLIENT(void *args) {
 		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 		*/
 
-		struct timeval tv;
-		fd_set readfds;
-		int ret=0;
 		while (continu) {
 
 
@@ -62,12 +59,12 @@ void *thread_TCP_CLIENT(void *args) {
 			struct timespec timeToWait;
 			struct timeval now;
 			int rt;
+			int timeInMs=2000;
 
 			gettimeofday(&now, NULL);
 
-			int mili=1000;
 			timeToWait.tv_sec = now.tv_sec + 5;
-			timeToWait.tv_nsec = (now.tv_usec + 1000UL * mili) * 1000UL;
+			timeToWait.tv_nsec = (now.tv_usec + 1000UL * timeInMs) * 1000UL;
 
 
 			pthread_mutex_lock(&argClient->argControler->mutexReadDataController->mutex);
@@ -76,11 +73,15 @@ void *thread_TCP_CLIENT(void *args) {
 			int resultWait;
 			if(!argClient->argControler->new){
 				printf("THREAD CLIENT NON alors j'attends?\n");
-				resultWait=pthread_cond_timedwait(&argClient->argControler->mutexReadDataController->condition, &argClient->argControler->mutexReadDataController->mutex,&timeToWait);
+				resultWait=pthread_cond_timedwait(&argClient->argControler->mutexReadDataController->condition,
+						&argClient->argControler->mutexReadDataController->mutex,&timeToWait);
 			}
 
 			if(!resultWait){
-				printf("terminé avant timer");
+				if (errno == EAGAIN){
+					printf("terminé avant timer");
+				}
+
 				message="RIEN";
 			}
 			argClient->argControler->new=0;

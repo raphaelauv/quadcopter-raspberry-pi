@@ -3,10 +3,10 @@
 
 int main() {
 
+
 	boolMutex * boolConnectRemote = malloc(sizeof(boolMutex));
-	boolConnectRemote->mutex = (pthread_mutex_t )PTHREAD_MUTEX_INITIALIZER;
-	boolConnectRemote->condition = (pthread_cond_t ) PTHREAD_COND_INITIALIZER;
-	boolConnectRemote->var = 0;
+	init_boolMutex(boolConnectRemote);
+
 
 	char * adresse = malloc(sizeof(char) * 15);
 	getIP(adresse);
@@ -17,7 +17,6 @@ int main() {
 
 	args_SERVER * argServ = malloc(sizeof(args_SERVER));
 	argServ->booleanMutex=boolConnectRemote;
-
 
 
 	pthread_mutex_lock(&boolConnectRemote->mutex);

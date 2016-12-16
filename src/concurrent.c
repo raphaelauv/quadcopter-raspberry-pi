@@ -11,6 +11,7 @@ void init_boolMutex(boolMutex * arg) {
 void clean_boolMutex(boolMutex * arg) {
 	if (arg != NULL) {
 		pthread_mutex_destroy(&arg->mutex);
+		pthread_cond_destroy(&arg->condition);
 		free(arg);
 	}
 }

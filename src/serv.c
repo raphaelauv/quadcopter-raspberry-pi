@@ -56,15 +56,32 @@ void getIP(char * adresse) {
 
 }
 
-MessageToStruc(char * message,int sizeFloat){
+dataController* MessageToStruc(char * message,int sizeFloat){
 
+	dataController * dataControl=malloc(sizeof(dataController));
 	float a=strtof(message,0);
 
 	float b=strtof(message+sizeFloat-1,0);
 
-	printf ("float a = %.6f\n", a);
+	sizeFloat+=sizeFloat;
 
-	printf ("float b = %.6f\n", b);
+	float c=strtof(message+sizeFloat-1,0);
+
+	sizeFloat+=sizeFloat;
+
+	float d=strtof(message+sizeFloat-1,0);
+
+	dataControl->moteur0=a;
+	dataControl->moteur1=b;
+	dataControl->moteur2=c;
+	dataControl->moteur3=d;
+
+	printf ("float a = %.6f  |", a);
+	printf ("float b = %.6f  |", b);
+	printf ("float c = %.6f  |", c);
+	printf ("float d = %.6f  |", d);
+
+	return dataControl;
 }
 
 void *thread_TCP_SERVER(void *args) {
@@ -137,7 +154,6 @@ void *thread_TCP_SERVER(void *args) {
 							buff[99] = '\0';
 							printf("Message recu : %s\n", buff);
 							MessageToStruc(buff,10);
-
 
 							char str1[2];
 							char str2[2];
