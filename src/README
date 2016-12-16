@@ -1,13 +1,13 @@
 ----------------------------
 pour compiler :
 
-gcc remote.c -o remote
+gcc client.c -o client
 gcc -c serv.c
-gcc serv.o main.c -lpthread -o serv
+gcc serv.o droneMain.c -lpthread -o droneMain
 
 -----------------------------
 pour executer :
 
-./serv
+./droneMain
 
-puis ./remote 127.0.0.1
+puis ./client 127.0.0.1
