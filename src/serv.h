@@ -15,7 +15,6 @@
 #include <sys/select.h>
 #include <fcntl.h>
 
-
 #include "concurrent.h"
 
 typedef struct args_SERVER {

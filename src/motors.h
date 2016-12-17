@@ -40,15 +40,17 @@
 
 #include <unistd.h>
 #include <stdio.h>
-#include <wiringPi.h>
-#include <pthread.h>
+//#include <wiringPi.h>
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <sched.h>
 #include <sys/mman.h>
 
+#include "concurrent.h"
+
 struct motor_info{
-	char bool_arret_moteur; // En cas d'arret d'urgenre =1
+	char * bool_arret_moteur; // En cas d'arret d'urgenre =1
     int broche; // nemero de la broche de sorti du signal.
     double high_time; // temps haut du signal
     double low_time; // temps bas du signal.
@@ -57,8 +59,19 @@ struct motor_info{
 //Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
 int  set_power(struct  motor_info * info,double power);
 //Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
-void init_motors(struct motor_info * info_m0,struct motor_info * info_m1,struct motor_info * info_m2,struct motor_info * info_m3,
-                 pthread_mutex_t * lock_m0,pthread_mutex_t *lock_m1,pthread_mutex_t *lock_m2,pthread_mutex_t *lock_m3);
+void init_motors(struct motor_info * info_m0,struct motor_info * info_m1,struct motor_info * info_m2,struct motor_info * info_m3);
 
-    
+
+void * startMoteur(void * args);
+
+typedef struct motorsAll {
+	boolMutex * mutexReadmotors;
+
+    struct motor_info * motor0;
+    struct motor_info * motor1;
+    struct motor_info * motor2;
+    struct motor_info * motor3;
+
+} motorsAll;
+
 #endif

@@ -1,13 +1,17 @@
 #include "motors.h"
+#include "concurrent.h"
+
 double frequence=50.0; //frequence du signal d'entré des ESCs
 double periode=0; // periode = 1/frequence. Initialisée plus tard.
 
 // Pointeur de fonction qui controle chaque ESC
-void * moteur(void * args){
+
+void * startMoteur(void * args){
     struct motor_info * info=(struct motor_info *)args;
     int low,hight;
-    if (wiringPiSetup () == -1)
-        return;
+    if (wiringPiSetup () == -1){
+        return NULL;
+    }
     pinMode (info->broche, OUTPUT); //On defini la sorti du signal
     while(1){
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
@@ -27,7 +31,7 @@ void * moteur(void * args){
     }
 }
 
-void init_motor_info(struct motor_info *info,int broche, pthread_mutex_t * lock1){
+void init_motor_info(struct motor_info *info,int broche){
     if(periode<=0){//Si la periode n'est pas Initialisé
         printf("Fatal erreur:Periode don't initialize");
         exit(1);
@@ -36,7 +40,7 @@ void init_motor_info(struct motor_info *info,int broche, pthread_mutex_t * lock1
     info->broche=broche;
     info->high_time=(periode*5.0/100.0);;//Correspond a 0% de puissance .(1/Frequence * 5/100)= 1 dans notre cas.
     info->low_time=periode-info->high_time;// le reste de la periode.
-    info->lock=lock1;
+    info->lock=PTHREAD_MUTEX_INITIALIZER;
 }
 
 int set_power(struct  motor_info * info,double power){
@@ -52,14 +56,13 @@ int set_power(struct  motor_info * info,double power){
     return 0;
 }
 
-void init_motors(struct motor_info * info_m0,struct motor_info * info_m1,struct motor_info * info_m2,struct motor_info * info_m3,
-    pthread_mutex_t * lock_m0,pthread_mutex_t * lock_m1,pthread_mutex_t * lock_m2,pthread_mutex_t * lock_m3){
+void init_motors(struct motor_info * info_m0,struct motor_info * info_m1,struct motor_info * info_m2,struct motor_info * info_m3){
     cpu_set_t cpuset;//ensemble des CPU utilisable.
     pthread_t thr;
     pthread_attr_t attributs;
     struct sched_param parametres;
     int m0,m1,m2,m3;
-    double vitesse;
+
     //Definir la taille de la memoire virtuelle pour que le kernel de fasse pas d'allocation dynamique.
     mlockall(MCL_CURRENT | MCL_FUTURE);
     
@@ -71,10 +74,10 @@ void init_motors(struct motor_info * info_m0,struct motor_info * info_m1,struct 
     
     //init 0% de puissance des moteur en fonction de la frequence
     periode=(1.0/frequence)*1000000;
-    init_motor_info(info_m0,m0,lock_m0);
-    init_motor_info(info_m1,m1,lock_m1);
-    init_motor_info(info_m2,m2,lock_m2);
-    init_motor_info(info_m3,m3,lock_m3);
+    init_motor_info(info_m0,m0);
+    init_motor_info(info_m1,m1);
+    init_motor_info(info_m2,m2);
+    init_motor_info(info_m3,m3);
     
     //init avec les attributs par defaut.
     pthread_attr_init(& attributs);
@@ -93,11 +96,12 @@ void init_motors(struct motor_info * info_m0,struct motor_info * info_m1,struct 
     pthread_attr_setscope(&attributs,PTHREAD_SCOPE_SYSTEM); // Pour ne pas etre preemte par des processus du system
     
     //creation du thread.
-    pthread_create(&thr,& attributs,moteur,(void *)info_m0);
-    pthread_create(&thr,& attributs,moteur,(void *)info_m1);
-    pthread_create(&thr,& attributs,moteur,(void *)info_m2);
-    pthread_create(&thr,& attributs,moteur,(void *)info_m3);
+    pthread_create(&thr,& attributs,startMoteur,(void *)info_m0);
+    pthread_create(&thr,& attributs,startMoteur,(void *)info_m1);
+    pthread_create(&thr,& attributs,startMoteur,(void *)info_m2);
+    pthread_create(&thr,& attributs,startMoteur,(void *)info_m3);
     
     pthread_attr_destroy(&attributs);//Libere les resource.
 
 }
+

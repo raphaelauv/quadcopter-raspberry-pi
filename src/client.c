@@ -162,6 +162,7 @@ int startRemote(char * adresse){
 				return EXIT_FAILURE;
 	}
 	//wait for XBOX CONTROLER
+
 	pthread_cond_wait(&boolControllerPlug->condition, &boolControllerPlug->mutex);
 
 	pthread_mutex_unlock(&boolControllerPlug->mutex);

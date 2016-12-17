@@ -1,5 +1,7 @@
 
 #include "serv.h"
+#include "motors.h"
+#include "controldeVol.h"
 
 int main() {
 
@@ -7,16 +9,36 @@ int main() {
 	boolMutex * boolConnectRemote = malloc(sizeof(boolMutex));
 	init_boolMutex(boolConnectRemote);
 
+	boolMutex * mutexReadmotors = malloc(sizeof(boolMutex));
+	init_boolMutex(mutexReadmotors);
+
+	boolMutex * mutexReadDataControler = malloc(sizeof(boolMutex));
+	init_boolMutex(mutexReadDataControler);
+
 
 	char * adresse = malloc(sizeof(char) * 15);
 	getIP(adresse);
 
 	pthread_t threadServer;
-	pthread_t threadMotor;
-	pthread_t threadPid;
+
+	pthread_t threadControlerVOL;
 
 	args_SERVER * argServ = malloc(sizeof(args_SERVER));
 	argServ->booleanMutex=boolConnectRemote;
+
+	struct motor_info info_m0,info_m1,info_m2,info_m3;
+
+	motorsAll * motorsAll = malloc(sizeod(motorsAll));
+	motorsAll->mutexReadmotors=mutexReadmotors;
+	motorsAll->motor0=info_m0;
+	motorsAll->motor1=info_m1;
+	motorsAll->motor2=info_m2;
+	motorsAll->motor3=info_m3;
+
+	args_CONTROLDEVOL * argCONTROLVOL = malloc(sizeof(args_CONTROLDEVOL));
+	argCONTROLVOL->mutexReadDataControler=mutexReadDataControler;
+	argCONTROLVOL->dataController=malloc(sizeof(dataController));
+	argCONTROLVOL->motorsAll=motorsAll;
 
 
 	pthread_mutex_lock(&boolConnectRemote->mutex);
@@ -31,12 +53,12 @@ int main() {
 	pthread_mutex_unlock(&boolConnectRemote->mutex);
 
 
-	/*
-	if (pthread_create(&threadMotor, NULL, ####, argServ)) {
+	init_motors(& info_m0,& info_m1,& info_m2,& info_m3);//start the 4 threads
+
+	if (pthread_create(&threadControlerVOL, NULL, startCONTROLVOL, argCONTROLVOL)) {
 			perror("pthread_create");
 			return EXIT_FAILURE;
 	}
-	*/
 
 	if (pthread_join(threadServer, NULL)){
 		perror("pthread_join");
