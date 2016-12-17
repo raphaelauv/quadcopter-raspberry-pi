@@ -56,20 +56,21 @@ void getIP(char * adresse) {
 
 }
 
-MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
+void MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
 
+	int tmp=sizeFloat;
 
 	float a=strtof(message,0);
 
-	float b=strtof(message+sizeFloat-1,0);
+	float b=strtof(message+tmp-1,0);
 
-	sizeFloat+=sizeFloat;
+	tmp+=sizeFloat-1;
 
-	float c=strtof(message+sizeFloat-1,0);
+	float c=strtof(message+tmp-1,0);
 
-	sizeFloat+=sizeFloat;
+	tmp+=sizeFloat-1;
 
-	float d=strtof(message+sizeFloat-1,0);
+	float d=strtof(message+tmp-1,0);
 
 	pthread_mutex_lock(&arg->booleanMutex->mutex);
 
@@ -155,7 +156,7 @@ void *thread_TCP_SERVER(void *args) {
 						}
 						if (messageRead >0) {
 							buff[99] = '\0';
-							printf("Message recu : %s\n", buff);
+							//printf("Message recu : %s\n", buff);
 							MessageToStruc(buff,10,argSERV);
 
 							char str1[2];

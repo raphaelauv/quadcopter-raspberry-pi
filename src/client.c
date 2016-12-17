@@ -1,10 +1,9 @@
 #include "client.h"
 #include "concurrent.h"
 
-
 char * dataControllerToMessage(int sizeFloat,struct dataController* dataController){
 
-	char * output=malloc(sizeof(char)*(sizeFloat*4));
+	char * output=malloc(sizeof(char)*(sizeFloat*5));
 
 	int tmp=sizeFloat;
 
@@ -14,21 +13,19 @@ char * dataControllerToMessage(int sizeFloat,struct dataController* dataControll
 
 	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur1);
 
-	tmp+=sizeFloat;
+	tmp+=sizeFloat-1;
 
 	output[tmp-2]=' ';
 
-	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur1);
+	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur2);
 
-	tmp+=sizeFloat;
+	tmp+=sizeFloat-1;
 
 	output[tmp-2]=' ';
 
-	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur1);
+	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur3);
 
-	printf("%s\n", output);
-
-
+	printf("LE MESSAGE CREER EST : %s\n", output);
 
 	return output;
 }
@@ -87,8 +84,11 @@ void *thread_TCP_CLIENT(void *args) {
 
 			printf("THREAD CLIENT DU nouveau ?\n");
 			int resultWait;
+			printf("valeur new ? %d \n",argClient->argControler->new);
+
 			if(!argClient->argControler->new){
 				printf("THREAD CLIENT NON alors j'attends?\n");
+				sleep(5);
 				resultWait=pthread_cond_timedwait(&argClient->argControler->mutexReadDataController->condition,
 						&argClient->argControler->mutexReadDataController->mutex,&timeToWait);
 			}
@@ -97,7 +97,6 @@ void *thread_TCP_CLIENT(void *args) {
 				if (errno == EAGAIN){
 					printf("terminé avant timer");
 				}
-
 				message="RIEN";
 			}
 			argClient->argControler->new=0;
