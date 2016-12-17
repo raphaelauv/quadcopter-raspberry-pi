@@ -9,10 +9,15 @@ double periode=0; // periode = 1/frequence. Initialisée plus tard.
 void * startMoteur(void * args){
     struct motor_info * info=(struct motor_info *)args;
     int low,hight;
+    /*
+
+	TODO
     if (wiringPiSetup () == -1){
         return NULL;
     }
-    pinMode (info->broche, OUTPUT); //On defini la sorti du signal
+
+    */
+    //pinMode (info->broche, OUTPUT); //On defini la sorti du signal TODO
     while(1){
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
         pthread_mutex_lock(&info->lock);
@@ -20,9 +25,9 @@ void * startMoteur(void * args){
         	hight=(int)info->high_time;
         	low=(int)info->low_time;
         	pthread_mutex_unlock(&info->lock);
-        	digitalWrite(info->broche, 1);       // Etat haut du signal
+        	//digitalWrite(info->broche, 1);       // Etat haut du signal TODO
         	usleep((int)hight);
-        	digitalWrite(info->broche,0);         //Etat bas du signal.
+        	//digitalWrite(info->broche,0);         //Etat bas du signal. TODO
         	usleep((int)(low));
         }
         else{//ARRET des moteurs d'urgence demandé.

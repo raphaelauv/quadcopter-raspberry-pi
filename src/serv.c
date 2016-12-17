@@ -56,9 +56,9 @@ void getIP(char * adresse) {
 
 }
 
-dataController* MessageToStruc(char * message,int sizeFloat){
+MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
 
-	dataController * dataControl=malloc(sizeof(dataController));
+
 	float a=strtof(message,0);
 
 	float b=strtof(message+sizeFloat-1,0);
@@ -71,17 +71,20 @@ dataController* MessageToStruc(char * message,int sizeFloat){
 
 	float d=strtof(message+sizeFloat-1,0);
 
-	dataControl->moteur0=a;
-	dataControl->moteur1=b;
-	dataControl->moteur2=c;
-	dataControl->moteur3=d;
+	pthread_mutex_lock(&arg->booleanMutex->mutex);
+
+	arg->dataController->moteur0=a;
+	arg->dataController->moteur1=b;
+	arg->dataController->moteur2=c;
+	arg->dataController->moteur3=d;
+
+	pthread_mutex_unlock(&arg->booleanMutex->mutex);
 
 	printf ("float a = %.6f  |", a);
 	printf ("float b = %.6f  |", b);
 	printf ("float c = %.6f  |", c);
-	printf ("float d = %.6f  |", d);
+	printf ("float d = %.6f  |\n", d);
 
-	return dataControl;
 }
 
 void *thread_TCP_SERVER(void *args) {
@@ -132,7 +135,7 @@ void *thread_TCP_SERVER(void *args) {
 				while (fini) {
 					FD_ZERO(&rdfs);
 					FD_SET(sock2, &rdfs);
-					tv.tv_sec = 3;
+					tv.tv_sec = 5;
 					tv.tv_usec = 500000;
 					int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
 					//printf("valeur de retour de select : %d\n", ret);
@@ -153,7 +156,7 @@ void *thread_TCP_SERVER(void *args) {
 						if (messageRead >0) {
 							buff[99] = '\0';
 							printf("Message recu : %s\n", buff);
-							MessageToStruc(buff,10);
+							MessageToStruc(buff,10,argSERV);
 
 							char str1[2];
 							char str2[2];

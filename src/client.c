@@ -6,13 +6,29 @@ char * dataControllerToMessage(int sizeFloat,struct dataController* dataControll
 
 	char * output=malloc(sizeof(char)*(sizeFloat*4));
 
+	int tmp=sizeFloat;
+
 	snprintf(output, sizeFloat, "%f", dataController->moteur0);
 
-	output[sizeFloat-2]=' ';
+	output[tmp-2]=' ';
 
-	snprintf(output+sizeFloat-1, sizeFloat, "%f", dataController->moteur1);
+	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur1);
+
+	tmp+=sizeFloat;
+
+	output[tmp-2]=' ';
+
+	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur1);
+
+	tmp+=sizeFloat;
+
+	output[tmp-2]=' ';
+
+	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur1);
 
 	printf("%s\n", output);
+
+
 
 	return output;
 }

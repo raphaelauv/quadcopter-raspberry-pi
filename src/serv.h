@@ -19,6 +19,7 @@
 
 typedef struct args_SERVER {
 	boolMutex * booleanMutex;
+	struct dataController * dataController;
 
 } args_SERVER;
 
