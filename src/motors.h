@@ -54,7 +54,7 @@ struct motor_info{
     int broche; // nemero de la broche de sorti du signal.
     double high_time; // temps haut du signal
     double low_time; // temps bas du signal.
-    pthread_mutex_t * lock; // Mutex pour que set_power() ne modifie pas les valeurs au mauvais moment.
+    pthread_mutex_t lock; // Mutex pour que set_power() ne modifie pas les valeurs au mauvais moment.
 };
 //Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
 int  set_power(struct  motor_info * info,double power);

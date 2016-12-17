@@ -15,11 +15,11 @@ void * startMoteur(void * args){
     pinMode (info->broche, OUTPUT); //On defini la sorti du signal
     while(1){
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
-        pthread_mutex_lock(info->lock);
+        pthread_mutex_lock(&info->lock);
         if(!info->bool_arret_moteur){//Dans le cas on est pas dans une demande d'arret moteur.
         	hight=(int)info->high_time;
         	low=(int)info->low_time;
-        	pthread_mutex_unlock(info->lock);
+        	pthread_mutex_unlock(&info->lock);
         	digitalWrite(info->broche, 1);       // Etat haut du signal
         	usleep((int)hight);
         	digitalWrite(info->broche,0);         //Etat bas du signal.
@@ -40,7 +40,7 @@ void init_motor_info(struct motor_info *info,int broche){
     info->broche=broche;
     info->high_time=(periode*5.0/100.0);;//Correspond a 0% de puissance .(1/Frequence * 5/100)= 1 dans notre cas.
     info->low_time=periode-info->high_time;// le reste de la periode.
-    info->lock=PTHREAD_MUTEX_INITIALIZER;
+    info->lock=(pthread_mutex_t )PTHREAD_MUTEX_INITIALIZER;;
 }
 
 int set_power(struct  motor_info * info,double power){
@@ -48,10 +48,10 @@ int set_power(struct  motor_info * info,double power){
     if(a<5 || a>10){
         return 1;
     }
-    pthread_mutex_lock(info->lock);
+    pthread_mutex_lock(&info->lock);
     info->high_time=(periode*power/100.0); // On calcule le nouveaux rapport cyclique.
     info->low_time=periode-info->high_time; //
-    pthread_mutex_unlock(info->lock);
+    pthread_mutex_unlock(&info->lock);
     printf("%i\n",a);
     return 0;
 }
