@@ -26,9 +26,12 @@ int main() {
 	args_SERVER * argServ = malloc(sizeof(args_SERVER));
 	argServ->booleanMutex=boolConnectRemote;
 
-	struct motor_info info_m0,info_m1,info_m2,info_m3;
+	struct motor_info * info_m0=malloc(sizeof(struct motor_info));
+	struct motor_info * info_m1=malloc(sizeof(struct motor_info));
+	struct motor_info * info_m2=malloc(sizeof(struct motor_info));
+	struct motor_info * info_m3=malloc(sizeof(struct motor_info));
 
-	motorsAll * motorsAll = malloc(sizeod(motorsAll));
+	motorsAll * motorsAll = malloc(sizeof(motorsAll));
 	motorsAll->mutexReadmotors=mutexReadmotors;
 	motorsAll->motor0=info_m0;
 	motorsAll->motor1=info_m1;

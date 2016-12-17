@@ -5,8 +5,6 @@
 #include "motors.h"
 
 
-
-
 typedef struct args_CONTROLDEVOL {
 	motorsAll * motorsAll;
 	boolMutex * mutexReadDataControler;
