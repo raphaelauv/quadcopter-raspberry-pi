@@ -21,7 +21,7 @@ void * startMoteur(void * args){
     while(1){
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
         pthread_mutex_lock(&info->lock);
-        if(!info->bool_arret_moteur){//Dans le cas on est pas dans une demande d'arret moteur.
+        if(!*(info->bool_arret_moteur)){//Dans le cas on est pas dans une demande d'arret moteur.
         	hight=(int)info->high_time;
         	low=(int)info->low_time;
         	pthread_mutex_unlock(&info->lock);
@@ -34,21 +34,22 @@ void * startMoteur(void * args){
         	break;
         }
     }
+    return NULL;
 }
 
-void init_motor_info(struct motor_info *info,int broche){
+void init_motor_info(struct motor_info *info,int broche,char * stop){
     if(periode<=0){//Si la periode n'est pas Initialisé
         printf("Fatal erreur:Periode don't initialize");
         exit(1);
     }
-    info->bool_arret_moteur=0;
+    info->bool_arret_moteur=stop;
     info->broche=broche;
     info->high_time=(periode*5.0/100.0);;//Correspond a 0% de puissance .(1/Frequence * 5/100)= 1 dans notre cas.
     info->low_time=periode-info->high_time;// le reste de la periode.
     info->lock=(pthread_mutex_t )PTHREAD_MUTEX_INITIALIZER;;
 }
 
-int set_power(struct  motor_info * info,double power){
+int set_power(struct  motor_info * info,float power){
     int a=(int)power;
     if(a<5 || a>10){
         return 1;
@@ -57,11 +58,11 @@ int set_power(struct  motor_info * info,double power){
     info->high_time=(periode*power/100.0); // On calcule le nouveaux rapport cyclique.
     info->low_time=periode-info->high_time; //
     pthread_mutex_unlock(&info->lock);
-    printf("%i\n",a);
+    //printf("%i\n",a);
     return 0;
 }
 
-void init_motors(struct motor_info * info_m0,struct motor_info * info_m1,struct motor_info * info_m2,struct motor_info * info_m3){
+void init_motors(motorsAll * motors){
     cpu_set_t cpuset;//ensemble des CPU utilisable.
     pthread_t thr;
     pthread_attr_t attributs;
@@ -79,10 +80,10 @@ void init_motors(struct motor_info * info_m0,struct motor_info * info_m1,struct 
     
     //init 0% de puissance des moteur en fonction de la frequence
     periode=(1.0/frequence)*1000000;
-    init_motor_info(info_m0,m0);
-    init_motor_info(info_m1,m1);
-    init_motor_info(info_m2,m2);
-    init_motor_info(info_m3,m3);
+    init_motor_info(motors->motor0,m0,&(motors->bool_arret_moteur));
+    init_motor_info(motors->motor1,m1,&(motors->bool_arret_moteur));
+    init_motor_info(motors->motor2,m2,&(motors->bool_arret_moteur));
+    init_motor_info(motors->motor3,m3,&(motors->bool_arret_moteur));
     
     //init avec les attributs par defaut.
     pthread_attr_init(& attributs);
@@ -101,12 +102,11 @@ void init_motors(struct motor_info * info_m0,struct motor_info * info_m1,struct 
     pthread_attr_setscope(&attributs,PTHREAD_SCOPE_SYSTEM); // Pour ne pas etre preemte par des processus du system
     
     //creation du thread.
-    pthread_create(&thr,& attributs,startMoteur,(void *)info_m0);
-    pthread_create(&thr,& attributs,startMoteur,(void *)info_m1);
-    pthread_create(&thr,& attributs,startMoteur,(void *)info_m2);
-    pthread_create(&thr,& attributs,startMoteur,(void *)info_m3);
+    pthread_create(&thr,& attributs,startMoteur,(void *)motors->motor0);
+    pthread_create(&thr,& attributs,startMoteur,(void *)motors->motor1);
+    pthread_create(&thr,& attributs,startMoteur,(void *)motors->motor2);
+    pthread_create(&thr,& attributs,startMoteur,(void *)motors->motor3);
     
     pthread_attr_destroy(&attributs);//Libere les resource.
 
 }
-

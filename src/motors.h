@@ -56,22 +56,24 @@ struct motor_info{
     double low_time; // temps bas du signal.
     pthread_mutex_t lock; // Mutex pour que set_power() ne modifie pas les valeurs au mauvais moment.
 };
-//Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
-int  set_power(struct  motor_info * info,double power);
-//Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
-void init_motors(struct motor_info * info_m0,struct motor_info * info_m1,struct motor_info * info_m2,struct motor_info * info_m3);
-
-
-void * startMoteur(void * args);
 
 typedef struct motorsAll {
 	boolMutex * mutexReadmotors;
-
+	char bool_arret_moteur;
     struct motor_info * motor0;
     struct motor_info * motor1;
     struct motor_info * motor2;
     struct motor_info * motor3;
 
 } motorsAll;
+//Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
+int  set_power(struct  motor_info * info,float power);
+//Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
+void init_motors(motorsAll * motors);
+
+
+void * startMoteur(void * args);
+
+
 
 #endif
