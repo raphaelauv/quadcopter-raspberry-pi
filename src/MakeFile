@@ -10,7 +10,7 @@ gcc -lwiringPi -O0 -g3 -Wall -c -o "object/motors.o" "src/motors.c"
 
 gcc -lwiringPi -O0 -g3 -Wall -c -o "object/serv.o" "src/serv.c"
 
-g++ -o "droneMain"  object/concurrent.o object/controldeVol.o object/droneMain.o object/motors.o object/serv.o  -lpthread
+g++ -o "droneMain"  object/concurrent.o object/controldeVol.o object/droneMain.o object/motors.o object/serv.o  -lpthread -lwiringPi
 
 
 /*   pour CLIENT */
