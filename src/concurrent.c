@@ -5,6 +5,8 @@ void init_boolMutex(boolMutex * arg) {
 		arg->mutex = (pthread_mutex_t )PTHREAD_MUTEX_INITIALIZER;
 		arg->condition = (pthread_cond_t )PTHREAD_COND_INITIALIZER;
 		arg->var = 0;
+	}else{
+		perror("boolMutex not yet malloc\n");
 	}
 }
 

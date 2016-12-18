@@ -2,8 +2,8 @@
 
 void clean_args_SERVER(args_SERVER * arg) {
 	if (arg != NULL) {
-		if (arg->booleanMutex != NULL) {
-			clean_boolMutex(arg->booleanMutex);
+		if (arg->boolConnectRemote != NULL) {
+			clean_boolMutex(arg->boolConnectRemote);
 		}
 		free(arg);
 	}
@@ -72,14 +72,20 @@ void MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
 
 	float d=strtof(message+tmp-1,0);
 
-	pthread_mutex_lock(&arg->booleanMutex->mutex);
+	pthread_mutex_lock(&arg->mutexDataControler->mutex);
 
 	arg->dataController->moteur0=a;
 	arg->dataController->moteur1=b;
 	arg->dataController->moteur2=c;
 	arg->dataController->moteur3=d;
 
-	pthread_mutex_unlock(&arg->booleanMutex->mutex);
+	if(arg->mutexDataControler->var>0){
+		arg->mutexDataControler->var=1;
+	}
+
+	pthread_cond_signal(&arg->mutexDataControler->condition);
+
+	pthread_mutex_unlock(&arg->mutexDataControler->mutex);
 
 	printf ("float a = %.6f  |", a);
 	printf ("float b = %.6f  |", b);
@@ -115,11 +121,11 @@ void *thread_TCP_SERVER(void *args) {
 
 				int fini = 1;
 
-				pthread_mutex_lock(&argSERV->booleanMutex->mutex);
+				pthread_mutex_lock(&argSERV->boolConnectRemote->mutex);
 
-				pthread_cond_signal(&argSERV->booleanMutex->condition);
+				pthread_cond_signal(&argSERV->boolConnectRemote->condition);
 
-				pthread_mutex_unlock(&argSERV->booleanMutex->mutex);
+				pthread_mutex_unlock(&argSERV->boolConnectRemote->mutex);
 
 				char *mess = "HELLO\n";
 				int result = write(sock2, mess, strlen(mess) * sizeof(char));
@@ -136,7 +142,7 @@ void *thread_TCP_SERVER(void *args) {
 				while (fini) {
 					FD_ZERO(&rdfs);
 					FD_SET(sock2, &rdfs);
-					tv.tv_sec = 5;
+					tv.tv_sec = 3;
 					tv.tv_usec = 500000;
 					int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
 					//printf("valeur de retour de select : %d\n", ret);

@@ -7,7 +7,7 @@
 
 typedef struct args_CONTROLDEVOL {
 	motorsAll * motorsAll;
-	boolMutex * mutexReadDataControler;
+	boolMutex * mutexDataControler;
 	struct dataController * dataController;
 
 } args_CONTROLDEVOL;

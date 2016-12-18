@@ -18,7 +18,8 @@
 #include "concurrent.h"
 
 typedef struct args_SERVER {
-	boolMutex * booleanMutex;
+	boolMutex * boolConnectRemote;
+	boolMutex * mutexDataControler;
 	struct dataController * dataController;
 
 } args_SERVER;
