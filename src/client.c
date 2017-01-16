@@ -33,11 +33,11 @@ char * dataControllerToMessage(int sizeFloat,struct dataController* dataControll
 
 void *thread_TCP_CLIENT(void *args) {
 
-
+	printf("CLIENT\n");
 
 	struct args_CLIENT *argClient = args;
 
-	printf("CLIENT\n");
+
 	struct sockaddr_in adress_sock;
 	adress_sock.sin_family = AF_INET;
 	adress_sock.sin_port = htons(argClient->port);
@@ -82,13 +82,14 @@ void *thread_TCP_CLIENT(void *args) {
 
 			pthread_mutex_lock(&argClient->argControler->mutexReadDataController->mutex);
 
-			printf("THREAD CLIENT DU nouveau ?\n");
+			//printf("THREAD CLIENT DU nouveau ?\n");
 			int resultWait;
 			printf("valeur new ? %d \n",argClient->argControler->new);
 
+			/*
 			if(!argClient->argControler->new){
 				printf("THREAD CLIENT NON alors j'attends?\n");
-				sleep(5);
+				sleep(1);
 				resultWait=pthread_cond_timedwait(&argClient->argControler->mutexReadDataController->condition,
 						&argClient->argControler->mutexReadDataController->mutex,&timeToWait);
 			}
@@ -99,11 +100,14 @@ void *thread_TCP_CLIENT(void *args) {
 				}
 				message="RIEN";
 			}
+			*/
+
 			argClient->argControler->new=0;
-			printf("THREAD CLIENT OUI alors je regarde?\n");
+			//printf("THREAD CLIENT OUI alors je regarde?\n");
 			message=dataControllerToMessage(10,argClient->argControler->manette);
 			pthread_mutex_unlock(&argClient->argControler->mutexReadDataController->mutex);
 
+			sleep(1);
 			printf("THREAD CLIENT SENDING : %s\n", message);
 			/*
 
@@ -169,6 +173,7 @@ int startRemote(char * adresse){
 	pthread_t threadClient;
 	pthread_t threadControler;
 
+	printf("TEST MANETTE\n");
 
 	pthread_mutex_lock(&boolControllerPlug->mutex);
 
@@ -182,6 +187,8 @@ int startRemote(char * adresse){
 
 	pthread_mutex_unlock(&boolControllerPlug->mutex);
 
+	printf("MANETTE ok \n");
+
 	//XBOX CONTROLER IS ON , we can start the client socket thread
 	if (pthread_create(&threadClient, NULL, thread_TCP_CLIENT, argClient)) {
 			perror("pthread_create");
@@ -189,11 +196,11 @@ int startRemote(char * adresse){
 	}
 
 	if (pthread_join(threadClient, NULL)){
-			perror("pthread_join");
+			perror("pthread_join SERV");
 			return EXIT_FAILURE;
 	}
 	if (pthread_join(threadControler, NULL)){
-			perror("pthread_join");
+			perror("pthread_join CONTROLER");
 			return EXIT_FAILURE;
 	}
 

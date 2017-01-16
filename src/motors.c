@@ -14,6 +14,8 @@ void * thread_startMoteur(void * args){
 
     motor_info * info=args;
 
+    printf("THREAD MOTOR INIT-> %d \n",info->broche);
+
     int low,hight;
     /*
 
@@ -29,11 +31,15 @@ void * thread_startMoteur(void * args){
     */
     int runMotor=1;
     while(runMotor){
+    	sleep(10);
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
     	pthread_mutex_lock(&info->MutexSetPower->mutex);
-        if(!(*(info->bool_arret_moteur))){//Dans le cas on est pas dans une demande d'arret moteur.
+        if(*(info->bool_arret_moteur)){//Dans le cas on est pas dans une demande d'arret moteur.
         	hight=(int)info->high_time;
         	low=(int)info->low_time;
+
+        	printf("THREAD MOTOR INIT-> %d  | HIGH %d  LOW %d \n",info->broche, hight, low);
+
         	pthread_mutex_unlock(&info->MutexSetPower->mutex);
         	//digitalWrite(info->broche, 1);       // Etat haut du signal TODO CODE RASPBERRY
         	usleep((int)hight);
@@ -72,20 +78,58 @@ void init_motor_info(motor_info *info,int broche,int * stop){
     init_boolMutex(MutexSetPower);
     info->MutexSetPower=MutexSetPower;
 
-
 }
 
-int set_power(struct  motor_info * info,float power){
+int set_power(motor_info * info,float power){
     int a=(int)power;
     if(a<5 || a>10){
         return 1;
     }
+
+    //printf("THREAD CONTROLVOL SET POWER avant lock\n");
     pthread_mutex_lock(&info->MutexSetPower->mutex);
+
+    //printf("THREAD CONTROLVOL SET POWER dans lock\n");
+
     info->high_time=(periode*power/100.0); // On calcule le nouveaux rapport cyclique.
     info->low_time=periode-info->high_time; //
     pthread_mutex_unlock(&info->MutexSetPower->mutex);
+
+    //printf("THREAD CONTROLVOL SET POWER apres lock\n");
     //printf("%i\n",a);
     return 0;
+}
+
+
+void init_Value_motors(motorsAll * motorsAll){
+
+    //init 0% de puissance des moteur en fonction de la frequence
+    periode=(1.0/frequence)*1000000;
+
+
+	int m0,m1,m2,m3;
+	//init broche du signal du controle des moteur
+	    m0=5;
+	    m1=28;
+	    m2=2;
+	    m3=24;
+
+	motor_info * info_m0 = malloc(sizeof(motor_info));
+	motor_info * info_m1 = malloc(sizeof(motor_info));
+	motor_info * info_m2 = malloc(sizeof(motor_info));
+	motor_info * info_m3 = malloc(sizeof(motor_info));
+
+	motorsAll->motor0 = info_m0;
+	motorsAll->motor1 = info_m1;
+	motorsAll->motor2 = info_m2;
+	motorsAll->motor3 = info_m3;
+
+    init_motor_info(motorsAll->motor0,m0,motorsAll->bool_arret_moteur);
+    init_motor_info(motorsAll->motor1,m1,motorsAll->bool_arret_moteur);
+    init_motor_info(motorsAll->motor2,m2,motorsAll->bool_arret_moteur);
+    init_motor_info(motorsAll->motor3,m3,motorsAll->bool_arret_moteur);
+
+
 }
 
 void init_motors(motorsAll * motorsAll){
@@ -98,35 +142,10 @@ void init_motors(motorsAll * motorsAll){
     pthread_attr_t attributs;
 
     struct sched_param parametres;
-    int m0,m1,m2,m3;
+
 
     //Definir la taille de la memoire virtuelle pour que le kernel de fasse pas d'allocation dynamique.
     //mlockall(MCL_CURRENT | MCL_FUTURE);
-    
-    //init broche du signal du controle des moteur
-    m0=5;
-    m1=28;
-    m2=2;
-    m3=24;
-    
-
-    //init 0% de puissance des moteur en fonction de la frequence
-    periode=(1.0/frequence)*1000000;
-
-	motor_info * info_m0 = malloc(sizeof(motor_info));
-	motor_info * info_m1 = malloc(sizeof(motor_info));
-	motor_info * info_m2 = malloc(sizeof(motor_info));
-	motor_info * info_m3 = malloc(sizeof(motor_info));
-
-	motorsAll->motor0 = info_m0;
-	motorsAll->motor1 = info_m1;
-	motorsAll->motor2 = info_m2;
-	motorsAll->motor3 = info_m3;
-
-    init_motor_info(motorsAll->motor0,m0,&(motorsAll->bool_arret_moteur));
-    init_motor_info(motorsAll->motor1,m1,&(motorsAll->bool_arret_moteur));
-    init_motor_info(motorsAll->motor2,m2,&(motorsAll->bool_arret_moteur));
-    init_motor_info(motorsAll->motor3,m3,&(motorsAll->bool_arret_moteur));
     
 
 

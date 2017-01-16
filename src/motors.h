@@ -58,8 +58,7 @@ typedef struct motor_info {
 } motor_info;
 
 typedef struct motorsAll {
-	int bool_arret_moteur;
-	boolMutex * mutexReadmotors;
+	int * bool_arret_moteur;
 	motor_info * motor0;
 	motor_info * motor1;
 	motor_info * motor2;
@@ -71,6 +70,8 @@ int set_power(struct motor_info * info, float power);
 //Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
 void init_motors(motorsAll * motors);
 
-void * startMoteur(void * args);
+void * thread_startMoteur(void * args);
+
+void init_Value_motors(motorsAll * motorsAll);
 
 #endif
