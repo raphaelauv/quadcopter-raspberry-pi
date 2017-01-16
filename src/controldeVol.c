@@ -27,8 +27,6 @@ void * startCONTROLVOL(void * args){
 				pthread_cond_wait(&mutexDataControler->condition, &mutexDataControler->mutex);
 			}
 			controle_vol->mutexDataControler->var=0;
-
-
 			power0=data->moteur0;
 			power1=data->moteur1;
 			power2=data->moteur2;
