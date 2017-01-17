@@ -4,67 +4,70 @@
 
 int main() {
 
-	boolMutex * mutexConnectRemote = malloc(sizeof(boolMutex));
-	init_boolMutex(mutexConnectRemote);
+	PMutex * PmutexRemoteConnect = malloc(sizeof(PMutex));
+	init_PMutex(PmutexRemoteConnect);
 
-	boolMutex * mutexDataControler = malloc(sizeof(boolMutex));
-	init_boolMutex(mutexDataControler);
+	PMutex * PmutexDataControler = malloc(sizeof(PMutex));
+	init_PMutex(PmutexDataControler);
 
-	char * adresse = malloc(sizeof(char) * 15);
-	getIP(adresse);
+	getIP();
 
-	dataController * dataController = malloc(sizeof(dataController));
+	DataController * dataControl = malloc(sizeof(DataController));
+	dataControl->pmutex=PmutexDataControler;
 
 	args_SERVER * argServ = malloc(sizeof(args_SERVER));
-	argServ->boolConnectRemote = mutexConnectRemote;
-	argServ->mutexDataControler=mutexDataControler;
-	argServ->dataController = dataController;
+	argServ->pmutexRemoteConnect = PmutexRemoteConnect;
+	argServ->dataController = dataControl;
 
-	motorsAll * motorsAll = malloc(sizeof(motorsAll));
+	MotorsAll * motorsAll = malloc(sizeof(MotorsAll));
 	motorsAll->bool_arret_moteur = malloc(sizeof(int));
 	*(motorsAll->bool_arret_moteur)= 0;
 
 	init_Value_motors(motorsAll);
 
+
 	args_CONTROLDEVOL * argCONTROLVOL = malloc(sizeof(args_CONTROLDEVOL));
-	argCONTROLVOL->mutexDataControler=mutexDataControler;
-	argCONTROLVOL->dataController=dataController;
+	argCONTROLVOL->dataController=dataControl;
 	argCONTROLVOL->motorsAll=motorsAll;
 
 	pthread_t threadServer;
 	pthread_t threadControlerVOL;
 
 
-	pthread_mutex_lock(&mutexConnectRemote->mutex);
+	pthread_mutex_lock(&PmutexRemoteConnect->mutex);
 
 	if (pthread_create(&threadServer, NULL, thread_TCP_SERVER, argServ)) {
-		perror("pthread_create");
+		perror("pthread_create TCP");
 		return EXIT_FAILURE;
 	}
 
-	pthread_cond_wait(&mutexConnectRemote->condition, &mutexConnectRemote->mutex);
+	pthread_cond_wait(&PmutexRemoteConnect->condition, &PmutexRemoteConnect->mutex);
 
-	pthread_mutex_unlock(&mutexConnectRemote->mutex);
+	pthread_mutex_unlock(&PmutexRemoteConnect->mutex);
 
 
 	if (pthread_create(&threadControlerVOL, NULL, startCONTROLVOL, argCONTROLVOL)) {
-		perror("pthread_create");
+		perror("pthread_create PID");
 		return EXIT_FAILURE;
 	}
 
-	init_motors(motorsAll);//start the 4 threads et ne rends pas la main
+
+	init_threads_motors(motorsAll);//start the 4 threads et ne rends pas la main
 
 
 	if (pthread_join(threadServer, NULL)){
 		perror("pthread_join");
 		return EXIT_FAILURE;
 	}
+
+
 	if (pthread_join(threadControlerVOL, NULL)){
 			perror("pthread_join");
 			return EXIT_FAILURE;
 	}
 
-	free(mutexConnectRemote);
-	free(argServ);
+
+	clean_args_SERVER(argServ);
+	clean_args_CONTROLDEVOL(argCONTROLVOL);
 	return 0;
 }

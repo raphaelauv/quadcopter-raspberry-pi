@@ -24,20 +24,18 @@
 
 typedef struct args_CONTROLER {
 	int new;
-	struct dataController * manette;
-	boolMutex * mutexReadDataController;
-	boolMutex * mutexControlerPlug;
+	struct DataController * manette;
+	PMutex * pmutexReadDataController;
+	PMutex * pmutexControlerPlug;
 } args_CONTROLER;
 
 
 typedef struct args_CLIENT {
 	int port;
 	char * adresse;
-	boolMutex * booleanMutex;
+	PMutex * pmutex;
 	args_CONTROLER * argControler;
 } args_CLIENT;
-
-
 
 
 

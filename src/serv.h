@@ -18,15 +18,14 @@
 #include "concurrent.h"
 
 typedef struct args_SERVER {
-	boolMutex * boolConnectRemote;
-	boolMutex * mutexDataControler;
-	struct dataController * dataController;
+	PMutex * pmutexRemoteConnect;
+	DataController * dataController;
 
 } args_SERVER;
 
 void clean_args_SERVER(args_SERVER * arg);
 
-void getIP(char * adresse);
+void getIP();
 void *thread_TCP_SERVER(void *args);
 
 #endif /* SERV_H_ */

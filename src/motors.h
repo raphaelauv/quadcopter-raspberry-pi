@@ -54,7 +54,7 @@ typedef struct motor_info {
 	int broche; // nemero de la broche de sorti du signal.
 	double high_time; // temps haut du signal
 	double low_time; // temps bas du signal.
-	boolMutex * MutexSetPower; // Mutex pour que set_power() ne modifie pas les valeurs au mauvais moment.
+	PMutex * MutexSetPower; // Mutex pour que set_power() ne modifie pas les valeurs au mauvais moment.
 } motor_info;
 
 typedef struct motorsAll {
@@ -63,15 +63,20 @@ typedef struct motorsAll {
 	motor_info * motor1;
 	motor_info * motor2;
 	motor_info * motor3;
+} MotorsAll;
 
-} motorsAll;
+
+void clean_motorsAll(MotorsAll * arg);
+
+void clean_motor_info(motor_info * arg);
+
 //Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
 int set_power(struct motor_info * info, float power);
 //Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
-void init_motors(motorsAll * motors);
+void init_threads_motors(MotorsAll * motors);
 
 void * thread_startMoteur(void * args);
 
-void init_Value_motors(motorsAll * motorsAll);
+void init_Value_motors(MotorsAll * motorsAll);
 
 #endif

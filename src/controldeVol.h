@@ -6,13 +6,14 @@
 
 
 typedef struct args_CONTROLDEVOL {
-	motorsAll * motorsAll;
-	boolMutex * mutexDataControler;
-	struct dataController * dataController;
+	MotorsAll * motorsAll;
+	DataController * dataController;
 
 } args_CONTROLDEVOL;
 
 
 void * startCONTROLVOL(void * args);
+
+void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg);
 
 #endif /* CONTROLDEVOL_H_ */

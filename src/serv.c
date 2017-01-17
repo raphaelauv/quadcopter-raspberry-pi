@@ -2,14 +2,15 @@
 
 void clean_args_SERVER(args_SERVER * arg) {
 	if (arg != NULL) {
-		if (arg->boolConnectRemote != NULL) {
-			clean_boolMutex(arg->boolConnectRemote);
+		if (arg->pmutexRemoteConnect != NULL) {
+			clean_PMutex(arg->pmutexRemoteConnect);
 		}
 		free(arg);
+		arg=NULL;
 	}
 }
 
-void getIP(char * adresse) {
+void getIP() {
 
 	struct ifaddrs *myaddrs, *addrsTMP;
 	struct sockaddr_in *s4;
@@ -58,9 +59,15 @@ void getIP(char * adresse) {
 
 void MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
 
+
+
+	//PMutex * pmutex = arg->dataController->pmutex->mutex;
+
+
 	int tmp=sizeFloat;
 
 	float a=strtof(message,0);
+
 
 	float b=strtof(message+tmp-1,0);
 
@@ -72,32 +79,30 @@ void MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
 
 	float d=strtof(message+tmp-1,0);
 
-	pthread_mutex_lock(&arg->mutexDataControler->mutex);
+	pthread_mutex_lock(&arg->dataController->pmutex->mutex);
+
 
 	arg->dataController->moteur0=a;
 	arg->dataController->moteur1=b;
 	arg->dataController->moteur2=c;
 	arg->dataController->moteur3=d;
 
-	if(arg->mutexDataControler->var>0){
-		arg->mutexDataControler->var=1;
+	if(arg->dataController->pmutex->var>0){
+		arg->dataController->pmutex->var=1;
 	}
 
-	pthread_cond_signal(&arg->mutexDataControler->condition);
+	pthread_cond_signal(&(arg->dataController->pmutex->condition));
 
-	pthread_mutex_unlock(&arg->mutexDataControler->mutex);
+	pthread_mutex_unlock(&(arg->dataController->pmutex->mutex));
 
-	printf ("float a = %.6f  |", a);
-	printf ("float b = %.6f  |", b);
-	printf ("float c = %.6f  |", c);
-	printf ("float d = %.6f  |\n", d);
+	printf ("float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  |\n", a ,b,c,d);
 
 }
 
 void *thread_TCP_SERVER(void *args) {
 	printf("SERVEUR\n");
 
-	args_SERVER *argSERV = args;
+	args_SERVER *argSERV =(args_SERVER*) args;
 
 	int sock = socket(PF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in address_sock;
@@ -105,6 +110,7 @@ void *thread_TCP_SERVER(void *args) {
 	address_sock.sin_port = htons(8888);
 
 	printf("attente sur port : %d\n", 8888);
+
 	address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
 	int r = bind(sock, (struct sockaddr *) &address_sock,
 			sizeof(struct sockaddr_in));
@@ -121,11 +127,13 @@ void *thread_TCP_SERVER(void *args) {
 
 				int fini = 1;
 
-				pthread_mutex_lock(&argSERV->boolConnectRemote->mutex);
+				pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
 
-				pthread_cond_signal(&argSERV->boolConnectRemote->condition);
+				pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
 
-				pthread_mutex_unlock(&argSERV->boolConnectRemote->mutex);
+				pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
+
+				printf("APRES SIGNAL\n");
 
 				char *mess = "HELLO\n";
 				int result = write(sock2, mess, strlen(mess) * sizeof(char));

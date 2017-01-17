@@ -12,7 +12,7 @@ char is_connect() {
 
 void control(args_CONTROLER * argsControl) {
 
-	dataController * manette = argsControl->manette;
+	DataController * manette = argsControl->manette;
 
 	manette->moteur_active = 0;
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
@@ -35,13 +35,13 @@ void control(args_CONTROLER * argsControl) {
 			printf("bool_moteur_active= %d\n", manette->moteur_active);
 			sleep(3);
 
-			pthread_mutex_lock(&argsControl->mutexControlerPlug->mutex);
-			pthread_cond_signal(&argsControl->mutexControlerPlug->condition);
-			pthread_mutex_unlock(&argsControl->mutexControlerPlug->mutex);
+			pthread_mutex_lock(&argsControl->pmutexControlerPlug->mutex);
+			pthread_cond_signal(&argsControl->pmutexControlerPlug->condition);
+			pthread_mutex_unlock(&argsControl->pmutexControlerPlug->mutex);
 		}
 		if (manette->moteur_active) {
 
-			pthread_mutex_lock(&argsControl->mutexReadDataController->mutex);
+			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
 			argsControl->new = 1;
 
 			manette->moteur0 =
@@ -65,7 +65,7 @@ void control(args_CONTROLER * argsControl) {
 					manette->moteur3);
 		}
 
-		pthread_mutex_unlock(&argsControl->mutexReadDataController->mutex);
+		pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
 
 		if (!is_connect()) {
 			manette->moteur_active = 0;

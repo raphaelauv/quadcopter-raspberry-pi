@@ -1,7 +1,7 @@
 #include "client.h"
 #include "concurrent.h"
 
-char * dataControllerToMessage(int sizeFloat,struct dataController* dataController){
+char * dataControllerToMessage(int sizeFloat,struct DataController * dataController){
 
 	char * output=malloc(sizeof(char)*(sizeFloat*5));
 
@@ -80,7 +80,7 @@ void *thread_TCP_CLIENT(void *args) {
 			timeToWait.tv_nsec = (now.tv_usec + 1000UL * timeInMs) * 1000UL;
 
 
-			pthread_mutex_lock(&argClient->argControler->mutexReadDataController->mutex);
+			pthread_mutex_lock(&argClient->argControler->pmutexReadDataController->mutex);
 
 			//printf("THREAD CLIENT DU nouveau ?\n");
 			int resultWait;
@@ -105,7 +105,7 @@ void *thread_TCP_CLIENT(void *args) {
 			argClient->argControler->new=0;
 			//printf("THREAD CLIENT OUI alors je regarde?\n");
 			message=dataControllerToMessage(10,argClient->argControler->manette);
-			pthread_mutex_unlock(&argClient->argControler->mutexReadDataController->mutex);
+			pthread_mutex_unlock(&argClient->argControler->pmutexReadDataController->mutex);
 
 			sleep(1);
 			printf("THREAD CLIENT SENDING : %s\n", message);
@@ -150,18 +150,18 @@ void *thread_XBOX_CONTROLER(void *args) {
 
 int startRemote(char * adresse){
 
-	boolMutex * boolControllerPlug = malloc(sizeof(boolMutex));
-	init_boolMutex(boolControllerPlug);
+	PMutex * boolControllerPlug = malloc(sizeof(PMutex));
+	init_PMutex(boolControllerPlug);
 
 
-	boolMutex * boolRead = malloc(sizeof(boolMutex));
-	init_boolMutex(boolRead);
+	PMutex * boolRead = malloc(sizeof(PMutex));
+	init_PMutex(boolRead);
 
 	struct args_CONTROLER * argControler = malloc(sizeof(args_CONTROLER));
 	argControler->new=0;
-	argControler->manette=malloc(sizeof( dataController));
-	argControler->mutexReadDataController=boolRead;
-	argControler->mutexControlerPlug=boolControllerPlug;
+	argControler->manette=malloc(sizeof( DataController));
+	argControler->pmutexReadDataController=boolRead;
+	argControler->pmutexControlerPlug=boolControllerPlug;
 
 
 	struct args_CLIENT * argClient = malloc(sizeof(args_CLIENT));

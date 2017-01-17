@@ -6,6 +6,35 @@ double periode=0; // periode = 1/frequence. Initialisée plus tard.
 
 // Pointeur de fonction qui controle chaque ESC
 
+
+void clean_motorsAll(MotorsAll * arg) {
+	if (arg != NULL) {
+		if (arg->bool_arret_moteur != NULL) {
+			free(arg->bool_arret_moteur);
+		}
+		clean_motor_info(arg->motor0);
+		clean_motor_info(arg->motor1);
+		clean_motor_info(arg->motor2);
+		clean_motor_info(arg->motor3);
+		free(arg);
+		arg = NULL;
+	}
+}
+
+void clean_motor_info(motor_info * arg){
+	if (arg != NULL) {
+		clean_PMutex(arg->MutexSetPower);
+		if(arg->bool_arret_moteur!=NULL){
+			free(arg->bool_arret_moteur);
+			arg->bool_arret_moteur=NULL;
+		}
+		free(arg);
+		arg=NULL;
+	}
+}
+
+
+
 void * thread_startMoteur(void * args){
 
 	if(args==NULL){
@@ -74,8 +103,8 @@ void init_motor_info(motor_info *info,int broche,int * stop){
     info->low_time=periode-(info->high_time);// le reste de la periode.
 
 
-    boolMutex * MutexSetPower=malloc(sizeof(boolMutex));
-    init_boolMutex(MutexSetPower);
+    PMutex * MutexSetPower=malloc(sizeof(PMutex));
+    init_PMutex(MutexSetPower);
     info->MutexSetPower=MutexSetPower;
 
 }
@@ -101,7 +130,7 @@ int set_power(motor_info * info,float power){
 }
 
 
-void init_Value_motors(motorsAll * motorsAll){
+void init_Value_motors(MotorsAll * motorsAll){
 
     //init 0% de puissance des moteur en fonction de la frequence
     periode=(1.0/frequence)*1000000;
@@ -132,7 +161,7 @@ void init_Value_motors(motorsAll * motorsAll){
 
 }
 
-void init_motors(motorsAll * motorsAll){
+void init_threads_motors(MotorsAll * motorsAll){
     cpu_set_t cpuset;//ensemble des CPU utilisable.
 
     pthread_t thr0;

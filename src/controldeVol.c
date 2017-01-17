@@ -1,14 +1,31 @@
 #include "controldeVol.h"
 
+
+void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg){
+	if (arg != NULL) {
+		if (arg->motorsAll != NULL) {
+			//clean_(arg->motorsAll);
+		}
+		if(arg->dataController != NULL){
+			//clean(arg->dataController);
+		}
+
+		free(arg);
+		arg=NULL;
+	}
+}
+
 void * startCONTROLVOL(void * args){
 
 	args_CONTROLDEVOL  * controle_vol =args;
-	dataController * data = controle_vol->dataController;
-	boolMutex * mutexDataControler =controle_vol->mutexDataControler;
+	DataController * data = controle_vol->dataController;
+	PMutex * mutexDataControler =controle_vol->dataController->pmutex;
 	float power0;
 	float power1;
 	float power2;
 	float power3;
+
+	//int bool_stop=controle_vol->dataController->moteur_active;
 
 
 	printf("THREAD CONTROLVOL START\n");
@@ -20,13 +37,13 @@ void * startCONTROLVOL(void * args){
 			pthread_mutex_lock(&(mutexDataControler->mutex));
 
 			//printf("THREAD CONTROLVOL dans lock\n");
-			if(controle_vol->mutexDataControler->var<1){
+			if(mutexDataControler->var<1){
 				printf("Controleur de vol attends des nouvel données de serv \n");
 
 				//TODO mettre un timer au wait
 				pthread_cond_wait(&mutexDataControler->condition, &mutexDataControler->mutex);
 			}
-			controle_vol->mutexDataControler->var=0;
+			mutexDataControler->var=0;
 			power0=data->moteur0;
 			power1=data->moteur1;
 			power2=data->moteur2;

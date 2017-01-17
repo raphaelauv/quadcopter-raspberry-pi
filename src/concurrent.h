@@ -9,22 +9,30 @@
 #include <time.h>
 #include <errno.h>
 
-typedef struct dataController{
-	char moteur_active;
-	float moteur0;
-	float moteur1;
-	float moteur2;
-	float moteur3;
-}dataController;
 
-typedef struct boolMutex {
+typedef struct PMutex {
 	int var;
 	pthread_mutex_t mutex;
 	pthread_cond_t condition;
-} boolMutex;
+} PMutex;
 
-void init_boolMutex(boolMutex * arg);
+void init_PMutex(PMutex * arg);
+void clean_PMutex(PMutex * arg);
 
-void clean_boolMutex(boolMutex * arg);
+
+typedef struct DataController{
+
+
+	char moteur_active;
+	float moteur0;
+	float moteur1;
+
+	float moteur2;
+	float moteur3;
+
+	PMutex * pmutex;
+
+}DataController;
+void clean_DataController(DataController * arg);
 
 #endif /* CONCURRENT_H_ */
