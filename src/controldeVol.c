@@ -17,7 +17,7 @@ void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg){
 
 void * startCONTROLVOL(void * args){
 
-	args_CONTROLDEVOL  * controle_vol =args;
+	args_CONTROLDEVOL  * controle_vol =(args_CONTROLDEVOL  *)args;
 	DataController * data = controle_vol->dataController;
 	PMutex * mutexDataControler =controle_vol->dataController->pmutex;
 	float power0;

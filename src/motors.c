@@ -41,7 +41,7 @@ void * thread_startMoteur(void * args){
 		perror("args thread_startMoteur is NULL\n");
 	}
 
-    motor_info * info=args;
+    motor_info * info=(motor_info *)args;
 
     printf("THREAD MOTOR INIT-> %d \n",info->broche);
 
@@ -103,7 +103,7 @@ void init_motor_info(motor_info *info,int broche,int * stop){
     info->low_time=periode-(info->high_time);// le reste de la periode.
 
 
-    PMutex * MutexSetPower=malloc(sizeof(PMutex));
+    PMutex * MutexSetPower=(PMutex *)malloc(sizeof(PMutex));
     init_PMutex(MutexSetPower);
     info->MutexSetPower=MutexSetPower;
 
@@ -143,10 +143,10 @@ void init_Value_motors(MotorsAll * motorsAll){
 	    m2=2;
 	    m3=24;
 
-	motor_info * info_m0 = malloc(sizeof(motor_info));
-	motor_info * info_m1 = malloc(sizeof(motor_info));
-	motor_info * info_m2 = malloc(sizeof(motor_info));
-	motor_info * info_m3 = malloc(sizeof(motor_info));
+	motor_info * info_m0 =(motor_info *) malloc(sizeof(motor_info));
+	motor_info * info_m1 =(motor_info *) malloc(sizeof(motor_info));
+	motor_info * info_m2 =(motor_info *) malloc(sizeof(motor_info));
+	motor_info * info_m3 =(motor_info *) malloc(sizeof(motor_info));
 
 	motorsAll->motor0 = info_m0;
 	motorsAll->motor1 = info_m1;

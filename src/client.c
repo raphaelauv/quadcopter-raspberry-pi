@@ -2,7 +2,7 @@
 
 char * dataControllerToMessage(int sizeFloat,DataController * dataController){
 
-	char * output=malloc(sizeof(char)*(sizeFloat*5));
+	char * output=(char *)malloc(sizeof(char)*(sizeFloat*5));
 
 	int tmp=sizeFloat;
 
@@ -34,7 +34,7 @@ void *thread_TCP_CLIENT(void *args) {
 
 	printf("CLIENT\n");
 
-	 args_CLIENT *argClient = args;
+	 args_CLIENT * argClient =(args_CLIENT *) args;
 
 
 	struct sockaddr_in adress_sock;
@@ -83,7 +83,7 @@ void *thread_TCP_CLIENT(void *args) {
 
 			//printf("THREAD CLIENT DU nouveau ?\n");
 			int resultWait;
-			printf("valeur new ? %d \n",argClient->argControler->new);
+			printf("valeur new ? %d \n",argClient->argControler->newThing);
 
 			/*
 			if(!argClient->argControler->new){
@@ -101,7 +101,7 @@ void *thread_TCP_CLIENT(void *args) {
 			}
 			*/
 
-			argClient->argControler->new=0;
+			argClient->argControler->newThing=0;
 			//printf("THREAD CLIENT OUI alors je regarde?\n");
 			message=dataControllerToMessage(10,argClient->argControler->manette);
 			pthread_mutex_unlock(&argClient->argControler->pmutexReadDataController->mutex);
@@ -140,7 +140,7 @@ void *thread_TCP_CLIENT(void *args) {
 
 void *thread_XBOX_CONTROLER(void *args) {
 
-	struct args_CONTROLER *argClient = args;
+	args_CONTROLER *argClient =(args_CONTROLER *) args;
 
 	control( argClient);
 
@@ -151,21 +151,21 @@ void *thread_XBOX_CONTROLER(void *args) {
 
 int startRemote(char * adresse){
 
-	PMutex * boolControllerPlug = malloc(sizeof(PMutex));
+	PMutex * boolControllerPlug =(PMutex *) malloc(sizeof(PMutex));
 	init_PMutex(boolControllerPlug);
 
 
-	PMutex * boolRead = malloc(sizeof(PMutex));
+	PMutex * boolRead =(PMutex *) malloc(sizeof(PMutex));
 	init_PMutex(boolRead);
 
-	args_CONTROLER * argControler = malloc(sizeof(args_CONTROLER));
-	argControler->new=0;
-	argControler->manette=malloc(sizeof( DataController));
+	args_CONTROLER * argControler =(args_CONTROLER *) malloc(sizeof(args_CONTROLER));
+	argControler->newThing=0;
+	argControler->manette=(DataController *) malloc(sizeof( DataController));
 	argControler->pmutexReadDataController=boolRead;
 	argControler->pmutexControlerPlug=boolControllerPlug;
 
 
-	args_CLIENT * argClient = malloc(sizeof(args_CLIENT));
+	args_CLIENT * argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
 	argClient->port=8888;
 	argClient->adresse=adresse;
 

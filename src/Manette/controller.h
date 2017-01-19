@@ -13,7 +13,7 @@
 
 
 typedef struct args_CONTROLER {
-	int new;
+	int newThing;
 	DataController * manette;
 	PMutex * pmutexReadDataController;
 	PMutex * pmutexControlerPlug;

@@ -4,29 +4,29 @@
 
 int main() {
 
-	PMutex * PmutexRemoteConnect = malloc(sizeof(PMutex));
+	PMutex * PmutexRemoteConnect = (PMutex *) malloc(sizeof(PMutex));
 	init_PMutex(PmutexRemoteConnect);
 
-	PMutex * PmutexDataControler = malloc(sizeof(PMutex));
+	PMutex * PmutexDataControler = (PMutex *) malloc(sizeof(PMutex));
 	init_PMutex(PmutexDataControler);
 
 	getIP();
 
-	DataController * dataControl = malloc(sizeof(DataController));
+	DataController * dataControl =(DataController *) malloc(sizeof(DataController));
 	dataControl->pmutex=PmutexDataControler;
 
-	args_SERVER * argServ = malloc(sizeof(args_SERVER));
+	args_SERVER * argServ =(args_SERVER *) malloc(sizeof(args_SERVER));
 	argServ->pmutexRemoteConnect = PmutexRemoteConnect;
 	argServ->dataController = dataControl;
 
-	MotorsAll * motorsAll = malloc(sizeof(MotorsAll));
-	motorsAll->bool_arret_moteur = malloc(sizeof(int));
+	MotorsAll * motorsAll =(MotorsAll *) malloc(sizeof(MotorsAll));
+	motorsAll->bool_arret_moteur =(int *) malloc(sizeof(int));
 	*(motorsAll->bool_arret_moteur)= 0;
 
 	init_Value_motors(motorsAll);
 
 
-	args_CONTROLDEVOL * argCONTROLVOL = malloc(sizeof(args_CONTROLDEVOL));
+	args_CONTROLDEVOL * argCONTROLVOL =(args_CONTROLDEVOL *) malloc(sizeof(args_CONTROLDEVOL));
 	argCONTROLVOL->dataController=dataControl;
 	argCONTROLVOL->motorsAll=motorsAll;
 

@@ -34,9 +34,9 @@
  * 2 milliseconde -> 100% de puissance
  * */
 
-#ifndef _TYPES_H_
-#define _TYPES_H_
-#define _GNU_SOURCE
+#ifndef _MOTORS_H_
+#define _MOTORS_H_
+//#define _GNU_SOURCE
 
 #include <unistd.h>
 #include <stdio.h>

@@ -3,7 +3,7 @@
 char is_connect() {
 	char name[100];
 	strcpy(name, "Microsoft X-Box 360 pad");
-	char * tmp = SDL_JoystickName(0);
+	const char * tmp = SDL_JoystickName(0);
 	if (tmp != 0) {
 		return 1;
 	}
@@ -42,7 +42,7 @@ void control(args_CONTROLER * argsControl) {
 		if (manette->moteur_active) {
 
 			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
-			argsControl->new = 1;
+			argsControl->newThing = 1;
 
 			manette->moteur0 =
 					(input.axes[0] < 0) ?
