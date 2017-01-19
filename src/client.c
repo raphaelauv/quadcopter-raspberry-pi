@@ -1,5 +1,16 @@
 #include "client.h"
 
+void clean_args_CLIENT(args_CLIENT * arg) {
+	if (arg != NULL) {
+		clean_PMutex(arg->pmutex);
+		clean_args_CONTROLER()(arg->argControler);
+		free(arg->adresse);
+	}
+	free(arg);
+	arg = NULL;
+}
+
+
 char * dataControllerToMessage(int sizeFloat,DataController * dataController){
 
 	char * output=(char *)malloc(sizeof(char)*(sizeFloat*5));
@@ -151,18 +162,18 @@ void *thread_XBOX_CONTROLER(void *args) {
 
 int startRemote(char * adresse){
 
-	PMutex * boolControllerPlug =(PMutex *) malloc(sizeof(PMutex));
-	init_PMutex(boolControllerPlug);
+	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
+	init_PMutex(pmutexControllerPlug);
 
 
-	PMutex * boolRead =(PMutex *) malloc(sizeof(PMutex));
-	init_PMutex(boolRead);
+	PMutex * pmutexRead =(PMutex *) malloc(sizeof(PMutex));
+	init_PMutex(pmutexRead);
 
 	args_CONTROLER * argControler =(args_CONTROLER *) malloc(sizeof(args_CONTROLER));
 	argControler->newThing=0;
 	argControler->manette=(DataController *) malloc(sizeof( DataController));
-	argControler->pmutexReadDataController=boolRead;
-	argControler->pmutexControlerPlug=boolControllerPlug;
+	argControler->pmutexReadDataController=pmutexRead;
+	argControler->pmutexControlerPlug=pmutexControllerPlug;
 
 
 	args_CLIENT * argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
@@ -176,7 +187,7 @@ int startRemote(char * adresse){
 
 	printf("TEST MANETTE\n");
 
-	pthread_mutex_lock(&boolControllerPlug->mutex);
+	pthread_mutex_lock(&pmutexControllerPlug->mutex);
 
 	if (pthread_create(&threadControler, NULL, thread_XBOX_CONTROLER, argControler)) {
 				perror("pthread_create");
@@ -185,9 +196,9 @@ int startRemote(char * adresse){
 	//wait for XBOX CONTROLER
 
 
-	pthread_cond_wait(&boolControllerPlug->condition, &boolControllerPlug->mutex);
+	pthread_cond_wait(&pmutexControllerPlug->condition, &pmutexControllerPlug->mutex);
 
-	pthread_mutex_unlock(&boolControllerPlug->mutex);
+	pthread_mutex_unlock(&pmutexControllerPlug->mutex);
 
 	printf("MANETTE ok \n");
 
@@ -205,6 +216,10 @@ int startRemote(char * adresse){
 			perror("pthread_join CONTROLER");
 			return EXIT_FAILURE;
 	}
+
+
+	clean_args_CLIENT(argClient);
+	clean_args_CONTROLER(argControler);
 
 	return EXIT_SUCCESS;
 }

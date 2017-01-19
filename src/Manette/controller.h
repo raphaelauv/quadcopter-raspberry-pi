@@ -22,5 +22,7 @@ typedef struct args_CONTROLER {
 
 void control( args_CONTROLER * argsControl);
 
+void clean_args_CONTROLER(args_CONTROLER * arg);
+
 
 #endif /* CONTROLLER_H_ */

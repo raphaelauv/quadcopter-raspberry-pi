@@ -1,5 +1,15 @@
 #include "controller.h"
 
+void clean_args_CONTROLER(args_CONTROLER * arg) {
+	if (arg != NULL) {
+		clean_PMutex(arg->pmutexControlerPlug);
+		clean_PMutex(arg->pmutexReadDataController);
+		clean_DataController(arg->manette);
+	}
+	free(arg);
+	arg = NULL;
+}
+
 char is_connect() {
 	//char name[100];
 	//strcpy(name, "Microsoft X-Box 360 pad");

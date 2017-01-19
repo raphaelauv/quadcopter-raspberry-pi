@@ -29,6 +29,6 @@ typedef struct args_CLIENT {
 	args_CONTROLER * argControler;
 } args_CLIENT;
 
-
+void clean_args_CLIENT(args_CLIENT * arg);
 
 #endif /* CLIENT_H_ */

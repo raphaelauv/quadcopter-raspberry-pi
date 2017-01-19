@@ -1,19 +1,14 @@
 #include "controldeVol.h"
 
-
-void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg){
+void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg) {
 	if (arg != NULL) {
-		if (arg->motorsAll != NULL) {
-			//clean_(arg->motorsAll);
-		}
-		if(arg->dataController != NULL){
-			//clean(arg->dataController);
-		}
-
-		free(arg);
-		arg=NULL;
+		clean_motorsAll(arg->motorsAll);
+		clean_DataController(arg->dataController);
 	}
+	free(arg);
+	arg = NULL;
 }
+
 
 void * startCONTROLVOL(void * args){
 
