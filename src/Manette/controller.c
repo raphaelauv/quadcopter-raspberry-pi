@@ -1,10 +1,11 @@
 #include "controller.h"
 
 char is_connect() {
-	char name[100];
-	strcpy(name, "Microsoft X-Box 360 pad");
+	//char name[100];
+	//strcpy(name, "Microsoft X-Box 360 pad");
+
 	const char * tmp = SDL_JoystickName(0);
-	if (tmp != 0) {
+	if (tmp != NULL) {
 		return 1;
 	}
 	return 0;
@@ -24,7 +25,8 @@ void control(args_CONTROLER * argsControl) {
 
 	while (!quitter) {
 
-		sleep(Update_Frequence);
+		usleep(Update_Frequence);
+
 		updateEvent(&input); // on récupère les évènements
 
 		if (input.boutons[4] && input.boutons[5] && input.boutons[6]
@@ -39,6 +41,8 @@ void control(args_CONTROLER * argsControl) {
 			pthread_cond_signal(&argsControl->pmutexControlerPlug->condition);
 			pthread_mutex_unlock(&argsControl->pmutexControlerPlug->mutex);
 		}
+
+		//printf("APRES IF\n");
 		if (manette->moteur_active) {
 
 			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
@@ -60,12 +64,14 @@ void control(args_CONTROLER * argsControl) {
 					(input.axes[4] < 0) ?
 							(float) input.axes[4] * -1 * 5.0 / 32768 + 5 :
 							(float) input.axes[4] * 5.0 / 32768 + 5;
+
+			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
+
 			printf("Axes 1: %f,%f     -       Axes 2: %f,%f \n ",
 					manette->moteur0, manette->moteur1, manette->moteur2,
 					manette->moteur3);
 		}
 
-		pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
 
 		if (!is_connect()) {
 			manette->moteur_active = 0;
