@@ -3,7 +3,7 @@
 void clean_args_CLIENT(args_CLIENT * arg) {
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutex);
-		clean_args_CONTROLER()(arg->argControler);
+		clean_args_CONTROLER(arg->argControler);
 		free(arg->adresse);
 	}
 	free(arg);

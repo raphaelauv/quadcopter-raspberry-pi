@@ -4,10 +4,16 @@ CFLAGS=-std=c++0x
 CFLAGS_Raspberry= $(CFLAGS) -lwiringPi
 
 LDFLAGS=-lpthread 
-LDFLAGS_Raspberry= $(LDFLAGS) -lwiringPi 
-LDFLAGS_ClientRemote= $(LDFLAGS) -lSDL -lSDLmain
 
-EXEC=  clientRemote
+#--------------------------SUR RASBPERRY---------------------------#
+
+#rajouté  -lwiringPi   a la suite de  LDFLAGS_Raspberry= $(LDFLAGS)
+LDFLAGS_Raspberry= $(LDFLAGS)
+#-lwiringPi 
+
+#------------------------------------------------------------------#
+
+LDFLAGS_ClientRemote= $(LDFLAGS) -lSDL -lSDLmain
 
 SRC=src/concurrent.c
 
@@ -15,24 +21,35 @@ SRC_drone = $(SRC) src/controldeVol.c src/motors.c src/serv.c
 
 SRC_client = $(SRC) src/Manette/controller.c src/Manette/manette.c
 
-OBJdroneMain= $(SRC_drone:.c=.o)  $(SRC_drone:.cpp=.o) 
+OBJdroneMain= $(SRC_drone:.c=.o)
 
-OBJclientRemote= $(SRC_client:.c=.o)  $(SRC_client:.cpp=.o)
+OBJclientRemote= $(SRC_client:.c=.o) 
+
+EXEC = clientRemote droneMain
+
+all: 
+	
+	echo 'type : make drone   |or type : make client'
+
+#all: $(EXEC)
+
+drone:droneMain
+
+client:clientRemote
 
 
-all: $(EXEC)
 
-object/droneMain.o: src/droneMain.c
-	$(CC) -o $@ -c $< $(CFLAGS_Raspberry)
+src/droneMain.o: src/droneMain.c
+	$(CC) $(CFLAGS_Raspberry) -o $@ -c $< 
 
-droneMain: object/droneMain.o $(OBJdroneMain)
-	$(CC) -o $@ $^ $(LDFLAGS_Raspberry)
+droneMain: src/droneMain.o $(OBJdroneMain)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS_Raspberry)
 
-object/client.o: src/client.c
-	$(CC) -o $@ -c $< $(CFLAGS)
+src/client.o: src/client.c
+	$(CC) $(CFLAGS) -o $@ -c $< 
 
-clientRemote: object/client.o $(OBJclientRemote)
-	$(CC) -o $@ $^ $(LDFLAGS_ClientRemote)
+clientRemote: $(OBJclientRemote) src/client.o 
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS_ClientRemote)
 
 .cpp.o:
 	$(CC) $(CFLAGS) -c $< -o $@
