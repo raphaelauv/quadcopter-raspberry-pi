@@ -1,13 +1,32 @@
-----------------------------
-pour compiler :
 
-gcc client.c -o client
-gcc -c serv.c
-gcc serv.o droneMain.c -lpthread -o droneMain
+jstest-gtk -> pour claibrer la manette XBOX360
+https://apps.ubuntu.com/cat/applications/jstest-gtk/
+
+SDL 2 - la lib pour utiliser la manette XBOX360
+libSDL
+
+
 
 -----------------------------
-pour executer :
+pour executer le code du drone :
 
 ./droneMain
 
-puis ./client 127.0.0.1
+
+pour executer le code du client/controlleur :
+./client 127.0.0.1
+
+
+
+--------------
+A faire
+
+Passer en UDP
+
+Faire protocol d'arret totale et de "pause"
+
+Calibrer valeur manette
+
+Finir makeFile
+
+corriger Code C appeler en C++
