@@ -51,22 +51,16 @@ int main() {
 		return EXIT_FAILURE;
 	}
 
-
 	init_threads_motors(motorsAll);//start the 4 threads et ne rends pas la main
-
 
 	if (pthread_join(threadServer, NULL)){
 		perror("pthread_join");
 		return EXIT_FAILURE;
 	}
-
-
 	if (pthread_join(threadControlerVOL, NULL)){
 			perror("pthread_join");
 			return EXIT_FAILURE;
 	}
-
-
 	clean_args_SERVER(argServ);
 	clean_args_CONTROLDEVOL(argCONTROLVOL);
 	return 0;
