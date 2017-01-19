@@ -60,14 +60,14 @@ void * thread_startMoteur(void * args){
     */
     int runMotor=1;
     while(runMotor){
-    	sleep(10);
+    	sleep(5);
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
     	pthread_mutex_lock(&info->MutexSetPower->mutex);
-        if(*(info->bool_arret_moteur)){//Dans le cas on est pas dans une demande d'arret moteur.
+        if(!(*(info->bool_arret_moteur))){//Dans le cas on est pas dans une demande d'arret moteur.
         	hight=(int)info->high_time;
         	low=(int)info->low_time;
 
-        	printf("THREAD MOTOR INIT-> %d  | HIGH %d  LOW %d \n",info->broche, hight, low);
+        	printf("THREAD MOTOR -> %d  | HIGH %d  LOW %d \n",info->broche, hight, low);
 
         	pthread_mutex_unlock(&info->MutexSetPower->mutex);
         	//digitalWrite(info->broche, 1);       // Etat haut du signal TODO CODE RASPBERRY

@@ -1,7 +1,6 @@
 #include "client.h"
-#include "concurrent.h"
 
-char * dataControllerToMessage(int sizeFloat,struct DataController * dataController){
+char * dataControllerToMessage(int sizeFloat,DataController * dataController){
 
 	char * output=malloc(sizeof(char)*(sizeFloat*5));
 
@@ -35,7 +34,7 @@ void *thread_TCP_CLIENT(void *args) {
 
 	printf("CLIENT\n");
 
-	struct args_CLIENT *argClient = args;
+	 args_CLIENT *argClient = args;
 
 
 	struct sockaddr_in adress_sock;
@@ -136,6 +135,7 @@ void *thread_TCP_CLIENT(void *args) {
 		perror("Connection FAIL , drone server not answering");
 	}
 
+	return NULL;
 }
 
 void *thread_XBOX_CONTROLER(void *args) {
@@ -144,6 +144,7 @@ void *thread_XBOX_CONTROLER(void *args) {
 
 	control( argClient);
 
+	return NULL;
 }
 
 
@@ -157,14 +158,14 @@ int startRemote(char * adresse){
 	PMutex * boolRead = malloc(sizeof(PMutex));
 	init_PMutex(boolRead);
 
-	struct args_CONTROLER * argControler = malloc(sizeof(args_CONTROLER));
+	args_CONTROLER * argControler = malloc(sizeof(args_CONTROLER));
 	argControler->new=0;
 	argControler->manette=malloc(sizeof( DataController));
 	argControler->pmutexReadDataController=boolRead;
 	argControler->pmutexControlerPlug=boolControllerPlug;
 
 
-	struct args_CLIENT * argClient = malloc(sizeof(args_CLIENT));
+	args_CLIENT * argClient = malloc(sizeof(args_CLIENT));
 	argClient->port=8888;
 	argClient->adresse=adresse;
 

@@ -199,4 +199,5 @@ void *thread_TCP_SERVER(void *args) {
 			}
 		}
 	}
+	return NULL;
 }

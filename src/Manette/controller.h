@@ -7,9 +7,17 @@
 #include <string.h>
 #include "manette.h"
 
-#include "../client.h"
+#include "../concurrent.h"
 
 #define Update_Frequence 1
+
+
+typedef struct args_CONTROLER {
+	int new;
+	DataController * manette;
+	PMutex * pmutexReadDataController;
+	PMutex * pmutexControlerPlug;
+} args_CONTROLER;
 
 
 void control( args_CONTROLER * argsControl);

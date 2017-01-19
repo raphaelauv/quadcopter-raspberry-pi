@@ -18,17 +18,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-
 #include "concurrent.h"
 
-
-typedef struct args_CONTROLER {
-	int new;
-	struct DataController * manette;
-	PMutex * pmutexReadDataController;
-	PMutex * pmutexControlerPlug;
-} args_CONTROLER;
-
+#include "Manette/controller.h"
 
 typedef struct args_CLIENT {
 	int port;
