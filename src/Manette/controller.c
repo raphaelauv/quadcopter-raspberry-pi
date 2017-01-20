@@ -33,6 +33,8 @@ void control(args_CONTROLER * argsControl) {
 
 	int quitter = 0;
 
+	float tmpM0,tmpM1,tmpM2,tmpM3;
+
 	while (!quitter) {
 
 		usleep(Update_Frequence);
@@ -55,25 +57,26 @@ void control(args_CONTROLER * argsControl) {
 		//printf("APRES IF\n");
 		if (manette->moteur_active) {
 
-			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
-			argsControl->newThing = 1;
+			tmpM0 = (input.axes[0] < 0) ?
+					(float) input.axes[0] * -1 * 5.0 / 32768 + 5 :
+					(float) input.axes[0] * 5.0 / 32768 + 5;
+			tmpM1 = (input.axes[1] < 0) ?
+					(float) input.axes[1] * -1 * 5.0 / 32768 + 5 :
+					(float) input.axes[1] * 5.0 / 32768 + 5;
+			tmpM2 = (input.axes[3] < 0) ?
+					(float) input.axes[3] * -1 * 5.0 / 32768 + 5 :
+					(float) input.axes[3] * 5.0 / 32768 + 5;
+			tmpM3 = (input.axes[4] < 0) ?
+					(float) input.axes[4] * -1 * 5.0 / 32768 + 5 :
+					(float) input.axes[4] * 5.0 / 32768 + 5;
 
-			manette->moteur0 =
-					(input.axes[0] < 0) ?
-							(float) input.axes[0] * -1 * 5.0 / 32768 + 5 :
-							(float) input.axes[0] * 5.0 / 32768 + 5;
-			manette->moteur1 =
-					(input.axes[1] < 0) ?
-							(float) input.axes[1] * -1 * 5.0 / 32768 + 5 :
-							(float) input.axes[1] * 5.0 / 32768 + 5;
-			manette->moteur2 =
-					(input.axes[3] < 0) ?
-							(float) input.axes[3] * -1 * 5.0 / 32768 + 5 :
-							(float) input.axes[3] * 5.0 / 32768 + 5;
-			manette->moteur3 =
-					(input.axes[4] < 0) ?
-							(float) input.axes[4] * -1 * 5.0 / 32768 + 5 :
-							(float) input.axes[4] * 5.0 / 32768 + 5;
+			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
+
+			argsControl->newThing = 1;
+			manette->moteur0 =tmpM0;
+			manette->moteur1 =tmpM1;
+			manette->moteur2 =tmpM2;
+			manette->moteur3 =tmpM3;
 
 			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
 

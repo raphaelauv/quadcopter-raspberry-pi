@@ -2,5 +2,5 @@
 
 Pour compiler :
 
-	depuis la racine 
-		sh script.sh
+make drone
+make client
