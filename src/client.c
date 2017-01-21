@@ -41,18 +41,65 @@ char * dataControllerToMessage(int sizeFloat,DataController * dataController){
 }
 
 
+void *thread_UDP_CLIENT(void *args) {
+
+	printf("CLIENT UDP\n");
+
+	args_CLIENT * argClient = (args_CLIENT *) args;
+	int sock;
+	struct sockaddr_in adr_svr;
+	memset(&adr_svr, 0, sizeof(adr_svr));
+
+	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
+		perror("Socket error");
+	}
+
+	if (bind(sock, (struct sockaddr *) &adr_svr, sizeof(adr_svr))) {
+		perror("bind error");
+	}
+
+	char tampon[100];
+
+	int continu = 1;
+	while (continu) {
+		char * message;
+		pthread_mutex_lock(
+				&argClient->argControler->pmutexReadDataController->mutex);
+
+		argClient->argControler->newThing = 0;
+		message = dataControllerToMessage(10, argClient->argControler->manette);
+		pthread_mutex_unlock(
+				&argClient->argControler->pmutexReadDataController->mutex);
+
+		sleep(1);
+		printf("THREAD CLIENT SENDING : %s\n", message);
+		//strcpy(tampon, );
+
+		if (*message == 'X') {
+			printf("CLIENT EXIT ASK !! \n");
+			continu = 0;
+		}
+
+		//sendto(sock, message,100, 0, saddr,sizeof(struct sockaddr_in));
+
+		return 0;
+	}
+	return NULL;
+}
+
+
 void *thread_TCP_CLIENT(void *args) {
 
-	printf("CLIENT\n");
+	printf("CLIENT TCP\n");
 
-	 args_CLIENT * argClient =(args_CLIENT *) args;
-
+	args_CLIENT * argClient =(args_CLIENT *) args;
 
 	struct sockaddr_in adress_sock;
 	adress_sock.sin_family = AF_INET;
 	adress_sock.sin_port = htons(argClient->port);
 	inet_aton(argClient->adresse, &adress_sock.sin_addr);
 	int descr = socket(PF_INET, SOCK_STREAM, 0);
+
 	int r = connect(descr, (struct sockaddr *) &adress_sock,
 			sizeof(struct sockaddr_in));
 	if (r != -1) {
@@ -228,8 +275,7 @@ int main (int argc, char *argv[]){
 	if(argc<2){
 		perror("Indiquer l'adresse IP du drone en argument");
 		return EXIT_FAILURE;
-	}else{
+	}
 		printf("adresse choisit : %s\n",argv[1]);
 		return startRemote(argv[1]);
-	}
 }

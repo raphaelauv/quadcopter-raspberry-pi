@@ -27,5 +27,6 @@ void clean_args_SERVER(args_SERVER * arg);
 
 void getIP();
 void *thread_TCP_SERVER(void *args);
+void *thread_UDP_SERVER(void *args);
 
 #endif /* SERV_H_ */

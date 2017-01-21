@@ -99,10 +99,40 @@ void MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
 
 }
 
-void *thread_TCP_SERVER(void *args) {
-	printf("SERVEUR\n");
 
-	args_SERVER *argSERV =(args_SERVER*) args;
+void *thread_UDP_SERVER(void *args) {
+
+	printf("SERVEUR UDP\n");
+
+	args_SERVER *argSERV = (args_SERVER*) args;
+
+	int sock;
+	struct sockaddr_in adr_svr;
+
+	memset(&adr_svr, 0, sizeof(adr_svr));
+	adr_svr.sin_family 		= AF_INET;
+	adr_svr.sin_addr.s_addr = htonl(INADDR_ANY);
+	adr_svr.sin_port 		= htons(8888);
+
+	if((sock=socket(PF_INET,SOCK_DGRAM,0)) ==-1 ){
+		perror("Socket error");
+	}
+
+	if(bind(sock,(struct sockaddr *)&adr_svr,sizeof(adr_svr))){
+		perror("bind error");
+	}
+
+	pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
+	pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
+	pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
+
+
+}
+
+void *thread_TCP_SERVER(void *args) {
+	printf("SERVEUR TCP\n");
+
+	args_SERVER *argSERV = (args_SERVER*) args;
 
 	int sock = socket(PF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in address_sock;
@@ -114,90 +144,87 @@ void *thread_TCP_SERVER(void *args) {
 	address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
 	int r = bind(sock, (struct sockaddr *) &address_sock,
 			sizeof(struct sockaddr_in));
-	if (r == 0) {
-		r = listen(sock, 0);
-		int connect = 1;
-		while (connect) {
-			struct sockaddr_in caller;
-			socklen_t size = sizeof(caller);
+	if (r != 0) {
+		return NULL;
+	}
+	r = listen(sock, 0);
+	int connect = 1;
+	while (connect) {
+		struct sockaddr_in caller;
+		socklen_t size = sizeof(caller);
 
-			int sock2 = accept(sock, (struct sockaddr *) &caller, &size);
-			printf("SERVEUR ACCEPT\n");
-			if (sock2 >= 0) {
+		int sock2 = accept(sock, (struct sockaddr *) &caller, &size);
+		printf("SERVEUR ACCEPT\n");
 
-				int fini = 1;
+		if (sock2 < 0) {
+			printf("Bind fail");
 
-				pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
+		}
 
-				pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
 
-				pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
 
-				printf("APRES SIGNAL\n");
+		pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
 
-				char *mess = "HELLO\n";
-				int result = write(sock2, mess, strlen(mess) * sizeof(char));
+		pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
 
-				//TODO do a WHILE SUR le WRITE
+		pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
 
-				fcntl(sock2, F_SETFL, O_NONBLOCK);
 
-				int fd_max = sock2 + 1;
+		char *mess = "HELLO\n";
+		int result = write(sock2, mess, strlen(mess) * sizeof(char));
 
-				struct timeval tv;
-				fd_set rdfs;
+		//TODO do a WHILE SUR le WRITE
 
-				while (fini) {
-					FD_ZERO(&rdfs);
-					FD_SET(sock2, &rdfs);
-					tv.tv_sec = 3;
-					tv.tv_usec = 500000;
-					int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
-					//printf("valeur de retour de select : %d\n", ret);
-					if (ret == 0) {
-						printf("Timed out\n");
-						fini = 0;
-					}
-					else if (FD_ISSET(sock2, &rdfs)) {
-						int messageRead = 0;
-						int iter=0;
-						char buff[100];
-						while (messageRead < 1 && iter <10) {
-							iter++;
-							//printf("try to read\n");
-							int bytesRead = read(sock2, buff, 100 - messageRead);
-							messageRead += bytesRead;
-						}
-						if (messageRead >0) {
-							buff[99] = '\0';
-							//printf("Message recu : %s\n", buff);
-							MessageToStruc(buff,10,argSERV);
+		fcntl(sock2, F_SETFL, O_NONBLOCK);
+		int fd_max = sock2 + 1;
+		struct timeval tv;
+		fd_set rdfs;
 
-							char str1[2];
-							char str2[2];
-							int res = 0;
-							strcpy(str1, "X\0");
-							strcpy(str2, buff);
-							res = strcmp(str1, str2);
-							if (res == 0) {
-								fini = 0;
-								printf("c'est fini !!\n");
-							}
-						}else{
-							printf("NOTHING TO READ !!\n");
-							fini=0;
-						}
-					}
-					else{
-						printf("??\n");
-					}
+		int fini = 1;
+		while (fini) {
+			FD_ZERO(&rdfs);
+			FD_SET(sock2, &rdfs);
+			tv.tv_sec = 3;
+			tv.tv_usec = 500000;
+			int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
+			//printf("valeur de retour de select : %d\n", ret);
+			if (ret == 0) {
+				printf("Timed out\n");
+				fini = 0;
+			} else if (FD_ISSET(sock2, &rdfs)) {
+				int messageRead = 0;
+				int iter = 0;
+				char buff[100];
+				while (messageRead < 1 && iter < 10) {
+					iter++;
+					//printf("try to read\n");
+					int bytesRead = read(sock2, buff, 100 - messageRead);
+					messageRead += bytesRead;
 				}
-				close(sock2);
+				if (messageRead > 0) {
+					buff[99] = '\0';
+					//printf("Message recu : %s\n", buff);
+					MessageToStruc(buff, 10, argSERV);
 
+					char str1[2];
+					char str2[2];
+					int res = 0;
+					strcpy(str1, "X\0");
+					strcpy(str2, buff);
+					res = strcmp(str1, str2);
+					if (res == 0) {
+						fini = 0;
+						printf("c'est fini !!\n");
+					}
+				} else {
+					printf("NOTHING TO READ !!\n");
+					fini = 0;
+				}
 			} else {
-				printf("Bind fail");
+				printf("SELECT EXIST WITHOUT GOOD VALUE\n");
 			}
 		}
+		close(sock2);
 	}
 	return NULL;
 }
