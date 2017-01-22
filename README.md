@@ -15,7 +15,7 @@ https://apps.ubuntu.com/cat/applications/jstest-gtk/
 
 #------------------------------LE DRONE--------------------------------#
 
-make drone
+	make drone
 
 #########################################################################
 
@@ -25,10 +25,11 @@ make drone
 
 pour executer le code du drone :
 
-./droneMain
+	./droneMain
 
 pour executer le code du client/controlleur :
-./client 127.0.0.1
+
+	./client 127.0.0.1
 
 
 --------------

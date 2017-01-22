@@ -91,6 +91,8 @@ void *thread_UDP_SERVER(void *args) {
 		printf("messag recu %d : %s\n",i,buff);
 		i++;
 	}
+
+	return NULL;
 }
 
 void *thread_TCP_SERVER(void *args) {

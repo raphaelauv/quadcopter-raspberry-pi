@@ -19,13 +19,13 @@ SRC=src/concurrent.c src/network.c
 
 SRC_drone = $(SRC) src/controldeVol.c src/motors.c src/serv.c
 
-SRC_client = $(SRC) src/Manette/controller.c src/Manette/manette.c
+SRC_client = $(SRC)  src/client.c src/Manette/controller.c src/Manette/manette.c 
 
 OBJdroneMain= $(SRC_drone:.c=.o)
 
 OBJclientRemote= $(SRC_client:.c=.o) 
 
-EXEC = clientRemote droneMain
+EXEC = clientRemoteMain droneMain
 
 all: 
 	
@@ -35,9 +35,7 @@ all:
 
 drone:droneMain
 
-client:clientRemote
-
-
+client:clientRemoteMain
 
 src/droneMain.o: src/droneMain.c
 	$(CC) $(CFLAGS_Raspberry) -o $@ -c $< 
@@ -45,10 +43,10 @@ src/droneMain.o: src/droneMain.c
 droneMain: src/droneMain.o $(OBJdroneMain)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS_Raspberry)
 
-src/client.o: src/client.c
+src/clientRemoteMain.o: src/clientRemoteMain.c
 	$(CC) $(CFLAGS) -o $@ -c $< 
 
-clientRemote: $(OBJclientRemote) src/client.o 
+clientRemoteMain: $(OBJclientRemote) src/clientRemoteMain.o 
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS_ClientRemote)
 
 .cpp.o:

@@ -41,8 +41,7 @@ char * dataControllerToMessage(int sizeFloat,DataController * dataController){
 }
 
 
-char* concat(const char *s1, const char *s2)
-{
+char* concat(const char *s1, const char *s2){
     char *result;
 
     if((result=(char *)malloc(strlen(s1)+strlen(s2)+2))==NULL){
@@ -249,7 +248,6 @@ int startClientRemote(char * adresse){
 	argControler->pmutexReadDataController=pmutexRead;
 	argControler->pmutexControlerPlug=pmutexControllerPlug;
 
-
 	args_CLIENT * argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
 	argClient->port=8888;
 	argClient->adresse=adresse;
@@ -263,13 +261,12 @@ int startClientRemote(char * adresse){
 
 	pthread_mutex_lock(&pmutexControllerPlug->mutex);
 
-	if (pthread_create(&threadControler, NULL, thread_XBOX_CONTROLER, argControler)) {
-				perror("pthread_create");
-				return EXIT_FAILURE;
+	if (pthread_create(&threadControler, NULL, thread_XBOX_CONTROLER,argControler)) {
+		perror("pthread_create");
+		return EXIT_FAILURE;
 	}
+
 	//wait for XBOX CONTROLER
-
-
 	pthread_cond_wait(&pmutexControllerPlug->condition, &pmutexControllerPlug->mutex);
 
 	pthread_mutex_unlock(&pmutexControllerPlug->mutex);
@@ -278,17 +275,17 @@ int startClientRemote(char * adresse){
 
 	//XBOX CONTROLER IS ON , we can start the client socket thread
 	if (pthread_create(&threadClient, NULL, thread_UDP_CLIENT, argClient)) {
-			perror("pthread_create");
-			return EXIT_FAILURE;
+		perror("pthread_create");
+		return EXIT_FAILURE;
 	}
 
-	if (pthread_join(threadClient, NULL)){
-			perror("pthread_join SERV");
-			return EXIT_FAILURE;
+	if (pthread_join(threadClient, NULL)) {
+		perror("pthread_join SERV");
+		return EXIT_FAILURE;
 	}
-	if (pthread_join(threadControler, NULL)){
-			perror("pthread_join CONTROLER");
-			return EXIT_FAILURE;
+	if (pthread_join(threadControler, NULL)) {
+		perror("pthread_join CONTROLER");
+		return EXIT_FAILURE;
 	}
 
 
@@ -298,11 +295,4 @@ int startClientRemote(char * adresse){
 	return EXIT_SUCCESS;
 }
 
-int main (int argc, char *argv[]){
-	if(argc<2){
-		perror("Indiquer l'adresse IP du drone en argument");
-		return EXIT_FAILURE;
-	}
-		printf("adresse choisit : %s\n",argv[1]);
-		return startClientRemote(argv[1]);
-}
+

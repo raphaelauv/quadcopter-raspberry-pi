@@ -14,6 +14,7 @@ int main() {
 
 	DataController * dataControl =(DataController *) malloc(sizeof(DataController));
 	dataControl->pmutex=PmutexDataControler;
+	dataControl->moteur_active=1;
 
 	args_SERVER * argServ =(args_SERVER *) malloc(sizeof(args_SERVER));
 	argServ->pmutexRemoteConnect = PmutexRemoteConnect;
