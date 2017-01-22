@@ -15,6 +15,7 @@
 #include <sys/select.h>
 #include <fcntl.h>
 
+#include "network.h"
 #include "concurrent.h"
 
 typedef struct args_SERVER {
@@ -25,7 +26,6 @@ typedef struct args_SERVER {
 
 void clean_args_SERVER(args_SERVER * arg);
 
-void getIP();
 void *thread_TCP_SERVER(void *args);
 void *thread_UDP_SERVER(void *args);
 

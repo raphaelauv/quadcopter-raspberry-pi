@@ -41,6 +41,23 @@ char * dataControllerToMessage(int sizeFloat,DataController * dataController){
 }
 
 
+char* concat(const char *s1, const char *s2)
+{
+    char *result;
+
+    if((result=(char *)malloc(strlen(s1)+strlen(s2)+2))==NULL){
+    	return NULL;
+    }
+
+    char space[2];
+    space[0]=' ';
+    space[1]=0;
+    strcpy(result, s1);
+    strcat(result,(const char *) &space);
+    strcat(result, s2);
+    return result;
+}
+
 void *thread_UDP_CLIENT(void *args) {
 
 	printf("CLIENT UDP\n");
@@ -55,6 +72,19 @@ void *thread_UDP_CLIENT(void *args) {
 
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
 		perror("Socket error");
+	}
+
+
+	char str[15];
+	sprintf(str, "%d", argClient->port);
+
+	char *myIP=getIP();
+	if(myIP!=NULL){
+		char * messageWithInfo=concat(myIP,str);
+		printf("THREAD CLIENT SENDING : %s\n", messageWithInfo);
+		sendto(sock, messageWithInfo,50, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
+
+		free(myIP);
 	}
 
 	int continu = 1;
@@ -204,7 +234,7 @@ void *thread_XBOX_CONTROLER(void *args) {
 
 
 
-int startRemote(char * adresse){
+int startClientRemote(char * adresse){
 
 	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
 	init_PMutex(pmutexControllerPlug);
@@ -274,5 +304,5 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 		printf("adresse choisit : %s\n",argv[1]);
-		return startRemote(argv[1]);
+		return startClientRemote(argv[1]);
 }

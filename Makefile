@@ -15,7 +15,7 @@ LDFLAGS_Raspberry= $(LDFLAGS)
 
 LDFLAGS_ClientRemote= $(LDFLAGS) -lSDL -lSDLmain
 
-SRC=src/concurrent.c
+SRC=src/concurrent.c src/network.c
 
 SRC_drone = $(SRC) src/controldeVol.c src/motors.c src/serv.c
 

@@ -1,7 +1,6 @@
 #ifndef CLIENT_H_
 #define CLIENT_H
 
-
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
 #include <netdb.h>
@@ -20,6 +19,7 @@
 #include <pthread.h>
 #include "concurrent.h"
 
+#include "network.h"
 #include "Manette/controller.h"
 
 typedef struct args_CLIENT {
