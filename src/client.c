@@ -35,7 +35,7 @@ char * dataControllerToMessage(int sizeFloat,DataController * dataController){
 
 	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur3);
 
-	printf("LE MESSAGE CREER EST : %s\n", output);
+	//printf("LE MESSAGE CREER EST : %s\n", output);
 
 	return output;
 }
@@ -49,16 +49,13 @@ void *thread_UDP_CLIENT(void *args) {
 	int sock;
 	struct sockaddr_in adr_svr;
 	memset(&adr_svr, 0, sizeof(adr_svr));
+	adr_svr.sin_port	=htons(argClient->port);
+	adr_svr.sin_family	=AF_INET;
+	inet_aton(argClient->adresse, &adr_svr.sin_addr);
 
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
 		perror("Socket error");
 	}
-
-	if (bind(sock, (struct sockaddr *) &adr_svr, sizeof(adr_svr))) {
-		perror("bind error");
-	}
-
-	char tampon[100];
 
 	int continu = 1;
 	while (continu) {
@@ -73,16 +70,16 @@ void *thread_UDP_CLIENT(void *args) {
 
 		sleep(1);
 		printf("THREAD CLIENT SENDING : %s\n", message);
-		//strcpy(tampon, );
 
+		/*
 		if (*message == 'X') {
 			printf("CLIENT EXIT ASK !! \n");
 			continu = 0;
 		}
+		*/
 
-		//sendto(sock, message,100, 0, saddr,sizeof(struct sockaddr_in));
+		sendto(sock, message,100, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
 
-		return 0;
 	}
 	return NULL;
 }
@@ -250,7 +247,7 @@ int startRemote(char * adresse){
 	printf("MANETTE ok \n");
 
 	//XBOX CONTROLER IS ON , we can start the client socket thread
-	if (pthread_create(&threadClient, NULL, thread_TCP_CLIENT, argClient)) {
+	if (pthread_create(&threadClient, NULL, thread_UDP_CLIENT, argClient)) {
 			perror("pthread_create");
 			return EXIT_FAILURE;
 	}

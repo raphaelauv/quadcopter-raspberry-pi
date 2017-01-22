@@ -121,12 +121,22 @@ void *thread_UDP_SERVER(void *args) {
 	if(bind(sock,(struct sockaddr *)&adr_svr,sizeof(adr_svr))){
 		perror("bind error");
 	}
+	char buff[100];
+
+	recvfrom(sock,buff,99, 0,NULL,NULL);
+	printf("messag recu : %s\n",buff);
 
 	pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
 	pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
 	pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
 
-
+	int fini = 1;
+	int i=1;
+	while(fini){
+		recvfrom(sock,buff,99, 0,NULL,NULL);
+		printf("messag recu %d : %s\n",i,buff);
+		i++;
+	}
 }
 
 void *thread_TCP_SERVER(void *args) {

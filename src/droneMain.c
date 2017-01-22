@@ -36,7 +36,7 @@ int main() {
 
 	pthread_mutex_lock(&PmutexRemoteConnect->mutex);
 
-	if (pthread_create(&threadServer, NULL, thread_TCP_SERVER, argServ)) {
+	if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {
 		perror("pthread_create TCP");
 		return EXIT_FAILURE;
 	}
