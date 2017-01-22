@@ -19,6 +19,7 @@
 #include "concurrent.h"
 
 typedef struct args_SERVER {
+	char verbose;
 	PMutex * pmutexRemoteConnect;
 	DataController * dataController;
 

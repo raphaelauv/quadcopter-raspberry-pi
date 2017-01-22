@@ -6,6 +6,7 @@
 
 
 typedef struct args_CONTROLDEVOL {
+	char verbose;
 	MotorsAll * motorsAll;
 	DataController * dataController;
 

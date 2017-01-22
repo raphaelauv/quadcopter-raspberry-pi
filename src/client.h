@@ -23,6 +23,7 @@
 #include "Manette/controller.h"
 
 typedef struct args_CLIENT {
+	char verbose;
 	int port;
 	char * adresse;
 	PMutex * pmutex;
@@ -37,6 +38,6 @@ char* concat(const char *s1, const char *s2);
 void *thread_UDP_CLIENT(void *args);
 void *thread_TCP_CLIENT(void *args);
 
-int startClientRemote(char * adresse);
+int startClientRemote(char * adresse,char verbose);
 
 #endif /* CLIENT_H_ */

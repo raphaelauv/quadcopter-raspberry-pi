@@ -13,6 +13,7 @@
 
 
 typedef struct args_CONTROLER {
+	char verbose;
 	int newThing;
 	DataController * manette;
 	PMutex * pmutexReadDataController;

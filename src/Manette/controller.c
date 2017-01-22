@@ -24,6 +24,7 @@ char is_connect() {
 void control(args_CONTROLER * argsControl) {
 
 	DataController * manette = argsControl->manette;
+	char verbose = argsControl->verbose;
 
 	manette->moteur_active = 0;
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
@@ -46,7 +47,7 @@ void control(args_CONTROLER * argsControl) {
 			manette->moteur_active = (manette->moteur_active) ? 0 : 1;
 			input.boutons[4] = input.boutons[5] = input.boutons[6] =
 					input.boutons[7] = 0;
-			printf("bool_moteur_active= %d\n", manette->moteur_active);
+			if(verbose){printf("bool_moteur_active= %d\n", manette->moteur_active);}
 			sleep(3);
 
 			pthread_mutex_lock(&argsControl->pmutexControlerPlug->mutex);
@@ -80,15 +81,15 @@ void control(args_CONTROLER * argsControl) {
 
 			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
 
-			printf("Axes 1: %f,%f     -       Axes 2: %f,%f \n ",
+			if(verbose){printf("Axes 1: %f,%f     -       Axes 2: %f,%f \n ",
 					manette->moteur0, manette->moteur1, manette->moteur2,
-					manette->moteur3);
+					manette->moteur3);}
 		}
 
 
 		if (!is_connect()) {
 			manette->moteur_active = 0;
-			printf("Plus de manette %d.\n", manette->moteur_active);
+			if(verbose){printf("Plus de manette %d.\n", manette->moteur_active);}
 			break;
 		}
 	}

@@ -60,7 +60,7 @@ void * thread_startMoteur(void * args){
     */
     int runMotor=1;
     while(runMotor){
-    	sleep(5);
+    	sleep(5); //TODO CODE RASPBERRY
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
     	pthread_mutex_lock(&info->MutexSetPower->mutex);
         if(!(*(info->bool_arret_moteur))){//Dans le cas on est pas dans une demande d'arret moteur.
@@ -161,7 +161,7 @@ void init_Value_motors(MotorsAll * motorsAll){
 
 }
 
-void init_threads_motors(MotorsAll * motorsAll){
+void init_threads_motors(MotorsAll * motorsAll,char verbose){
     cpu_set_t cpuset;//ensemble des CPU utilisable.
 
     pthread_t thr0;

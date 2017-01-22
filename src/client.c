@@ -59,9 +59,10 @@ char* concat(const char *s1, const char *s2){
 
 void *thread_UDP_CLIENT(void *args) {
 
-	printf("CLIENT UDP\n");
-
 	args_CLIENT * argClient = (args_CLIENT *) args;
+	char verbose=argClient->verbose;
+	if(verbose){printf("CLIENT UDP\n");}
+
 	int sock;
 	struct sockaddr_in adr_svr;
 	memset(&adr_svr, 0, sizeof(adr_svr));
@@ -73,14 +74,13 @@ void *thread_UDP_CLIENT(void *args) {
 		perror("Socket error");
 	}
 
-
 	char str[15];
 	sprintf(str, "%d", argClient->port);
 
 	char *myIP=getIP();
 	if(myIP!=NULL){
 		char * messageWithInfo=concat(myIP,str);
-		printf("THREAD CLIENT SENDING : %s\n", messageWithInfo);
+		if(verbose){printf("THREAD CLIENT SENDING : %s\n", messageWithInfo);}
 		sendto(sock, messageWithInfo,50, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
 
 		free(myIP);
@@ -98,7 +98,7 @@ void *thread_UDP_CLIENT(void *args) {
 				&argClient->argControler->pmutexReadDataController->mutex);
 
 		sleep(1);
-		printf("THREAD CLIENT SENDING : %s\n", message);
+		if(verbose){printf("THREAD CLIENT SENDING : %s\n", message);}
 
 		/*
 		if (*message == 'X') {
@@ -116,9 +116,12 @@ void *thread_UDP_CLIENT(void *args) {
 
 void *thread_TCP_CLIENT(void *args) {
 
-	printf("CLIENT TCP\n");
+
 
 	args_CLIENT * argClient =(args_CLIENT *) args;
+	char verbose=argClient->verbose;
+
+	if(verbose){printf("CLIENT TCP\n");}
 
 	struct sockaddr_in adress_sock;
 	adress_sock.sin_family = AF_INET;
@@ -136,8 +139,7 @@ void *thread_TCP_CLIENT(void *args) {
 		//TODO do a WHILE SUR le READ
 		buff[size_rec] = '\0';
 
-		printf("Message RECU : %s\n", buff);
-
+		if(verbose){printf("Message RECU : %s\n", buff);}
 
 		/*
 		struct termios oldt, newt;
@@ -167,7 +169,7 @@ void *thread_TCP_CLIENT(void *args) {
 
 			//printf("THREAD CLIENT DU nouveau ?\n");
 			int resultWait;
-			printf("valeur new ? %d \n",argClient->argControler->newThing);
+			if(verbose){printf("valeur new ? %d \n",argClient->argControler->newThing);}
 
 			/*
 			if(!argClient->argControler->new){
@@ -191,7 +193,7 @@ void *thread_TCP_CLIENT(void *args) {
 			pthread_mutex_unlock(&argClient->argControler->pmutexReadDataController->mutex);
 
 			sleep(1);
-			printf("THREAD CLIENT SENDING : %s\n", message);
+			if(verbose){printf("THREAD CLIENT SENDING : %s\n", message);}
 			/*
 
 
@@ -206,7 +208,7 @@ void *thread_TCP_CLIENT(void *args) {
 			cmp = strcmp(&str1, str2);
 			 */
 			if (*message=='X') {
-				printf("CLIENT EXIT ASK !! \n");
+				if(verbose){printf("CLIENT EXIT ASK !! \n");}
 				continu=0;
 			}else{
 				int result = write(descr, message, 100);//TODO
@@ -232,8 +234,7 @@ void *thread_XBOX_CONTROLER(void *args) {
 }
 
 
-
-int startClientRemote(char * adresse){
+int startClientRemote(char * adresse,char verbose){
 
 	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
 	init_PMutex(pmutexControllerPlug);
@@ -247,17 +248,19 @@ int startClientRemote(char * adresse){
 	argControler->manette=(DataController *) malloc(sizeof( DataController));
 	argControler->pmutexReadDataController=pmutexRead;
 	argControler->pmutexControlerPlug=pmutexControllerPlug;
+	argControler->verbose=verbose;
 
 	args_CLIENT * argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
 	argClient->port=8888;
 	argClient->adresse=adresse;
+	argClient->verbose=verbose;
 
 	argClient->argControler=argControler;
 
 	pthread_t threadClient;
 	pthread_t threadControler;
 
-	printf("TEST MANETTE\n");
+	if(verbose){printf("TEST MANETTE\n");}
 
 	pthread_mutex_lock(&pmutexControllerPlug->mutex);
 
@@ -271,7 +274,7 @@ int startClientRemote(char * adresse){
 
 	pthread_mutex_unlock(&pmutexControllerPlug->mutex);
 
-	printf("MANETTE ok \n");
+	if(verbose){printf("MANETTE ok \n");}
 
 	//XBOX CONTROLER IS ON , we can start the client socket thread
 	if (pthread_create(&threadClient, NULL, thread_UDP_CLIENT, argClient)) {
@@ -294,5 +297,3 @@ int startClientRemote(char * adresse){
 
 	return EXIT_SUCCESS;
 }
-
-

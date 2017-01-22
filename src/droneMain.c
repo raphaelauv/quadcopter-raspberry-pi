@@ -2,7 +2,17 @@
 #include "motors.h"
 #include "controldeVol.h"
 
-int main() {
+int main (int argc, char *argv[]){
+
+	char verbose = 0;
+	if (argc > 1) {
+		if (strcmp(argv[1], "--verbose") == 0) {
+			printf("verbose MODE select\n");
+			verbose = 1;
+		}
+	}else{
+		printf("add    --verbose   for verbose mode\n");
+	}
 
 	PMutex * PmutexRemoteConnect = (PMutex *) malloc(sizeof(PMutex));
 	init_PMutex(PmutexRemoteConnect);
@@ -19,6 +29,7 @@ int main() {
 	args_SERVER * argServ =(args_SERVER *) malloc(sizeof(args_SERVER));
 	argServ->pmutexRemoteConnect = PmutexRemoteConnect;
 	argServ->dataController = dataControl;
+	argServ->verbose=verbose;
 
 	MotorsAll * motorsAll =(MotorsAll *) malloc(sizeof(MotorsAll));
 	motorsAll->bool_arret_moteur =(int *) malloc(sizeof(int));
@@ -30,6 +41,7 @@ int main() {
 	args_CONTROLDEVOL * argCONTROLVOL =(args_CONTROLDEVOL *) malloc(sizeof(args_CONTROLDEVOL));
 	argCONTROLVOL->dataController=dataControl;
 	argCONTROLVOL->motorsAll=motorsAll;
+	argCONTROLVOL->verbose=verbose;
 
 	pthread_t threadServer;
 	pthread_t threadControlerVOL;
@@ -52,7 +64,7 @@ int main() {
 		return EXIT_FAILURE;
 	}
 
-	init_threads_motors(motorsAll);//start the 4 threads et ne rends pas la main
+	init_threads_motors(motorsAll,verbose);//start the 4 threads et ne rends pas la main
 
 	if (pthread_join(threadServer, NULL)){
 		perror("pthread_join");

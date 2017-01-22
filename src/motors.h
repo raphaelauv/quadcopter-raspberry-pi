@@ -73,7 +73,7 @@ void clean_motor_info(motor_info * arg);
 //Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
 int set_power(struct motor_info * info, float power);
 //Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
-void init_threads_motors(MotorsAll * motors);
+void init_threads_motors(MotorsAll * motors,char verbose);
 
 void * thread_startMoteur(void * args);
 

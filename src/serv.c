@@ -49,17 +49,18 @@ void MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
 
 	pthread_mutex_unlock(&(arg->dataController->pmutex->mutex));
 
+	if(arg->verbose){
 	printf ("float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  |\n", a ,b,c,d);
-
+	}
 }
 
 
 void *thread_UDP_SERVER(void *args) {
 
-	printf("SERVEUR UDP\n");
-
 	args_SERVER *argSERV = (args_SERVER*) args;
 
+	char verbose =argSERV->verbose;
+	if(verbose){printf("SERVEUR UDP\n");}
 	int sock;
 	struct sockaddr_in adr_svr;
 
@@ -78,7 +79,7 @@ void *thread_UDP_SERVER(void *args) {
 	char buff[100];
 
 	recvfrom(sock,buff,99, 0,NULL,NULL);
-	printf("messag recu : %s\n",buff);
+	if(verbose){printf("messag recu : %s\n",buff);}
 
 	pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
 	pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
@@ -88,7 +89,7 @@ void *thread_UDP_SERVER(void *args) {
 	int i=1;
 	while(fini){
 		recvfrom(sock,buff,99, 0,NULL,NULL);
-		printf("messag recu %d : %s\n",i,buff);
+		if(verbose){printf("messag recu %d : %s\n",i,buff);}
 		i++;
 	}
 
@@ -96,9 +97,10 @@ void *thread_UDP_SERVER(void *args) {
 }
 
 void *thread_TCP_SERVER(void *args) {
-	printf("SERVEUR TCP\n");
 
 	args_SERVER *argSERV = (args_SERVER*) args;
+	char verbose =argSERV->verbose;
+	if(verbose){printf("SERVEUR TCP\n");}
 
 	int sock = socket(PF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in address_sock;
