@@ -45,6 +45,9 @@ void control(args_CONTROLER * argsControl) {
 		if (input.boutons[4] && input.boutons[5] && input.boutons[6]
 				&& input.boutons[7]) {
 			manette->moteur_active = (manette->moteur_active) ? 0 : 1;
+			/*TODO
+			  <=> manette->moteur_active = !(manette->moteur_active)
+			*/
 			input.boutons[4] = input.boutons[5] = input.boutons[6] =
 					input.boutons[7] = 0;
 			if(verbose){printf("bool_moteur_active= %d\n", manette->moteur_active);}
@@ -57,7 +60,7 @@ void control(args_CONTROLER * argsControl) {
 
 		//printf("APRES IF\n");
 		if (manette->moteur_active) {
-
+		  /*
 			tmpM0 = (input.axes[0] < 0) ?
 					(float) input.axes[0] * -1 * 5.0 / 32768 + 5 :
 					(float) input.axes[0] * 5.0 / 32768 + 5;
@@ -70,7 +73,17 @@ void control(args_CONTROLER * argsControl) {
 			tmpM3 = (input.axes[4] < 0) ?
 					(float) input.axes[4] * -1 * 5.0 / 32768 + 5 :
 					(float) input.axes[4] * 5.0 / 32768 + 5;
+		  */
 
+		  tmpM0 = input.axes[0];
+
+		  tmpM1 = input.axes[1];
+
+		  tmpM2 = input.axes[3];
+
+		  tmpM3 = input.axes[4];
+
+		  
 			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
 
 			argsControl->newThing = 1;
@@ -84,15 +97,20 @@ void control(args_CONTROLER * argsControl) {
 			if(verbose){printf("Axes 1: %f,%f     -       Axes 2: %f,%f \n ",
 					manette->axe_Rotation, manette->axe_UpDown, manette->axe_LeftRight,
 					manette->axe_FrontBack);}
+
+			  sleep(3);
+			}
+
+
+			if (!is_connect()) {
+				manette->moteur_active = 0;
+				if(verbose){printf("Plus de manette %d.\n", manette->moteur_active);}
+				break;
+			}
+
 		}
 
 
-		if (!is_connect()) {
-			manette->moteur_active = 0;
-			if(verbose){printf("Plus de manette %d.\n", manette->moteur_active);}
-			break;
-		}
-	}
 
 	/* diverses destruction ...*/
 
