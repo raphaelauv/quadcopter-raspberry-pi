@@ -22,13 +22,12 @@ void clean_PMutex(PMutex * arg);
 
 typedef struct DataController{
 
-
 	char moteur_active;
-	float moteur0;
-	float moteur1;
+	float axe_Rotation;
+	float axe_UpDown;
 
-	float moteur2;
-	float moteur3;
+	float axe_LeftRight;
+	float axe_FrontBack;
 
 	PMutex * pmutex;
 

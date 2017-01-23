@@ -16,23 +16,23 @@ void dataControllerToMessage(int sizeFloat,char * output,DataController * dataCo
 
 	int tmp=sizeFloat;
 
-	snprintf(output, sizeFloat, "%f", dataController->moteur0);
+	snprintf(output, sizeFloat, "%f", dataController->axe_Rotation);
 
 	output[tmp-2]=' ';
 
-	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur1);
+	snprintf(output+tmp-1, sizeFloat, "%f", dataController->axe_UpDown);
 
 	tmp+=sizeFloat-1;
 
 	output[tmp-2]=' ';
 
-	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur2);
+	snprintf(output+tmp-1, sizeFloat, "%f", dataController->axe_LeftRight);
 
 	tmp+=sizeFloat-1;
 
 	output[tmp-2]=' ';
 
-	snprintf(output+tmp-1, sizeFloat, "%f", dataController->moteur3);
+	snprintf(output+tmp-1, sizeFloat, "%f", dataController->axe_FrontBack);
 
 	//printf("LE MESSAGE CREER EST : %s\n", output);
 

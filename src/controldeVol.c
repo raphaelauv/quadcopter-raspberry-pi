@@ -45,10 +45,10 @@ void * startCONTROLVOL(void * args){
 					&mutexDataControler->mutex);
 		}
 		mutexDataControler->var = 0;
-		power0 = data->moteur0;
-		power1 = data->moteur1;
-		power2 = data->moteur2;
-		power3 = data->moteur3;
+		power0 = data->axe_Rotation;
+		power1 = data->axe_UpDown;
+		power2 = data->axe_LeftRight;
+		power3 = data->axe_FrontBack;
 		pthread_mutex_unlock(&(mutexDataControler->mutex));
 		set_power(controle_vol->motorsAll->motor0, power0);
 		set_power(controle_vol->motorsAll->motor1, power1);

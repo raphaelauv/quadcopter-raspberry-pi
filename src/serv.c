@@ -52,10 +52,10 @@ void MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
 	pthread_mutex_lock(&arg->dataController->pmutex->mutex);
 
 
-	arg->dataController->moteur0=a;
-	arg->dataController->moteur1=b;
-	arg->dataController->moteur2=c;
-	arg->dataController->moteur3=d;
+	arg->dataController->axe_Rotation=a;
+	arg->dataController->axe_UpDown=b;
+	arg->dataController->axe_LeftRight=c;
+	arg->dataController->axe_FrontBack=d;
 
 	if(arg->dataController->pmutex->var>0){
 		arg->dataController->pmutex->var=1;

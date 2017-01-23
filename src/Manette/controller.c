@@ -74,16 +74,16 @@ void control(args_CONTROLER * argsControl) {
 			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
 
 			argsControl->newThing = 1;
-			manette->moteur0 =tmpM0;
-			manette->moteur1 =tmpM1;
-			manette->moteur2 =tmpM2;
-			manette->moteur3 =tmpM3;
+			manette->axe_Rotation =tmpM0;
+			manette->axe_UpDown =tmpM1;
+			manette->axe_LeftRight =tmpM2;
+			manette->axe_FrontBack =tmpM3;
 
 			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
 
 			if(verbose){printf("Axes 1: %f,%f     -       Axes 2: %f,%f \n ",
-					manette->moteur0, manette->moteur1, manette->moteur2,
-					manette->moteur3);}
+					manette->axe_Rotation, manette->axe_UpDown, manette->axe_LeftRight,
+					manette->axe_FrontBack);}
 		}
 
 
