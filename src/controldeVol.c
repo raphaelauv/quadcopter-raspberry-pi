@@ -16,25 +16,30 @@ void * startCONTROLVOL(void * args){
 	DataController * data = controle_vol->dataController;
 	PMutex * mutexDataControler =controle_vol->dataController->pmutex;
 
+	char verbose = controle_vol->verbose;
 	float power0;
 	float power1;
 	float power2;
 	float power3;
 
-	printf("THREAD CONTROLVOL : START\n");
+	if(verbose){printf("THREAD CONTROLVOL : START\n");}
 	int continuThread=1;
 	while (continuThread) {
 
 		pthread_mutex_lock(&(mutexDataControler->mutex));
 
-		if (data->moteur_active != 1) {
-			continuThread=0;
+		if (data->moteur_active == 0) {
 			pthread_mutex_unlock(&(mutexDataControler->mutex));
+
+			*controle_vol->motorsAll->bool_arret_moteur=1;
+
+			continuThread = 0;
 			continue;
 		}
 
 		if (mutexDataControler->var < 1) {
-			printf("Controleur de vol attends des nouvel données de serv \n");
+			if(verbose){printf("Controleur de vol attends des nouvel données de serv \n");}
+
 			//TODO mettre un timer au wait
 			pthread_cond_wait(&mutexDataControler->condition,
 					&mutexDataControler->mutex);
@@ -50,6 +55,6 @@ void * startCONTROLVOL(void * args){
 		set_power(controle_vol->motorsAll->motor2, power2);
 		set_power(controle_vol->motorsAll->motor3, power3);
 	}
-	printf("THREAD CONTROLVOL : END\n");
+	if(verbose){printf("THREAD CONTROLVOL : END\n");}
 	return NULL;
 }

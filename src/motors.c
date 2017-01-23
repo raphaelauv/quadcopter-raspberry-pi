@@ -60,7 +60,7 @@ void * thread_startMoteur(void * args){
     */
     int runMotor=1;
     while(runMotor){
-    	sleep(5); //TODO CODE RASPBERRY
+    	sleep(5); //TODO CODE RASPBERRY  a retirer
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
     	pthread_mutex_lock(&info->MutexSetPower->mutex);
         if(!(*(info->bool_arret_moteur))){//Dans le cas on est pas dans une demande d'arret moteur.
@@ -111,20 +111,25 @@ void init_motor_info(motor_info *info,int broche,int * stop){
 
 int set_power(motor_info * info,float power){
     int a=(int)power;
-    if(a<5 || a>10){
+
+    if( (a>0 && a<5) || a>10){
         return 1;
     }
 
-    //printf("THREAD CONTROLVOL SET POWER avant lock\n");
+    //printf("THREAD CONTROLVOL : SET POWER avant lock\n");
     pthread_mutex_lock(&info->MutexSetPower->mutex);
 
-    //printf("THREAD CONTROLVOL SET POWER dans lock\n");
+    //printf("THREAD CONTROLVOL : SET POWER dans lock\n");
+
+    if(a==0 && *info->bool_arret_moteur==1){
+    	//TODO arret moteur
+    }
 
     info->high_time=(periode*power/100.0); // On calcule le nouveaux rapport cyclique.
     info->low_time=periode-info->high_time; //
     pthread_mutex_unlock(&info->MutexSetPower->mutex);
 
-    //printf("THREAD CONTROLVOL SET POWER apres lock\n");
+    //printf("THREAD CONTROLVOL : SET POWER apres lock\n");
     //printf("%i\n",a);
     return 0;
 }

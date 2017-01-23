@@ -10,9 +10,25 @@ void clean_args_SERVER(args_SERVER * arg) {
 	}
 }
 
+char isMessage(char * messageReceve, char * messageToTest) {
+	char str1[2];
+	char str2[2];
+	int res = 0;
+	strcpy(str1, messageToTest);
+	strcpy(str2, messageReceve);
+	res = strcmp(str1, str2);
+	return res == 0;
+}
+
+char isMessagePause(char * message) {
+	return isMessage(message,"PAUSE");
+}
+
+char isMessageSTOP(char * message){
+	return isMessage(message,"STOP");
+}
 
 void MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
-
 
 
 	//PMutex * pmutex = arg->dataController->pmutex->mutex;
@@ -50,7 +66,7 @@ void MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
 	pthread_mutex_unlock(&(arg->dataController->pmutex->mutex));
 
 	if(arg->verbose){
-	printf ("float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  |\n", a ,b,c,d);
+	printf ("THREAD SERV : float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  |\n", a ,b,c,d);
 	}
 }
 
@@ -60,7 +76,7 @@ void *thread_UDP_SERVER(void *args) {
 	args_SERVER *argSERV = (args_SERVER*) args;
 
 	char verbose =argSERV->verbose;
-	if(verbose){printf("SERVEUR UDP\n");}
+	if(verbose){printf("THREAD SERV : SERVEUR UDP\n");}
 	int sock;
 	struct sockaddr_in adr_svr;
 
@@ -70,16 +86,16 @@ void *thread_UDP_SERVER(void *args) {
 	adr_svr.sin_port 		= htons(8888);
 
 	if((sock=socket(PF_INET,SOCK_DGRAM,0)) ==-1 ){
-		perror("Socket error");
+		perror("THREAD SERV : Socket error");
 	}
 
 	if(bind(sock,(struct sockaddr *)&adr_svr,sizeof(adr_svr))){
-		perror("bind error");
+		perror("THREAD SERV : bind error");
 	}
 	char buff[100];
 
 	recvfrom(sock,buff,99, 0,NULL,NULL);
-	if(verbose){printf("messag recu : %s\n",buff);}
+	if(verbose){printf("THREAD SERV : messag recu : %s\n",buff);}
 
 	pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
 	pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
@@ -89,8 +105,27 @@ void *thread_UDP_SERVER(void *args) {
 	int i=1;
 	while(fini){
 		recvfrom(sock,buff,99, 0,NULL,NULL);
-		if(verbose){printf("messag recu %d : %s\n",i,buff);}
+		if(verbose){printf("THREAD SERV : messag recu %d : %s\n",i,buff);}
 		i++;
+
+		buff[99] = '\0';
+
+		if(isMessagePause(buff)){
+			if(verbose){
+				printf("THREAD SERV : PAUSE MESSAGE\n");
+			}
+		} else if (isMessageSTOP(buff)) {
+			if (verbose) {
+				printf("THREAD SERV : STOP MESSAGE\n");
+				pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
+				argSERV->dataController->moteur_active=0;
+				pthread_mutex_unlock(&argSERV->dataController->pmutex->mutex);
+				fini=0;
+			}
+		} else {
+			MessageToStruc(buff, 10, argSERV);
+		}
+
 	}
 
 	return NULL;
@@ -100,14 +135,14 @@ void *thread_TCP_SERVER(void *args) {
 
 	args_SERVER *argSERV = (args_SERVER*) args;
 	char verbose =argSERV->verbose;
-	if(verbose){printf("SERVEUR TCP\n");}
+	if(verbose){printf("THREAD SERV : SERVEUR TCP\n");}
 
 	int sock = socket(PF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in address_sock;
 	address_sock.sin_family = AF_INET;
 	address_sock.sin_port = htons(8888);
 
-	printf("attente sur port : %d\n", 8888);
+	printf("THREAD SERV : attente sur port : %d\n", 8888);
 
 	address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
 	int r = bind(sock, (struct sockaddr *) &address_sock,
@@ -122,10 +157,10 @@ void *thread_TCP_SERVER(void *args) {
 		socklen_t size = sizeof(caller);
 
 		int sock2 = accept(sock, (struct sockaddr *) &caller, &size);
-		printf("SERVEUR ACCEPT\n");
+		printf("THREAD SERV : SERVEUR ACCEPT\n");
 
 		if (sock2 < 0) {
-			printf("Bind fail");
+			printf("THREAD SERV : Bind fail");
 
 		}
 
@@ -157,7 +192,7 @@ void *thread_TCP_SERVER(void *args) {
 			int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
 			//printf("valeur de retour de select : %d\n", ret);
 			if (ret == 0) {
-				printf("Timed out\n");
+				printf("THREAD SERV : Timed out\n");
 				fini = 0;
 			} else if (FD_ISSET(sock2, &rdfs)) {
 				int messageRead = 0;
@@ -165,13 +200,13 @@ void *thread_TCP_SERVER(void *args) {
 				char buff[100];
 				while (messageRead < 1 && iter < 10) {
 					iter++;
-					//printf("try to read\n");
+					//printf("THREAD SERV : try to read\n");
 					int bytesRead = read(sock2, buff, 100 - messageRead);
 					messageRead += bytesRead;
 				}
 				if (messageRead > 0) {
 					buff[99] = '\0';
-					//printf("Message recu : %s\n", buff);
+					//printf("THREAD SERV : Message recu : %s\n", buff);
 					MessageToStruc(buff, 10, argSERV);
 
 					char str1[2];
@@ -182,14 +217,14 @@ void *thread_TCP_SERVER(void *args) {
 					res = strcmp(str1, str2);
 					if (res == 0) {
 						fini = 0;
-						printf("c'est fini !!\n");
+						printf("THREAD SERV : c'est fini !!\n");
 					}
 				} else {
-					printf("NOTHING TO READ !!\n");
+					printf("THREAD SERV : NOTHING TO READ !!\n");
 					fini = 0;
 				}
 			} else {
-				printf("SELECT EXIST WITHOUT GOOD VALUE\n");
+				printf("THREAD SERV : SELECT EXIST WITHOUT GOOD VALUE\n");
 			}
 		}
 		close(sock2);
