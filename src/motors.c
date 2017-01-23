@@ -46,21 +46,21 @@ void * thread_startMoteur(void * args){
     printf("THREAD MOTOR INIT-> %d \n",info->broche);
 
     int low,hight;
-    /*
 
-	TODO CODE RASPBERRY
+	#ifdef __arm__
 
     if (wiringPiSetup () == -1){
         return NULL;
     }
+	pinMode (info->broche, OUTPUT); //On defini la sorti du signal
+	#endif
 
 
-    pinMode (info->broche, OUTPUT); //On defini la sorti du signal
-
-    */
     int runMotor=1;
     while(runMotor){
-    	sleep(5); //TODO CODE RASPBERRY  a retirer
+    	//sleep(5);
+
+
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
     	pthread_mutex_lock(&info->MutexSetPower->mutex);
         if(!(*(info->bool_arret_moteur))){//Dans le cas on est pas dans une demande d'arret moteur.
@@ -70,10 +70,15 @@ void * thread_startMoteur(void * args){
         	printf("THREAD MOTOR -> %d  | HIGH %d  LOW %d \n",info->broche, hight, low);
 
         	pthread_mutex_unlock(&info->MutexSetPower->mutex);
-        	//digitalWrite(info->broche, 1);       // Etat haut du signal TODO CODE RASPBERRY
+			#ifdef __arm__
+        	digitalWrite(info->broche, 1);       // Etat haut du signal.
+			#endif
         	usleep((int)hight);
-        	//digitalWrite(info->broche,0);         //Etat bas du signal. TODO CODE RASPBERRY
+			#ifdef __arm__
+        	//digitalWrite(info->broche,0);         //Etat bas du signal.
+			#endif
         	usleep((int)(low));
+
 
         	//printf("DANS BRANCH MOTOR %d  : valeur HIGH -> %f  valeur LOW -> %f\n",info->broche, info->high_time,info->low_time);
         }
@@ -193,17 +198,19 @@ void init_threads_motors(MotorsAll * motorsAll,char verbose){
 
     struct sched_param parametres;
 
+    //init avec les attributs par defaut.
+    pthread_attr_init(& attributs);
+
+
+
+
+
+	#ifdef __arm__
 
     //Definir la taille de la memoire virtuelle pour que le kernel de fasse pas d'allocation dynamique.
     //mlockall(MCL_CURRENT | MCL_FUTURE);
     
 
-
-    //init avec les attributs par defaut.
-    pthread_attr_init(& attributs);
-
-    /*
-    TODO CODE RASPBERRY
     //Mettre Sur un coeur ici le coeur 0;
     CPU_ZERO(& cpuset);//mes lensemble a vide
     CPU_SET(0,& cpuset);//ajoute i a lensemble des CPU
@@ -216,8 +223,7 @@ void init_threads_motors(MotorsAll * motorsAll,char verbose){
     pthread_attr_setschedparam(&attributs,&parametres); //incrire la priorite dans les attributs.
     pthread_attr_setinheritsched(&attributs,PTHREAD_EXPLICIT_SCHED); //chaque aura sa propre priorité.
     pthread_attr_setscope(&attributs,PTHREAD_SCOPE_SYSTEM); // Pour ne pas etre preemte par des processus du system
-    
-     */
+	#endif
 
 
     //creation du thread.

@@ -40,7 +40,10 @@
 
 #include <unistd.h>
 #include <stdio.h>
+
+#ifdef __arm__
 //#include <wiringPi.h>
+#endif
 
 #include <stdlib.h>
 #include <unistd.h>
