@@ -17,7 +17,8 @@ LDFLAGS_ClientRemote= $(LDFLAGS) -lSDL -lSDLmain
 
 SRC=src/concurrent.c src/network.c
 
-SRC_drone = $(SRC) src/controldeVol.c src/motors.c src/serv.c
+SRC_drone = $(SRC) src/controldeVol.c src/serv.c
+#src/motors.c
 
 SRC_client = $(SRC)  src/client.c src/Manette/controller.c src/Manette/manette.c 
 
@@ -37,10 +38,14 @@ drone:droneMain
 
 client:clientRemoteMain
 
+
+src/motors.o: src/motors.c
+	$(CC) $(CFLAGS_Raspberry) -c $< -o $@
+
 src/droneMain.o: src/droneMain.c
 	$(CC) $(CFLAGS_Raspberry) -o $@ -c $< 
 
-droneMain: src/droneMain.o $(OBJdroneMain)
+droneMain: src/motors.o $(OBJdroneMain) src/droneMain.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS_Raspberry)
 
 src/clientRemoteMain.o: src/clientRemoteMain.c
