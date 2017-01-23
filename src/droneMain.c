@@ -15,30 +15,59 @@ int main (int argc, char *argv[]){
 	}
 
 	PMutex * PmutexRemoteConnect = (PMutex *) malloc(sizeof(PMutex));
+	if(PmutexRemoteConnect==NULL){
+		perror("MALLOC FAIL : PmutexRemoteConnect\n");
+		return EXIT_FAILURE;
+	}
 	init_PMutex(PmutexRemoteConnect);
 
 	PMutex * PmutexDataControler = (PMutex *) malloc(sizeof(PMutex));
+	if (PmutexDataControler == NULL) {
+		perror("MALLOC FAIL : PmutexDataControler\n");
+		return EXIT_FAILURE;
+	}
 	init_PMutex(PmutexDataControler);
 
 	getIP();
 
 	DataController * dataControl =(DataController *) malloc(sizeof(DataController));
+	if (dataControl == NULL) {
+		perror("MALLOC FAIL : dataControl\n");
+		return EXIT_FAILURE;
+	}
 	dataControl->pmutex=PmutexDataControler;
 	dataControl->moteur_active=1;
 
 	args_SERVER * argServ =(args_SERVER *) malloc(sizeof(args_SERVER));
+	if (argServ == NULL) {
+		perror("MALLOC FAIL : argServ\n");
+		return EXIT_FAILURE;
+	}
 	argServ->pmutexRemoteConnect = PmutexRemoteConnect;
 	argServ->dataController = dataControl;
 	argServ->verbose=verbose;
 
 	MotorsAll * motorsAll =(MotorsAll *) malloc(sizeof(MotorsAll));
+	if (motorsAll == NULL) {
+		perror("MALLOC FAIL : motorsAll\n");
+		return EXIT_FAILURE;
+	}
 	motorsAll->bool_arret_moteur =(int *) malloc(sizeof(int));
+	if (motorsAll->bool_arret_moteur == NULL) {
+		perror("MALLOC FAIL : motorsAll->bool_arret_moteur\n");
+		return EXIT_FAILURE;
+	}
 	*(motorsAll->bool_arret_moteur)= 0;
 
-	init_Value_motors(motorsAll);
-
+	if(init_Value_motors(motorsAll)==0){
+		return EXIT_FAILURE;
+	}
 
 	args_CONTROLDEVOL * argCONTROLVOL =(args_CONTROLDEVOL *) malloc(sizeof(args_CONTROLDEVOL));
+	if (argCONTROLVOL == NULL) {
+		perror("MALLOC FAIL : argCONTROLVOL\n");
+		return EXIT_FAILURE;
+	}
 	argCONTROLVOL->dataController=dataControl;
 	argCONTROLVOL->motorsAll=motorsAll;
 	argCONTROLVOL->verbose=verbose;

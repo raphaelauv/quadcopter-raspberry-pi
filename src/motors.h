@@ -77,6 +77,6 @@ void init_threads_motors(MotorsAll * motors,char verbose);
 
 void * thread_startMoteur(void * args);
 
-void init_Value_motors(MotorsAll * motorsAll);
+char init_Value_motors(MotorsAll * motorsAll);
 
 #endif

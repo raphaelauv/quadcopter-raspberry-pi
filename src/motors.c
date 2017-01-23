@@ -85,7 +85,7 @@ void * thread_startMoteur(void * args){
     return NULL;
 }
 
-void init_motor_info(motor_info *info,int broche,int * stop){
+char init_motor_info(motor_info *info,int broche,int * stop){
 
     if(periode<=0){//Si la periode n'est pas Initialisé
         perror("Fatal erreur:Periode don't initialize\n");
@@ -104,8 +104,13 @@ void init_motor_info(motor_info *info,int broche,int * stop){
 
 
     PMutex * MutexSetPower=(PMutex *)malloc(sizeof(PMutex));
+    if(MutexSetPower ==NULL){
+    	perror("MALLOC FAIL : init_motor_info - MutexSetPower\n");
+    	return 0;
+    }
     init_PMutex(MutexSetPower);
     info->MutexSetPower=MutexSetPower;
+    return 1;
 
 }
 
@@ -135,7 +140,7 @@ int set_power(motor_info * info,float power){
 }
 
 
-void init_Value_motors(MotorsAll * motorsAll){
+char init_Value_motors(MotorsAll * motorsAll){
 
     //init 0% de puissance des moteur en fonction de la frequence
     periode=(1.0/frequence)*1000000;
@@ -143,26 +148,37 @@ void init_Value_motors(MotorsAll * motorsAll){
 
 	int m0,m1,m2,m3;
 	//init broche du signal du controle des moteur
-	    m0=5;
-	    m1=28;
-	    m2=2;
-	    m3=24;
+	m0=5;
+	m1=28;
+	m2=2;
+	m3=24;
 
 	motor_info * info_m0 =(motor_info *) malloc(sizeof(motor_info));
 	motor_info * info_m1 =(motor_info *) malloc(sizeof(motor_info));
 	motor_info * info_m2 =(motor_info *) malloc(sizeof(motor_info));
 	motor_info * info_m3 =(motor_info *) malloc(sizeof(motor_info));
 
+	if(info_m0==NULL || info_m1==NULL || info_m2==NULL || info_m3==NULL){
+		perror("MALLOC FAIL : init_Value_motors - motor_info\n");
+		return 0;
+	}
+
 	motorsAll->motor0 = info_m0;
 	motorsAll->motor1 = info_m1;
 	motorsAll->motor2 = info_m2;
 	motorsAll->motor3 = info_m3;
 
-    init_motor_info(motorsAll->motor0,m0,motorsAll->bool_arret_moteur);
-    init_motor_info(motorsAll->motor1,m1,motorsAll->bool_arret_moteur);
-    init_motor_info(motorsAll->motor2,m2,motorsAll->bool_arret_moteur);
-    init_motor_info(motorsAll->motor3,m3,motorsAll->bool_arret_moteur);
+	int returnofINITS=0;
 
+	returnofINITS+=init_motor_info(motorsAll->motor0,m0,motorsAll->bool_arret_moteur);
+	returnofINITS+=init_motor_info(motorsAll->motor1,m1,motorsAll->bool_arret_moteur);
+	returnofINITS+=init_motor_info(motorsAll->motor2,m2,motorsAll->bool_arret_moteur);
+	returnofINITS+=init_motor_info(motorsAll->motor3,m3,motorsAll->bool_arret_moteur);
+
+	if(returnofINITS!=4){
+		return 0;
+	}
+    return 1;
 
 }
 
