@@ -22,6 +22,8 @@
 #include <pthread.h>
 #include <sys/select.h>
 
+#define SIZE_SOCKET_MESSAGE 100
+
 void getIP(char*  myIP);
 
 #endif /* NETWORK_H_ */

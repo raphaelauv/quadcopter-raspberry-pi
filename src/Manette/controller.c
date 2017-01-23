@@ -60,7 +60,7 @@ void control(args_CONTROLER * argsControl) {
 
 		//printf("APRES IF\n");
 		if (manette->moteur_active) {
-		  /*
+		  
 			tmpM0 = (input.axes[0] < 0) ?
 					(float) input.axes[0] * -1 * 5.0 / 32768 + 5 :
 					(float) input.axes[0] * 5.0 / 32768 + 5;
@@ -73,8 +73,9 @@ void control(args_CONTROLER * argsControl) {
 			tmpM3 = (input.axes[4] < 0) ?
 					(float) input.axes[4] * -1 * 5.0 / 32768 + 5 :
 					(float) input.axes[4] * 5.0 / 32768 + 5;
-		  */
+		  
 
+/*
 		  tmpM0 = input.axes[0];
 
 		  tmpM1 = input.axes[1];
@@ -82,7 +83,7 @@ void control(args_CONTROLER * argsControl) {
 		  tmpM2 = input.axes[3];
 
 		  tmpM3 = input.axes[4];
-
+*/
 		  
 			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
 

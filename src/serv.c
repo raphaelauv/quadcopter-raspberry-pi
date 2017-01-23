@@ -11,12 +11,14 @@ void clean_args_SERVER(args_SERVER * arg) {
 }
 
 char isMessage(char * messageReceve, char * messageToTest) {
-	char str1[2];
-	char str2[2];
+	char str1[SIZE_SOCKET_MESSAGE];
+	char str2[SIZE_SOCKET_MESSAGE];
 	int res = 0;
+
 	strcpy(str1, messageToTest);
 	strcpy(str2, messageReceve);
 	res = strcmp(str1, str2);
+
 	return res == 0;
 }
 
@@ -92,9 +94,10 @@ void *thread_UDP_SERVER(void *args) {
 	if(bind(sock,(struct sockaddr *)&adr_svr,sizeof(adr_svr))){
 		perror("THREAD SERV : bind error");
 	}
-	char buff[100];
+	char buff[SIZE_SOCKET_MESSAGE];
 
-	recvfrom(sock,buff,99, 0,NULL,NULL);
+	recvfrom(sock,buff,SIZE_SOCKET_MESSAGE-1, 0,NULL,NULL);
+	buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 	if(verbose){printf("THREAD SERV : messag recu : %s\n",buff);}
 
 	pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
@@ -104,24 +107,25 @@ void *thread_UDP_SERVER(void *args) {
 	int fini = 1;
 	int i=1;
 	while(fini){
-		recvfrom(sock,buff,99, 0,NULL,NULL);
+		recvfrom(sock,buff,SIZE_SOCKET_MESSAGE-1, 0,NULL,NULL);
 		if(verbose){printf("THREAD SERV : messag recu %d : %s\n",i,buff);}
 		i++;
 
-		buff[99] = '\0';
+		buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 
-		if(isMessagePause(buff)){
+		if(isMessagePause(buff)=='1'){
 			if(verbose){
 				printf("THREAD SERV : PAUSE MESSAGE\n");
 			}
-		} else if (isMessageSTOP(buff)) {
+		}
+		if (isMessageSTOP(buff)=='1') {
 			if (verbose) {
 				printf("THREAD SERV : STOP MESSAGE\n");
-				pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
-				argSERV->dataController->moteur_active=0;
-				pthread_mutex_unlock(&argSERV->dataController->pmutex->mutex);
-				fini=0;
 			}
+			pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
+			argSERV->dataController->moteur_active=0;
+			pthread_mutex_unlock(&argSERV->dataController->pmutex->mutex);
+			fini=0;
 		} else {
 			MessageToStruc(buff, 10, argSERV);
 		}
@@ -197,15 +201,15 @@ void *thread_TCP_SERVER(void *args) {
 			} else if (FD_ISSET(sock2, &rdfs)) {
 				int messageRead = 0;
 				int iter = 0;
-				char buff[100];
+				char buff[SIZE_SOCKET_MESSAGE];
 				while (messageRead < 1 && iter < 10) {
 					iter++;
 					//printf("THREAD SERV : try to read\n");
-					int bytesRead = read(sock2, buff, 100 - messageRead);
+					int bytesRead = read(sock2, buff, SIZE_SOCKET_MESSAGE - messageRead);
 					messageRead += bytesRead;
 				}
 				if (messageRead > 0) {
-					buff[99] = '\0';
+					buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 					//printf("THREAD SERV : Message recu : %s\n", buff);
 					MessageToStruc(buff, 10, argSERV);
 
