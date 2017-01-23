@@ -89,11 +89,12 @@ char init_motor_info(motor_info *info,int broche,int * stop){
 
     if(periode<=0){//Si la periode n'est pas Initialisé
         perror("Fatal erreur:Periode don't initialize\n");
-        //exit(1);
+        return 0;
     }
 
     if(info==NULL){
-    	perror("info est NULL");
+    	perror("info is NULL");
+    	return 0;
     }
 
 
@@ -101,7 +102,6 @@ char init_motor_info(motor_info *info,int broche,int * stop){
     info->broche=broche;
     info->high_time=(periode*5.0/100.0);;//Correspond a 0% de puissance .(1/Frequence * 5/100)= 1 dans notre cas.
     info->low_time=periode-(info->high_time);// le reste de la periode.
-
 
     PMutex * MutexSetPower=(PMutex *)malloc(sizeof(PMutex));
     if(MutexSetPower ==NULL){

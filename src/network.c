@@ -1,10 +1,9 @@
 #include "network.h"
 
-char* getIP() {
-
-	char * nameIp=(char *)malloc(sizeof(char)*64);
-	if(nameIp==NULL){
-		return NULL;
+void getIP(char*  myIP) {
+	//char * nameIp=(char *)malloc(sizeof(char)*64);
+	if(myIP==NULL){
+		return;
 	}
 	struct ifaddrs *myaddrs, *addrsTMP;
 	struct sockaddr_in *s4;
@@ -42,11 +41,11 @@ char* getIP() {
 				if (ret != 0) {
 					printf("Adresse IP :%s\n", ip);
 				}
-				strcpy(nameIp,ip);
+				strcpy(myIP,ip);
 			}
 		}
 	}
 	freeifaddrs(myaddrs);
 	free(ip);
-	return nameIp;
+	//return nameIp;
 }

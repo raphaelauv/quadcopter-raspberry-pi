@@ -28,7 +28,8 @@ int main (int argc, char *argv[]){
 	}
 	init_PMutex(PmutexDataControler);
 
-	getIP();
+	char myIP[64];
+	getIP(myIP);
 
 	DataController * dataControl =(DataController *) malloc(sizeof(DataController));
 	if (dataControl == NULL) {

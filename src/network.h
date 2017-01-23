@@ -22,6 +22,6 @@
 #include <pthread.h>
 #include <sys/select.h>
 
-char* getIP();
+void getIP(char*  myIP);
 
 #endif /* NETWORK_H_ */

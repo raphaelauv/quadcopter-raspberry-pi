@@ -11,9 +11,8 @@ void clean_args_CLIENT(args_CLIENT * arg) {
 }
 
 
-char * dataControllerToMessage(int sizeFloat,DataController * dataController){
+void dataControllerToMessage(int sizeFloat,char * output,DataController * dataController){
 
-	char * output=(char *)malloc(sizeof(char)*(sizeFloat*5));
 
 	int tmp=sizeFloat;
 
@@ -37,24 +36,26 @@ char * dataControllerToMessage(int sizeFloat,DataController * dataController){
 
 	//printf("LE MESSAGE CREER EST : %s\n", output);
 
-	return output;
+	//return output;
 }
 
 
-char* concat(const char *s1, const char *s2){
-    char *result;
+void concat(const char *s1, const char *s2, char * messageWithInfo){
 
+	/*
+	char *result;
     if((result=(char *)malloc(strlen(s1)+strlen(s2)+2))==NULL){
     	return NULL;
     }
-
+	 */
     char space[2];
     space[0]=' ';
     space[1]=0;
-    strcpy(result, s1);
-    strcat(result,(const char *) &space);
-    strcat(result, s2);
-    return result;
+    strcpy(messageWithInfo, s1);
+    strcat(messageWithInfo,(const char *) &space);
+    strcat(messageWithInfo, s2);
+
+    //return result;
 }
 
 void *thread_UDP_CLIENT(void *args) {
@@ -77,23 +78,27 @@ void *thread_UDP_CLIENT(void *args) {
 	char str[15];
 	sprintf(str, "%d", argClient->port);
 
-	char *myIP=getIP();
+	char myIP[64];
+
+	char messageWithInfo[64+15];
+	getIP(myIP);
 	if(myIP!=NULL){
-		char * messageWithInfo=concat(myIP,str);
+		concat(myIP,str,messageWithInfo);
 		if(verbose){printf("THREAD CLIENT SENDING : %s\n", messageWithInfo);}
 		sendto(sock, messageWithInfo,50, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
-
-		free(myIP);
 	}
 
 	int continu = 1;
+	const int sizeFLOAT=10;
+	char message[5*sizeFLOAT];
 	while (continu) {
-		char * message;
+
+		//char * output=(char *)malloc(sizeof(char)*(sizeFloat*5));
 		pthread_mutex_lock(
 				&argClient->argControler->pmutexReadDataController->mutex);
 
 		argClient->argControler->newThing = 0;
-		message = dataControllerToMessage(10, argClient->argControler->manette);
+		dataControllerToMessage(sizeFLOAT,message ,argClient->argControler->manette);
 		pthread_mutex_unlock(
 				&argClient->argControler->pmutexReadDataController->mutex);
 
@@ -148,11 +153,10 @@ void *thread_TCP_CLIENT(void *args) {
 		newt.c_lflag &= ~(ICANON | ECHO);
 		tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 		*/
-
+		const int sizeFLOAT=10;
+		char message[5*sizeFLOAT];
 		while (continu) {
 
-
-			char * message;
 
 			struct timespec timeToWait;
 			struct timeval now;
@@ -189,7 +193,7 @@ void *thread_TCP_CLIENT(void *args) {
 
 			argClient->argControler->newThing=0;
 			//printf("THREAD CLIENT OUI alors je regarde?\n");
-			message=dataControllerToMessage(10,argClient->argControler->manette);
+			dataControllerToMessage(sizeFLOAT,message,argClient->argControler->manette);
 			pthread_mutex_unlock(&argClient->argControler->pmutexReadDataController->mutex);
 
 			sleep(1);
@@ -237,20 +241,40 @@ void *thread_XBOX_CONTROLER(void *args) {
 int startClientRemote(char * adresse,char verbose){
 
 	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
+	if (pmutexControllerPlug == NULL) {
+		perror("MALLOC FAIL : pmutexControllerPlug\n");
+		return EXIT_FAILURE;
+	}
 	init_PMutex(pmutexControllerPlug);
 
 
 	PMutex * pmutexRead =(PMutex *) malloc(sizeof(PMutex));
+	if (pmutexRead == NULL) {
+		perror("MALLOC FAIL : pmutexRead\n");
+		return EXIT_FAILURE;
+	}
 	init_PMutex(pmutexRead);
 
 	args_CONTROLER * argControler =(args_CONTROLER *) malloc(sizeof(args_CONTROLER));
+	if (argControler == NULL) {
+		perror("MALLOC FAIL : argControler\n");
+		return EXIT_FAILURE;
+	}
 	argControler->newThing=0;
 	argControler->manette=(DataController *) malloc(sizeof( DataController));
+	if (argControler->manette == NULL) {
+		perror("MALLOC FAIL : argControler->manette\n");
+		return EXIT_FAILURE;
+	}
 	argControler->pmutexReadDataController=pmutexRead;
 	argControler->pmutexControlerPlug=pmutexControllerPlug;
 	argControler->verbose=verbose;
 
 	args_CLIENT * argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
+	if (argClient == NULL) {
+		perror("MALLOC FAIL : argClient\n");
+		return EXIT_FAILURE;
+	}
 	argClient->port=8888;
 	argClient->adresse=adresse;
 	argClient->verbose=verbose;

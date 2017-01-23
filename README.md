@@ -35,10 +35,15 @@ pour executer le code du client/controlleur :
 --------------
 A faire
 
-Passer en UDP -> 65 %
+-Passer en UDP -> 65 %
 
-Faire protocol d'arret totale et de "pause"
+-Faire protocol d'arret totale et de "pause"
 
-Calibrer valeur manette
+-Volatile , variable bool_arret_motor
 
-corriger Code C appeler en C++
+-Calibrer valeur manette
+
+-Interfacer correctement Code C appeler en C++
+
+-Detecter manette dpas brancher , au lieu de planter
+
