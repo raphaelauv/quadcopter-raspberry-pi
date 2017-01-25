@@ -107,9 +107,6 @@ void control(args_CONTROLER * argsControl) {
       */
       
 
-      if(verbose){
-	printf("axe_Up = %d\taxe_Down = %d\n", input.axes[4], input.axes[3]);
-      }
       
       tmpM0 = modele ?
 	pourcent(input.axes[0], val_max) :
