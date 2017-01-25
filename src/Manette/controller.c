@@ -54,7 +54,11 @@ void control(args_CONTROLER * argsControl) {
   int val_max = 32768;
   
   int quitter = (SDL_NumJoysticks()>0) ? 0 : 1;
-  
+
+  if(verbose && (SDL_NumJoysticks()>0))
+    printf("pas de controller\n");
+
+      
   float tmpM0,tmpM1,tmpM2,tmpM3;
   while (!quitter){
     usleep(Update_Frequence);
