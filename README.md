@@ -45,5 +45,4 @@ A faire
 
 -Interfacer correctement Code C appeler en C++
 
--Detecter manette dpas brancher , au lieu de planter
-
+-faire quelque chose quand il n'y a pas de manette branché.
