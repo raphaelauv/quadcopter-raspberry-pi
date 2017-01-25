@@ -34,7 +34,6 @@ float diff_axes(int axe_down, int axe_up, int val_max){
 }
 
 void control(args_CONTROLER * argsControl) {
-  
   DataController * manette = argsControl->manette;
   char verbose = argsControl->verbose;
   
@@ -50,15 +49,14 @@ void control(args_CONTROLER * argsControl) {
   
   inputt input; // on crée la structure
   initialiserInput(&input, 0); // on l'initialise au joystick n°0
-
+  
   int modele;
   int val_max = 32768;
   
-  int quitter = 0;
+  int quitter = (SDL_NumJoysticks()>0) ? 0 : 1;
   
   float tmpM0,tmpM1,tmpM2,tmpM3;
-  while (!quitter) {
-    
+  while (!quitter){
     usleep(Update_Frequence);
     
     updateEvent(&input); // on récupère les évènements
@@ -150,7 +148,6 @@ void control(args_CONTROLER * argsControl) {
     }
     
   }
-  
   
   
   /* diverses destruction ...*/
