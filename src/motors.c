@@ -67,7 +67,7 @@ void * thread_startMoteur(void * args){
         	hight=(int)info->high_time;
         	low=(int)info->low_time;
 
-        	printf("THREAD MOTOR -> %d  | HIGH %d  LOW %d \n",info->broche, hight, low);
+        	//printf("THREAD MOTOR -> %d  | HIGH %d  LOW %d \n",info->broche, hight, low);
 
         	pthread_mutex_unlock(&info->MutexSetPower->mutex);
 			#ifdef __arm__

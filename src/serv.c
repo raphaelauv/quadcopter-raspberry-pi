@@ -123,7 +123,7 @@ void *thread_UDP_SERVER(void *args) {
 				printf("THREAD SERV : STOP MESSAGE\n");
 			}
 			pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
-			argSERV->dataController->moteur_active=0;
+			argSERV->dataController->flag=2;
 			pthread_mutex_unlock(&argSERV->dataController->pmutex->mutex);
 			fini=0;
 		} else {

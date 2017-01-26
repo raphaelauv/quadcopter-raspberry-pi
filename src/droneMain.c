@@ -37,7 +37,7 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 	dataControl->pmutex=PmutexDataControler;
-	dataControl->moteur_active=1;
+	dataControl->flag=0;
 
 	args_SERVER * argServ =(args_SERVER *) malloc(sizeof(args_SERVER));
 	if (argServ == NULL) {

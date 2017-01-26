@@ -28,7 +28,7 @@ void * startCONTROLVOL(void * args){
 
 		pthread_mutex_lock(&(mutexDataControler->mutex));
 
-		if (data->moteur_active == 0) {
+		if (data->flag== 2) {
 			pthread_mutex_unlock(&(mutexDataControler->mutex));
 
 			*controle_vol->motorsAll->bool_arret_moteur=1;

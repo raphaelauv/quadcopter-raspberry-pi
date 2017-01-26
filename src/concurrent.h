@@ -22,7 +22,8 @@ void clean_PMutex(PMutex * arg);
 
 typedef struct DataController{
 
-	char moteur_active;
+	//FLAG 0-> ARRET | 1 -> PAUSE | 2 -> NORMAL | 3 -> ...
+	char flag;
 	float axe_Rotation;
 	float axe_UpDown;
 

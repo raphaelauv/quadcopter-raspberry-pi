@@ -37,7 +37,7 @@ void control(args_CONTROLER * argsControl) {
   DataController * manette = argsControl->manette;
   char verbose = argsControl->verbose;
   
-  manette->moteur_active = 0;
+  manette->flag = 0;
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
 
   if(verbose){
@@ -65,25 +65,25 @@ void control(args_CONTROLER * argsControl) {
     
     updateEvent(&input); // on récupère les évènements
     
-    if(input.boutons[4] && input.boutons[5] && (input.boutons[6]
-						&& input.boutons[7] || input.boutons[9] && input.boutons[10])) {
+    if(input.boutons[4] && input.boutons[5] && ( (input.boutons[6] && input.boutons[7]) || (input.boutons[9] && input.boutons[10]) ) ) {
       
       modele = !(input.boutons[9] && input.boutons[10]);
       //modele = 1 pour xbox controller, 0 for ps4 controller
 
-      
-      manette->moteur_active = (manette->moteur_active) ? 0 : 1;
-      /*TODO
-	<=> manette->moteur_active = !(manette->moteur_active)
-      */
+
+      //TODO choix combinaison demarrage et arret
+
+      manette->flag = 2;
+
       input.boutons[4] = input.boutons[5] = input.boutons[6] =
 	input.boutons[7] = input.boutons[9] = input.boutons[10] = 0;
       
-      if(verbose){printf("bool_moteur_active= %d\n", manette->moteur_active);}
+      if(verbose){printf("bool_moteur_active= %d\n", manette->flag);}
 
-      while(!modele && (input.axes[4]!=-val_max || input.axes[5]!=-val_max)){
-	updateEvent(&input);
-      }
+			while (!modele
+					&& (input.axes[4] != -val_max || input.axes[5] != -val_max)) {
+				updateEvent(&input);
+			}
       sleep(3);
       
       pthread_mutex_lock(&argsControl->pmutexControlerPlug->mutex);
@@ -92,7 +92,7 @@ void control(args_CONTROLER * argsControl) {
     }
     
     //printf("APRES IF\n");
-    if (manette->moteur_active) {
+    if (manette->flag==2) {
       /*
       tmpM0 = (input.axes[0] < 0) ?
 	(float) input.axes[0] * -1 * 5.0 / 32768 + 5 :
@@ -144,13 +144,13 @@ void control(args_CONTROLER * argsControl) {
 			 manette->axe_Rotation, manette->axe_UpDown, manette->axe_LeftRight,
 			 manette->axe_FrontBack);}
       
-      sleep(1);
+      sleep(1);//TODO
     }
     
     
     if (!is_connect()) {
-      manette->moteur_active = 0;
-      if(verbose){printf("Plus de manette %d.\n", manette->moteur_active);}
+      manette->flag = 0;
+      if(verbose){printf("Plus de manette %d.\n", manette->flag);}
       break;
     }
     

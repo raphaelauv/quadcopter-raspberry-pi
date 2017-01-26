@@ -46,8 +46,6 @@ A faire
 
 -Volatile , variable bool_arret_motor
 
--Calibrer valeur manette
-
 -Interfacer correctement Code C appeler en C++
 
 -faire quelque chose quand il n'y a pas de manette branché.
