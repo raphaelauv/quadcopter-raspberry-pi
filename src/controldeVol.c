@@ -4,14 +4,15 @@ void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg) {
 	if (arg != NULL) {
 		clean_motorsAll(arg->motorsAll);
 		clean_DataController(arg->dataController);
+		free(arg);
+		arg = NULL;
 	}
-	free(arg);
-	arg = NULL;
 }
 
 
 void * startCONTROLVOL(void * args){
 
+	//test();
 	args_CONTROLDEVOL  * controle_vol =(args_CONTROLDEVOL  *)args;
 	DataController * data = controle_vol->dataController;
 	PMutex * mutexDataControler =controle_vol->dataController->pmutex;

@@ -73,7 +73,11 @@ void control(args_CONTROLER * argsControl) {
 
       //TODO choix combinaison demarrage et arret
 
-      manette->flag = 2;
+      if(manette->flag==2){
+    	  manette->flag=0;
+      }else{
+    	  manette->flag=2;
+      }
 
       input.boutons[4] = input.boutons[5] = input.boutons[6] =
 	input.boutons[7] = input.boutons[9] = input.boutons[10] = 0;

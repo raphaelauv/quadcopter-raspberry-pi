@@ -10,7 +10,7 @@ double periode=0; // periode = 1/frequence. Initialisée plus tard.
 void clean_motorsAll(MotorsAll * arg) {
 	if (arg != NULL) {
 		if (arg->bool_arret_moteur != NULL) {
-			free(arg->bool_arret_moteur);
+			free((void*)arg->bool_arret_moteur);
 		}
 		clean_motor_info(arg->motor0);
 		clean_motor_info(arg->motor1);
@@ -25,7 +25,7 @@ void clean_motor_info(motor_info * arg){
 	if (arg != NULL) {
 		clean_PMutex(arg->MutexSetPower);
 		if(arg->bool_arret_moteur!=NULL){
-			free(arg->bool_arret_moteur);
+			free((void*)arg->bool_arret_moteur);
 			arg->bool_arret_moteur=NULL;
 		}
 		free(arg);
@@ -58,7 +58,7 @@ void * thread_startMoteur(void * args){
 
     int runMotor=1;
     while(runMotor){
-    	//sleep(5);
+    	sleep(5);
 
 
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
@@ -67,6 +67,7 @@ void * thread_startMoteur(void * args){
         	hight=(int)info->high_time;
         	low=(int)info->low_time;
 
+        	//printf("valeur %d de bool arret %d\n",info->broche,*info->bool_arret_moteur);
         	//printf("THREAD MOTOR -> %d  | HIGH %d  LOW %d \n",info->broche, hight, low);
 
         	pthread_mutex_unlock(&info->MutexSetPower->mutex);
@@ -83,14 +84,17 @@ void * thread_startMoteur(void * args){
         	//printf("DANS BRANCH MOTOR %d  : valeur HIGH -> %f  valeur LOW -> %f\n",info->broche, info->high_time,info->low_time);
         }
         else{//ARRET des moteurs d'urgence demandé.
-        	printf("arrete moteur %d demander dans thread\n",info->broche);
+        	//printf("THREAD MOTOR : ARRET %d\n",info->broche);
+        	//printf("valeur %d de bool arret %d\n",info->broche,*info->bool_arret_moteur);
         	runMotor=0;
         }
     }
+
+
     return NULL;
 }
 
-char init_motor_info(motor_info *info,int broche,int * stop){
+char init_motor_info(motor_info *info,int broche,volatile int * stop){
 
     if(periode<=0){//Si la periode n'est pas Initialisé
         perror("Fatal erreur:Periode don't initialize\n");
@@ -257,5 +261,7 @@ void init_threads_motors(MotorsAll * motorsAll,char verbose){
 	if (pthread_join(thr3, NULL)) {
 		perror("pthread_join");
 	}
+
+	if(verbose){printf("THREADS 4 MOTORS : END\n");}
 
 }

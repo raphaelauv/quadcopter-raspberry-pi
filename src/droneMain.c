@@ -36,8 +36,9 @@ int main (int argc, char *argv[]){
 		perror("MALLOC FAIL : dataControl\n");
 		return EXIT_FAILURE;
 	}
+
 	dataControl->pmutex=PmutexDataControler;
-	dataControl->flag=0;
+	dataControl->flag=2;
 
 	args_SERVER * argServ =(args_SERVER *) malloc(sizeof(args_SERVER));
 	if (argServ == NULL) {
@@ -53,7 +54,7 @@ int main (int argc, char *argv[]){
 		perror("MALLOC FAIL : motorsAll\n");
 		return EXIT_FAILURE;
 	}
-	motorsAll->bool_arret_moteur =(int *) malloc(sizeof(int));
+	motorsAll->bool_arret_moteur =(volatile int *) malloc(sizeof(int));
 	if (motorsAll->bool_arret_moteur == NULL) {
 		perror("MALLOC FAIL : motorsAll->bool_arret_moteur\n");
 		return EXIT_FAILURE;
@@ -104,7 +105,12 @@ int main (int argc, char *argv[]){
 			perror("pthread_join");
 			return EXIT_FAILURE;
 	}
+
+	printf("THREAD MAIN : AVANT CLEAN\n");
 	clean_args_SERVER(argServ);
+	printf("THREAD MAIN : AVANT CLEAN\n");
 	clean_args_CONTROLDEVOL(argCONTROLVOL);
-	return 0;
+
+	if(verbose){printf("THREAD MAIN : END\n");}
+	return EXIT_SUCCESS;
 }

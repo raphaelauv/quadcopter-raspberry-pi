@@ -17,14 +17,17 @@ LDFLAGS_ClientRemote= $(LDFLAGS) -lSDL -lSDLmain
 
 SRC=src/concurrent.c src/network.c
 
-SRC_drone = $(SRC) src/controldeVol.c src/serv.c
-#src/motors.c
+SRC_RTIMULib = $(wildcard src/RTIMULib/*.cpp) $(wildcard src/RTIMULib/IMUDrivers/*.cpp)
+
+SRC_drone = $(SRC) src/controldeVol.c src/serv.c src/capteur.cpp
 
 SRC_client = $(SRC)  src/client.c src/Manette/controller.c src/Manette/manette.c 
 
 OBJdroneMain= $(SRC_drone:.c=.o)
 
 OBJclientRemote= $(SRC_client:.c=.o) 
+
+OBJ_RTIMULib= $(SRC_RTIMULib:.cpp=.o)
 
 EXEC = clientRemoteMain droneMain
 
@@ -45,7 +48,7 @@ src/motors.o: src/motors.c
 src/droneMain.o: src/droneMain.c
 	$(CC) $(CFLAGS_Raspberry) -o $@ -c $< 
 
-droneMain: src/motors.o $(OBJdroneMain) src/droneMain.o
+droneMain: src/motors.o $(OBJdroneMain) $(OBJ_RTIMULib) src/droneMain.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS_Raspberry)
 
 src/clientRemoteMain.o: src/clientRemoteMain.c

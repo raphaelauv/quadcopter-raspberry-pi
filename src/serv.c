@@ -115,20 +115,19 @@ void *thread_UDP_SERVER(void *args) {
 			if(verbose){
 				printf("\nTHREAD SERV : PAUSE MESSAGE\n\n");
 			}
-		}
-		else if (dataTmp.flag==0) {
-			if (verbose) {
-				printf("THREAD SERV : STOP MESSAGE\n");
-			}
-			pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
-			argSERV->dataController->flag=0;
-			pthread_mutex_unlock(&argSERV->dataController->pmutex->mutex);
-			fini=0;
+
 		} else {
 
 			if(argSERV->verbose){
 				printf ("THREAD SERV : float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  | FLAG = %d\n",
 						dataTmp.axe_FrontBack ,dataTmp.axe_UpDown,dataTmp.axe_LeftRight,dataTmp.axe_FrontBack,dataTmp.flag);
+			}
+
+			if (dataTmp.flag==0) {
+				if (verbose) {
+					printf("THREAD SERV : STOP MESSAGE\n");
+				}
+				fini=0;
 			}
 
 			pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
@@ -152,6 +151,10 @@ void *thread_UDP_SERVER(void *args) {
 		}
 
 	}
+
+	close(sock);
+
+	if(verbose){printf("THREAD SERV : END\n");}
 
 	return NULL;
 }
@@ -232,7 +235,7 @@ void *thread_TCP_SERVER(void *args) {
 				if (messageRead > 0) {
 					buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 					//printf("THREAD SERV : Message recu : %s\n", buff);
-					MessageToStruc(buff, 10, argSERV);
+					//MessageToStruc(buff, 10, argSERV);
 
 					char str1[2];
 					char str2[2];

@@ -3,6 +3,7 @@
 
 #include "concurrent.h"
 #include "motors.h"
+//#include "capteur.h"
 
 
 typedef struct args_CONTROLDEVOL {
