@@ -12,6 +12,11 @@ necessite :SDL 2 - la lib pour utiliser la manette XBOX360 (libSDL)
 Pour claibrer la manette XBOX360   ->   jstest-gtk
 https://apps.ubuntu.com/cat/applications/jstest-gtk/
 
+Pour simuler manette XBOX360 from DualShocks
+I) activé bluetooth 
+II) bouton playstation + share -> lumiere qui clignote
+III) taper "ds4drv --emulate-xboxdrv" dans le terminal
+
 
 #------------------------------LE DRONE--------------------------------#
 
