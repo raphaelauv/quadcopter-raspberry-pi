@@ -48,4 +48,4 @@ A faire
 
 -Interfacer correctement Code C appeler en C++
 
--faire quelque chose quand il n'y a pas de manette branché.
+- choisir une action quand il n'y a pas de manette (quité / continuer au clavier) ?
