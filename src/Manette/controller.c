@@ -55,7 +55,7 @@ void control(args_CONTROLER * argsControl) {
   
   int quitter = (SDL_NumJoysticks()>0) ? 0 : 1;
 
-  if(verbose && (SDL_NumJoysticks()>0))
+  if(verbose && (SDL_NumJoysticks()<=0))
     printf("pas de controller\n");
 
       
@@ -65,10 +65,10 @@ void control(args_CONTROLER * argsControl) {
     
     updateEvent(&input); // on récupère les évènements
     
-    if(input.boutons[4] && input.boutons[5] && input.boutons[6]
-	&& input.boutons[7] || input.boutons[10] && input.boutons[11]) {
+    if(input.boutons[4] && input.boutons[5] && (input.boutons[6]
+						&& input.boutons[7] || input.boutons[9] && input.boutons[10])) {
       
-      modele = !(input.boutons[10] && input.boutons[11]);
+      modele = !(input.boutons[9] && input.boutons[10]);
       //modele = 1 pour xbox controller, 0 for ps4 controller
 
       
@@ -77,11 +77,11 @@ void control(args_CONTROLER * argsControl) {
 	<=> manette->moteur_active = !(manette->moteur_active)
       */
       input.boutons[4] = input.boutons[5] = input.boutons[6] =
-	input.boutons[7] = input.boutons[10] = input.boutons[11] = 0;
+	input.boutons[7] = input.boutons[9] = input.boutons[10] = 0;
       
       if(verbose){printf("bool_moteur_active= %d\n", manette->moteur_active);}
 
-      while(!modele && (input.axes[3]!=-val_max || input.axes[4]!=-val_max)){
+      while(!modele && (input.axes[4]!=-val_max || input.axes[5]!=-val_max)){
 	updateEvent(&input);
       }
       sleep(3);
@@ -109,19 +109,22 @@ void control(args_CONTROLER * argsControl) {
       */
       
 
-      
+      //tmpM0 = Rotation axe lacet (Rotation) (y)
       tmpM0 = modele ?
 	pourcent(input.axes[0], val_max) :
 	pourcent(input.axes[2], val_max);
-	  
+
+      //tmpM1 = monter ou descendre (UpDown)
       tmpM1 = modele ?
 	pourcent(-1 * input.axes[1], val_max) :
-	(diff_axes(input.axes[3], input.axes[4], val_max));
-	  
+	(diff_axes(input.axes[5], input.axes[4], val_max));
+
+      //tmpM2 = rotation axe roulis (LeftRight) (z)
       tmpM2 = modele ?
 	pourcent(input.axes[3], val_max) :
 	pourcent(input.axes[0], val_max);
-	
+
+      //tmpM2 = rotation axe tangage (FrontBack) (x)
       tmpM3 = modele ?
 	pourcent(-1 * input.axes[4], val_max) :
 	pourcent(-1 * input.axes[1], val_max);
