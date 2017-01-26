@@ -30,7 +30,7 @@ char isMessageSTOP(char * message){
 	return isMessage(message,"STOP");
 }
 
-void MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
+void MessageToStruc(char * message,int sizeFloat,DataController * dataTmp){
 
 
 	//PMutex * pmutex = arg->dataController->pmutex->mutex;
@@ -51,25 +51,18 @@ void MessageToStruc(char * message,int sizeFloat,args_SERVER * arg){
 
 	float d=strtof(message+tmp-1,0);
 
-	pthread_mutex_lock(&arg->dataController->pmutex->mutex);
+	tmp+=sizeFloat-1;
 
+	float flagTMP=strtof(message+tmp-1,0);
 
-	arg->dataController->axe_Rotation=a;
-	arg->dataController->axe_UpDown=b;
-	arg->dataController->axe_LeftRight=c;
-	arg->dataController->axe_FrontBack=d;
+	char flag = (char ) flagTMP;
 
-	if(arg->dataController->pmutex->var>0){
-		arg->dataController->pmutex->var=1;
-	}
+	dataTmp->axe_Rotation=a;
+	dataTmp->axe_UpDown=b;
+	dataTmp->axe_LeftRight=c;
+	dataTmp->axe_FrontBack=d;
+	dataTmp->flag=flag;
 
-	pthread_cond_signal(&(arg->dataController->pmutex->condition));
-
-	pthread_mutex_unlock(&(arg->dataController->pmutex->mutex));
-
-	if(arg->verbose){
-	printf ("THREAD SERV : float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  |\n", a ,b,c,d);
-	}
 }
 
 
@@ -106,6 +99,9 @@ void *thread_UDP_SERVER(void *args) {
 
 	int fini = 1;
 	int i=1;
+
+	DataController dataTmp;
+
 	while(fini){
 		recvfrom(sock,buff,SIZE_SOCKET_MESSAGE-1, 0,NULL,NULL);
 		if(verbose){printf("THREAD SERV : messag recu %d : %s\n",i,buff);}
@@ -113,21 +109,46 @@ void *thread_UDP_SERVER(void *args) {
 
 		buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 
-		if(isMessagePause(buff)=='1'){
+		MessageToStruc(buff, 10, &dataTmp);
+
+		if(dataTmp.flag==1){
 			if(verbose){
-				printf("THREAD SERV : PAUSE MESSAGE\n");
+				printf("\nTHREAD SERV : PAUSE MESSAGE\n\n");
 			}
 		}
-		if (isMessageSTOP(buff)=='1') {
+		else if (dataTmp.flag==0) {
 			if (verbose) {
 				printf("THREAD SERV : STOP MESSAGE\n");
 			}
 			pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
-			argSERV->dataController->flag=2;
+			argSERV->dataController->flag=0;
 			pthread_mutex_unlock(&argSERV->dataController->pmutex->mutex);
 			fini=0;
 		} else {
-			MessageToStruc(buff, 10, argSERV);
+
+			if(argSERV->verbose){
+				printf ("THREAD SERV : float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  | FLAG = %d\n",
+						dataTmp.axe_FrontBack ,dataTmp.axe_UpDown,dataTmp.axe_LeftRight,dataTmp.axe_FrontBack,dataTmp.flag);
+			}
+
+			pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
+
+
+			argSERV->dataController->axe_Rotation=dataTmp.axe_Rotation;
+			argSERV->dataController->axe_UpDown=dataTmp.axe_UpDown;
+			argSERV->dataController->axe_LeftRight=dataTmp.axe_LeftRight;
+			argSERV->dataController->axe_FrontBack=dataTmp.axe_FrontBack;
+			argSERV->dataController->flag=dataTmp.flag;
+
+			if(argSERV->dataController->pmutex->var>0){
+				argSERV->dataController->pmutex->var=1;
+			}
+
+			pthread_cond_signal(&(argSERV->dataController->pmutex->condition));
+
+			pthread_mutex_unlock(&(argSERV->dataController->pmutex->mutex));
+
+
 		}
 
 	}

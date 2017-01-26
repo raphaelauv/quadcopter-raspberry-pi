@@ -34,6 +34,12 @@ void dataControllerToMessage(int sizeFloat,char * output,DataController * dataCo
 
 	snprintf(output+tmp-1, sizeFloat, "%f", dataController->axe_FrontBack);
 
+	tmp+=sizeFloat-1;
+
+	output[tmp-2]=' ';
+
+	snprintf(output+tmp-1, sizeFloat, "%d", dataController->flag);
+
 	//printf("LE MESSAGE CREER EST : %s\n", output);
 
 	//return output;
