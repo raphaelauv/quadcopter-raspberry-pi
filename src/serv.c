@@ -30,6 +30,22 @@ char isMessageSTOP(char * message){
 	return isMessage(message,"STOP");
 }
 
+char getAdresseIP(char *message,struct sockaddr_in * sa){
+
+	char ip[50];
+	int cmp=0;
+	while(*message!=' '){
+		ip[cmp]=*message;
+		message++;
+		cmp++;
+	}
+	cmp++;
+	ip[cmp]=EOF;
+
+	//printf("ip get : %s\n",ip);
+	return inet_pton(AF_INET,(const char *) &ip, &(sa->sin_addr));
+}
+
 void MessageToStruc(char * message,int sizeFloat,DataController * dataTmp){
 
 
@@ -93,19 +109,26 @@ void *thread_UDP_SERVER(void *args) {
 	buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 	if(verbose){printf("THREAD SERV : messag recu : %s\n",buff);}
 
+	int fini = 1;
+	int cmpNumberMessage=1;
+
+	struct sockaddr_in  sa;
+	if(getAdresseIP(buff,&sa)!=1){
+		printf("ERROR IP RECEVE\n");
+		fini=0;//TODO
+	}
+
 	pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
 	pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
 	pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
 
-	int fini = 1;
-	int i=1;
 
 	DataController dataTmp;
 
 	while(fini){
 		recvfrom(sock,buff,SIZE_SOCKET_MESSAGE-1, 0,NULL,NULL);
-		if(verbose){printf("THREAD SERV : messag recu %d : %s\n",i,buff);}
-		i++;
+		if(verbose){printf("THREAD SERV : messag recu %d : %s\n",cmpNumberMessage,buff);}
+		cmpNumberMessage++;
 
 		buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 

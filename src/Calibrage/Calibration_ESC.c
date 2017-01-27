@@ -24,7 +24,7 @@ void sleepDuration(int sleepTime) {
 
 void * calibrate(void * args){
     args_CONTROLDEVOL  * controle_vol =(args_CONTROLDEVOL *)args;
-    viderBuffer();
+
     if(controle_vol->verbose){
     	printf("Calibration Des ESC:\n Pour calibrer les ESCs Brancher la baterie "
     			"APRES AVOIR LANCEE CE PROGRAMME.\nPuis Atender les Deux beep des ESCs et "
@@ -38,12 +38,12 @@ void * calibrate(void * args){
     set_power(controle_vol->motorsAll->motor3,10.0);
     char a;
     if(controle_vol->verbose){
-
     	scanf("%c", &a);
     	viderBuffer();
     }else{
     	sleepDuration(5);
     }
+
     //PUT 0% of power.
     set_power(controle_vol->motorsAll->motor0,5.0);
     set_power(controle_vol->motorsAll->motor1,5.0);
