@@ -13,6 +13,7 @@ void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg) {
 void * startCONTROLVOL(void * args){
 
 	//test();
+	calibrate(args);
 	args_CONTROLDEVOL  * controle_vol =(args_CONTROLDEVOL  *)args;
 	DataController * data = controle_vol->dataController;
 	PMutex * mutexDataControler =controle_vol->dataController->pmutex;

@@ -37,7 +37,6 @@ void concat(const char *s1, const char *s2, char * messageWithInfo);
 
 void *thread_UDP_CLIENT(void *args);
 void *thread_TCP_CLIENT(void *args);
-
-int startClientRemote(char * adresse,char verbose);
+void *thread_XBOX_CONTROLER(void *args) ;
 
 #endif /* CLIENT_H_ */
