@@ -1,5 +1,5 @@
-#ifndef CAPTEUR_H_
-#define CAPTEUR_H_
+#ifndef CAPTEUR_HPP_
+#define CAPTEUR_HPP_
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -26,6 +26,6 @@
 
 #include "RTIMULib/RTIMULib.h"
 
-int test();
+void * capteurInit();
 
-#endif /* CAPTEUR_H_ */
+#endif /* CAPTEUR_HPP_ */

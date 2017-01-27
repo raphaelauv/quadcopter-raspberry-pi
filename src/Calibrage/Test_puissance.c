@@ -1,12 +1,12 @@
 //
-//  Test_puissance.cpp
+//  Test_puissance.c
 //  Drone
 //
 //  Created by andres quiroz on 27/01/2017.
 //  Copyright © 2017 andres quiroz. All rights reserved.
 //
 
-#include "Test_puissance.hpp"
+#include "Test_puissance.h"
 
 void * Test_puissance(void * args){
     args_CONTROLDEVOL  * controle_vol =(args_CONTROLDEVOL *)args;
@@ -19,6 +19,6 @@ void * Test_puissance(void * args){
         high_time+=50;
         sleep(5);
     }
-    exit(1);
+    //exit(1);
     return NULL;
 }

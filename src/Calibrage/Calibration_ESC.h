@@ -11,7 +11,7 @@
 
 #include "../concurrent.h"
 #include "../motors.h"
-#include "../controldeVol.h"
+#include "../controldeVol.hpp"
 
 void * calibrate(void * args);
 
