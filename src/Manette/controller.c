@@ -40,11 +40,33 @@ void control(args_CONTROLER * argsControl) {
   manette->flag = 0;
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
 
-  if(verbose){
-    for(int j=0; j<SDL_NumJoysticks(); j++){
-      printf("controller %d : %s\n", j, SDL_JoystickName(j));
-    }
-  }
+  /*
+  if(verbose){ // code from http://askubuntu.com/questions/366994/how-to-identify-game-controller-for-sdl2-in-ubuntu
+    int num_joysticks = SDL_NumJoysticks();
+    int i;
+    for(i = 0; i < num_joysticks; ++i)
+      {
+	SDL_Joystick* js = SDL_JoystickOpen(i);
+	if (js)
+	  {
+	    SDL_JoystickGUID guid = SDL_JoystickGetGUID(js);
+	    char guid_str[1024];
+	    SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
+	    const char* name = SDL_JoystickName(js);
+	    
+	    int num_axes = SDL_JoystickNumAxes(js);
+	    int num_buttons = SDL_JoystickNumButtons(js);
+	    int num_hats = SDL_JoystickNumHats(js);
+	    int num_balls = SDL_JoystickNumBalls(js);
+	    
+	    printf("%s \"%s\" axes:%d buttons:%d hats:%d balls:%d\n", 
+		   guid_str, name,
+		   num_axes, num_buttons, num_hats, num_balls);
+	    
+	    SDL_JoystickClose(js);
+	  }
+      }
+      }*/
   
   
   inputt input; // on crée la structure
