@@ -9,9 +9,8 @@
 #ifndef Calibration_ESC_h
 #define Calibration_ESC_h
 
-#include "../concurrent.h"
 #include "../motors.h"
-#include "../controldeVol.hpp"
+#include "../concurrent.h"
 
 void * calibrate(void * args);
 

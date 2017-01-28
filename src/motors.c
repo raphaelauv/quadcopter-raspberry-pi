@@ -10,7 +10,8 @@ double periode=0; // periode = 1/frequence. Initialisée plus tard.
 void clean_motorsAll(MotorsAll * arg) {
 	if (arg != NULL) {
 		if (arg->bool_arret_moteur != NULL) {
-			free((void*)arg->bool_arret_moteur);
+			free((int *)arg->bool_arret_moteur);
+			arg->bool_arret_moteur=NULL;
 		}
 		clean_motor_info(arg->motor0);
 		clean_motor_info(arg->motor1);
@@ -24,10 +25,12 @@ void clean_motorsAll(MotorsAll * arg) {
 void clean_motor_info(motor_info * arg){
 	if (arg != NULL) {
 		clean_PMutex(arg->MutexSetPower);
+		/*
 		if(arg->bool_arret_moteur!=NULL){
-			free((void*)arg->bool_arret_moteur);
+			free((int*)arg->bool_arret_moteur);
 			arg->bool_arret_moteur=NULL;
 		}
+		*/
 		free(arg);
 		arg=NULL;
 	}
@@ -74,11 +77,11 @@ void * thread_startMoteur(void * args){
 			#ifdef __arm__
         	digitalWrite(info->broche, 1);       // Etat haut du signal.
 			#endif
-        	usleep((int)hight);
+        	//usleep((int)hight);
 			#ifdef __arm__
         	//digitalWrite(info->broche,0);         //Etat bas du signal.
 			#endif
-        	usleep((int)(low));
+        	//usleep((int)(low));
 
 
         	//printf("DANS BRANCH MOTOR %d  : valeur HIGH -> %f  valeur LOW -> %f\n",info->broche, info->high_time,info->low_time);

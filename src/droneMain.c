@@ -2,6 +2,7 @@
 #include "motors.h"
 #include "controldeVol.hpp"
 #include "capteur.hpp"
+
 int main (int argc, char *argv[]){
 
 	char verbose = 0;
@@ -65,16 +66,6 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	void *imu;
-	#ifdef __arm__
-	imu = capteurInit();
-
-	if(imu==NULL){
-		perror("NEW FAIL : RTIMU ->imu\n");
-		return EXIT_FAILURE;
-	}
-	#endif
-
 	args_CONTROLDEVOL * argCONTROLVOL =(args_CONTROLDEVOL *) malloc(sizeof(args_CONTROLDEVOL));
 	if (argCONTROLVOL == NULL) {
 		perror("MALLOC FAIL : argCONTROLVOL\n");
@@ -82,8 +73,21 @@ int main (int argc, char *argv[]){
 	}
 	argCONTROLVOL->dataController=dataControl;
 	argCONTROLVOL->motorsAll=motorsAll;
-	argCONTROLVOL->imu=(RTIMU *)imu;
 	argCONTROLVOL->verbose=verbose;
+
+
+	#ifdef __arm__
+	RTIMU *imu;
+	imu = capteurInit();
+
+	if(imu==NULL){
+		perror("NEW FAIL : RTIMU ->imu\n");
+		return EXIT_FAILURE;
+	}else{
+		if(verbose){printf("THREAD MAIN : CAPTEUR INIT SUCCES\n");}
+		argCONTROLVOL->imu=imu;
+	}
+	#endif
 
 	pthread_t threadServer;
 	pthread_t threadControlerVOL;
@@ -113,13 +117,12 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 	if (pthread_join(threadControlerVOL, NULL)){
-			perror("pthread_join");
-			return EXIT_FAILURE;
+		perror("pthread_join");
+		return EXIT_FAILURE;
 	}
 
-	printf("THREAD MAIN : AVANT CLEAN\n");
+
 	clean_args_SERVER(argServ);
-	printf("THREAD MAIN : AVANT CLEAN\n");
 	clean_args_CONTROLDEVOL(argCONTROLVOL);
 
 	if(verbose){printf("THREAD MAIN : END\n");}

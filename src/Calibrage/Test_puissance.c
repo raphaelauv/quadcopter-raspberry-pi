@@ -8,17 +8,16 @@
 
 #include "Test_puissance.h"
 
-void * Test_puissance(void * args){
-    args_CONTROLDEVOL  * controle_vol =(args_CONTROLDEVOL *)args;
+void  Test_puissance(MotorsAll  * motors){
+
     int high_time=1000;
     while (high_time<=2000) {
-        set_power(controle_vol->motorsAll->motor0,high_time);
-        set_power(controle_vol->motorsAll->motor1,high_time);
-        set_power(controle_vol->motorsAll->motor2,high_time);
-        set_power(controle_vol->motorsAll->motor3,high_time);
+        set_power(motors->motor0,high_time);
+        set_power(motors->motor1,high_time);
+        set_power(motors->motor2,high_time);
+        set_power(motors->motor3,high_time);
         high_time+=50;
-        sleep(5);
+        sleepDuration(5);
     }
     //exit(1);
-    return NULL;
 }

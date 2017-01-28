@@ -42,7 +42,7 @@
 #include <stdio.h>
 
 #ifdef __arm__
-//#include <wiringPi.h>
+#include <wiringPi.h>
 #endif
 
 #include <stdlib.h>

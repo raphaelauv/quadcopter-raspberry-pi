@@ -27,3 +27,11 @@ void clean_DataController(DataController * arg){
 		arg=NULL;
 	}
 }
+
+void sleepDuration(int sleepTime) {
+	int result = -1;
+	while (result != 0) {
+		result = sleep(sleepTime);
+		sleepTime -= result;
+	}
+}

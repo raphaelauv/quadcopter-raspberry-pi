@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <errno.h>
+#include <unistd.h>
 
 
 typedef struct PMutex {
@@ -33,6 +34,8 @@ typedef struct DataController{
 	PMutex * pmutex;
 
 }DataController;
+
 void clean_DataController(DataController * arg);
 
+void sleepDuration(int sleepTime);
 #endif /* CONCURRENT_H_ */

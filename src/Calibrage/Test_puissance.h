@@ -9,9 +9,8 @@
 #ifndef Test_puissance_h
 #define Test_puissance_h
 
-#include "../concurrent.h"
 #include "../motors.h"
-#include "../controldeVol.h"
+#include "../concurrent.h"
 
 void * Test_puissance(void * args);
 

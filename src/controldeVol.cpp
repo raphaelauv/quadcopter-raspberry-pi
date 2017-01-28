@@ -4,6 +4,9 @@ void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg) {
 	if (arg != NULL) {
 		clean_motorsAll(arg->motorsAll);
 		clean_DataController(arg->dataController);
+		if( arg->imu !=NULL){
+			delete(arg->imu);
+		}
 		free(arg);
 		arg = NULL;
 	}
