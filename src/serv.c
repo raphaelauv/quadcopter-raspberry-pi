@@ -99,7 +99,10 @@ void *thread_UDP_SERVER(void *args) {
 	if((sock=socket(PF_INET,SOCK_DGRAM,0)) ==-1 ){
 		perror("THREAD SERV : Socket error");
 	}
-
+	int enable = 1;
+	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0){
+	    perror("setsockopt(SO_REUSEADDR) failed");
+	}
 	if(bind(sock,(struct sockaddr *)&adr_svr,sizeof(adr_svr))){
 		perror("THREAD SERV : bind error");
 	}
