@@ -104,13 +104,11 @@ void *thread_UDP_SERVER(void *args) {
 		perror("THREAD SERV : bind error");
 	}
 	char buff[SIZE_SOCKET_MESSAGE];
-	int sizeReveceTotal=0;
-	int sizeReceve;
 
-	while(sizeReveceTotal<SIZE_SOCKET_MESSAGE){
-		sizeReceve=recvfrom(sock,&buff[sizeReveceTotal],SIZE_SOCKET_MESSAGE-sizeReveceTotal, 0,NULL,NULL);
-		sizeReveceTotal+=sizeReceve;
+	if(receveNetwork(sock,NULL,buff)==0){
+		//TODO ERROR
 	}
+
 	buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 	if(verbose){printf("THREAD SERV : messag recu : %s\n",buff);}
 
@@ -138,10 +136,9 @@ void *thread_UDP_SERVER(void *args) {
 
 
 	while(fini){
-		sizeReveceTotal=0;
-		while(sizeReveceTotal<SIZE_SOCKET_MESSAGE){
-			sizeReceve=recvfrom(sock,&buff[sizeReveceTotal],SIZE_SOCKET_MESSAGE-sizeReveceTotal, 0,NULL,NULL);
-			sizeReveceTotal+=sizeReceve;
+
+		if (receveNetwork(sock, NULL, buff) == 0) {
+			//TODO ERROR
 		}
 
 		buff[SIZE_SOCKET_MESSAGE-1] = '\0';
