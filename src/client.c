@@ -64,6 +64,8 @@ void concat(const char *s1, const char *s2, char * messageWithInfo){
     //return result;
 }
 
+
+
 void *thread_UDP_CLIENT(void *args) {
 
 	args_CLIENT * argClient = (args_CLIENT *) args;
@@ -86,29 +88,64 @@ void *thread_UDP_CLIENT(void *args) {
 
 	char myIP[64];
 
-	char messageWithInfo[64+15];
+	//int sizeMessageInfo=15+64;
+	char messageWithInfo[SIZE_SOCKET_MESSAGE];
+
+
 	getIP(myIP);
 	if(myIP!=NULL){
 		concat(myIP,str,messageWithInfo);
-		if(verbose){printf("THREAD CLIENT SENDING : %s\n", messageWithInfo);}
-		sendto(sock, messageWithInfo,50, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
+		messageWithInfo[SIZE_SOCKET_MESSAGE-1]='\0';
+
+		if(sendNetwork(sock,&adr_svr,messageWithInfo)==0){
+			//TODO ERROR;
+		}
+
+		//sendto(sock, messageWithInfo,SIZE_SOCKET_MESSAGE, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
+		if(verbose){printf("THREAD CLIENT SENDED : %s\n", messageWithInfo);}
+
+	}else{
+		//TODO
 	}
 
 	int continu = 1;
 	const int sizeFLOAT=10;
-	char message[5*sizeFLOAT];
+	//int sizeMessage=5*sizeFLOAT;
+	char message[SIZE_SOCKET_MESSAGE];
+	int resultWait;
+
 	while (continu) {
 
-		//char * output=(char *)malloc(sizeof(char)*(sizeFloat*5));
-		pthread_mutex_lock(
-				&argClient->argControler->pmutexReadDataController->mutex);
+
+		struct timespec timeToWait;
+		struct timeval now;
+
+		int timeInMs=1;
+
+		gettimeofday(&now, NULL);
+
+		timeToWait.tv_sec = now.tv_sec + 1;
+		timeToWait.tv_nsec = (now.tv_usec + 1000UL * timeInMs) * 1000UL;
+
+
+		pthread_mutex_lock(&argClient->argControler->pmutexReadDataController->mutex);
+
+		if(argClient->argControler->newThing==0){
+
+			resultWait=pthread_cond_timedwait(&argClient->argControler->pmutexReadDataController->condition,
+					&argClient->argControler->pmutexReadDataController->mutex,&timeToWait);
+
+			if(resultWait==ETIMEDOUT){
+				if(verbose){printf("THREAD CLIENT : TIMER LIMIT\n");}
+
+			}
+		}
 
 		argClient->argControler->newThing = 0;
 		dataControllerToMessage(sizeFLOAT,message ,argClient->argControler->manette);
 		pthread_mutex_unlock(
 				&argClient->argControler->pmutexReadDataController->mutex);
 
-		sleep(1);
 		if(verbose){printf("THREAD CLIENT SENDING : %s\n", message);}
 
 		/*
@@ -118,7 +155,12 @@ void *thread_UDP_CLIENT(void *args) {
 		}
 		*/
 
-		sendto(sock, message,100, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
+		message[SIZE_SOCKET_MESSAGE-1]='\0';
+
+		if(sendNetwork(sock,&adr_svr,message)==0){
+			//TODO ERROR
+		}
+		//recvfrom(sock,message,SIZE_SOCKET_MESSAGE, 0,NULL,NULL);
 
 	}
 	return NULL;

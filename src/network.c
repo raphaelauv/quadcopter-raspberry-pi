@@ -1,5 +1,50 @@
 #include "network.h"
 
+int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message) {
+	int sizeReveceTotal = 0;
+	int resultReceve=0;
+	int nbfail = 0;
+
+	while (sizeReveceTotal < SIZE_SOCKET_MESSAGE && nbfail < 10) {
+		resultReceve = recvfrom(sock, &message[sizeReveceTotal],
+				SIZE_SOCKET_MESSAGE - sizeReveceTotal, 0, NULL, NULL);
+
+		if (resultReceve == -1) {
+			nbfail++;
+		} else {
+			sizeReveceTotal += resultReceve;
+		}
+	}
+	if (nbfail == 10) {
+		return 0;
+	} else {
+		return 1;
+	}
+
+}
+int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message) {
+	int sended=0;
+	int resultSend=0;
+	int nbfail=0;
+	while (sended < SIZE_SOCKET_MESSAGE && nbfail<10) {
+		resultSend = sendto(sock, &message[sended],
+			SIZE_SOCKET_MESSAGE - sended, 0, (struct sockaddr *) adr_svr,
+				sizeof(struct sockaddr_in));
+
+
+		if (resultSend == -1) {
+			nbfail++;
+		}else{
+			sended += resultSend;
+		}
+	}
+	if(nbfail==10){
+		return 0;
+	}else{
+		return 1;
+	}
+}
+
 void getIP(char*  myIP) {
 	//char * nameIp=(char *)malloc(sizeof(char)*64);
 	if(myIP==NULL){
