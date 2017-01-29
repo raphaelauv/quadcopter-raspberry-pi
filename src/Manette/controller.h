@@ -9,7 +9,7 @@
 
 #include "../concurrent.h"
 
-#define Update_Frequence 100000
+#define Update_Frequence 500000
 
 
 typedef struct args_CONTROLER {

@@ -24,6 +24,10 @@
 
 #define SIZE_SOCKET_MESSAGE 100
 
+int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message);
+
+int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message);
+
 void getIP(char*  myIP);
 
 #endif /* NETWORK_H_ */

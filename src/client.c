@@ -64,6 +64,8 @@ void concat(const char *s1, const char *s2, char * messageWithInfo){
     //return result;
 }
 
+
+
 void *thread_UDP_CLIENT(void *args) {
 
 	args_CLIENT * argClient = (args_CLIENT *) args;
@@ -86,24 +88,38 @@ void *thread_UDP_CLIENT(void *args) {
 
 	char myIP[64];
 
-	char messageWithInfo[64+15];
+	//int sizeMessageInfo=15+64;
+	char messageWithInfo[SIZE_SOCKET_MESSAGE];
+
+
 	getIP(myIP);
 	if(myIP!=NULL){
 		concat(myIP,str,messageWithInfo);
-		if(verbose){printf("THREAD CLIENT SENDING : %s\n", messageWithInfo);}
-		sendto(sock, messageWithInfo,50, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
+		messageWithInfo[SIZE_SOCKET_MESSAGE-1]='\0';
+
+		if(sendNetwork(sock,&adr_svr,messageWithInfo)==0){
+			//TODO ERROR;
+		}
+
+		//sendto(sock, messageWithInfo,SIZE_SOCKET_MESSAGE, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
+		if(verbose){printf("THREAD CLIENT SENDED : %s\n", messageWithInfo);}
+
+	}else{
+		//TODO
 	}
 
 	int continu = 1;
 	const int sizeFLOAT=10;
-	char message[5*sizeFLOAT];
+	//int sizeMessage=5*sizeFLOAT;
+	char message[SIZE_SOCKET_MESSAGE];
 	int resultWait;
+
 	while (continu) {
 
 
 		struct timespec timeToWait;
 		struct timeval now;
-		int rt;
+
 		int timeInMs=1;
 
 		gettimeofday(&now, NULL);
@@ -139,7 +155,12 @@ void *thread_UDP_CLIENT(void *args) {
 		}
 		*/
 
-		sendto(sock, message,100, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
+		message[SIZE_SOCKET_MESSAGE-1]='\0';
+
+		if(sendNetwork(sock,&adr_svr,message)==0){
+			//TODO ERROR
+		}
+		//recvfrom(sock,message,SIZE_SOCKET_MESSAGE, 0,NULL,NULL);
 
 	}
 	return NULL;
