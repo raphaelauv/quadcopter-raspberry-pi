@@ -75,13 +75,13 @@ void * thread_startMoteur(void * args){
 
         	pthread_mutex_unlock(&info->MutexSetPower->mutex);
 			#ifdef __arm__
-        	digitalWrite(info->broche, 1);       // Etat haut du signal.
+        	digitalWrite(info->broche,1);       // Etat haut du signal.
 			#endif
-        	//usleep((int)hight);
+        	usleep((int)hight);
 			#ifdef __arm__
-        	//digitalWrite(info->broche,0);         //Etat bas du signal.
+        	digitalWrite(info->broche,0);         //Etat bas du signal.
 			#endif
-        	//usleep((int)(low));
+        	usleep((int)(low));
 
 
         	//printf("DANS BRANCH MOTOR %d  : valeur HIGH -> %f  valeur LOW -> %f\n",info->broche, info->high_time,info->low_time);
@@ -133,21 +133,22 @@ int set_power(motor_info * info,float power){
         return 1;
     }
 
+    if(a>10){
+    	a=10;
+    }else if(a<5){
+    	a=5;
+    }
+
     //printf("THREAD CONTROLVOL : SET POWER avant lock\n");
     pthread_mutex_lock(&info->MutexSetPower->mutex);
 
     //printf("THREAD CONTROLVOL : SET POWER dans lock\n");
-
-    if(a==0 && *info->bool_arret_moteur==1){
-    	//TODO arret moteur
-    }
 
     info->high_time=(periode*power/100.0); // On calcule le nouveaux rapport cyclique.
     info->low_time=periode-info->high_time; //
     pthread_mutex_unlock(&info->MutexSetPower->mutex);
 
     //printf("THREAD CONTROLVOL : SET POWER apres lock\n");
-    //printf("%i\n",a);
     return 0;
 }
 

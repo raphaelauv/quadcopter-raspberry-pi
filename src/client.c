@@ -97,18 +97,39 @@ void *thread_UDP_CLIENT(void *args) {
 	int continu = 1;
 	const int sizeFLOAT=10;
 	char message[5*sizeFLOAT];
+	int resultWait;
 	while (continu) {
 
-		//char * output=(char *)malloc(sizeof(char)*(sizeFloat*5));
-		pthread_mutex_lock(
-				&argClient->argControler->pmutexReadDataController->mutex);
+
+		struct timespec timeToWait;
+		struct timeval now;
+		int rt;
+		int timeInMs=1;
+
+		gettimeofday(&now, NULL);
+
+		timeToWait.tv_sec = now.tv_sec + 1;
+		timeToWait.tv_nsec = (now.tv_usec + 1000UL * timeInMs) * 1000UL;
+
+
+		pthread_mutex_lock(&argClient->argControler->pmutexReadDataController->mutex);
+
+		if(argClient->argControler->newThing==0){
+
+			resultWait=pthread_cond_timedwait(&argClient->argControler->pmutexReadDataController->condition,
+					&argClient->argControler->pmutexReadDataController->mutex,&timeToWait);
+
+			if(resultWait==ETIMEDOUT){
+				if(verbose){printf("THREAD CLIENT : TIMER LIMIT\n");}
+
+			}
+		}
 
 		argClient->argControler->newThing = 0;
 		dataControllerToMessage(sizeFLOAT,message ,argClient->argControler->manette);
 		pthread_mutex_unlock(
 				&argClient->argControler->pmutexReadDataController->mutex);
 
-		sleep(1);
 		if(verbose){printf("THREAD CLIENT SENDING : %s\n", message);}
 
 		/*
