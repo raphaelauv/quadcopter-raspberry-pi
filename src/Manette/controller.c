@@ -5,9 +5,9 @@ void clean_args_CONTROLER(args_CONTROLER * arg) {
 		clean_PMutex(arg->pmutexControlerPlug);
 		clean_PMutex(arg->pmutexReadDataController);
 		clean_DataController(arg->manette);
+		free(arg);
+		arg = NULL;
 	}
-	free(arg);
-	arg = NULL;
 }
 
 char is_connect() {
@@ -76,10 +76,16 @@ void control(args_CONTROLER * argsControl) {
 	int quitter = (SDL_NumJoysticks() > 0) ? 0 : 1;
 
 	if (verbose && (SDL_NumJoysticks() <= 0)){
-		printf("pas de controller\n");
+		printf("THREAD XBOX : pas de controller\n");
 	}
 	float tmpM0, tmpM1, tmpM2, tmpM3;
 	while (!quitter) {
+
+		if(argsControl->endController==1){
+			quitter=1;
+			break;
+		}
+
 		usleep(Update_Frequence);
 
 		updateEvent(&input); // on récupère les évènements
@@ -103,14 +109,14 @@ void control(args_CONTROLER * argsControl) {
 					input.boutons[7] = input.boutons[9] = input.boutons[10] = 0;
 
 			if (verbose) {
-				printf("bool_moteur_active= %d\n", manette->flag);
+				printf("THREAD XBOX : bool_moteur_active= %d\n", manette->flag);
 			}
 
 			while (!modele
 					&& (input.axes[4] != -val_max || input.axes[5] != -val_max)) {
 				updateEvent(&input);
 			}
-			sleep(3);
+			sleep(1);
 
 			pthread_mutex_lock(&argsControl->pmutexControlerPlug->mutex);
 			pthread_cond_signal(&argsControl->pmutexControlerPlug->condition);
@@ -179,17 +185,15 @@ void control(args_CONTROLER * argsControl) {
 		if (!is_connect()) {
 			manette->flag = 0;
 			if (verbose) {
-				printf("Plus de manette %d.\n", manette->flag);
+				printf("THREAD XBOX : Plus de manette %d.\n", manette->flag);
 			}
+			//TODO
 			break;
 		}
 
 	}
 
 	/* diverses destruction ...*/
-
 	detruireInput(&input); // on détruit la structure input
 	SDL_Quit(); // on quitte la SDL
-
-	return;
 }

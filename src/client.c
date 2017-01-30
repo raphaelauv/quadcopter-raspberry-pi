@@ -4,10 +4,9 @@ void clean_args_CLIENT(args_CLIENT * arg) {
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutex);
 		clean_args_CONTROLER(arg->argControler);
-		free(arg->adresse);
+		free(arg);
+		arg = NULL;
 	}
-	free(arg);
-	arg = NULL;
 }
 
 
@@ -81,12 +80,13 @@ int testCloseDrone(int sock,struct sockaddr_in * adr_client , char * message) {
 		if (isMessageSTOP(messageReceve) == 1) {
 			stopNotReceve = 0;
 			return 1;
-		} else {
+		}
+		else {
 			if (sendNetwork(sock, adr_client, message) == 0  || cmp==10) {
 				stopNotReceve = 0;
 				return 0;
 			}
-			UsleepDuration(100000);
+			UsleepDuration(1000000);//TODO
 		}
 	}
 	return 0;
@@ -223,7 +223,7 @@ void *thread_UDP_CLIENT(void *args) {
 	}
 
 	close(sock);
-	if(verbose){printf("THREAD CLIEN : END\n");}
+	if(verbose){printf("THREAD CLIENT : END\n");}
 	return NULL;
 }
 
@@ -342,6 +342,8 @@ void *thread_XBOX_CONTROLER(void *args) {
 	args_CONTROLER *argClient =(args_CONTROLER *) args;
 
 	control( argClient);
+
+	if(argClient->verbose){printf("THREAD XBOX : END\n");}
 
 	return NULL;
 }

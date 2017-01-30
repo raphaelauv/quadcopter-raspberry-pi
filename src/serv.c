@@ -169,14 +169,10 @@ void *thread_UDP_SERVER(void *args) {
 	struct sockaddr_in adr_send;
 
 	if(get_IP_Port(buff,&ipReceve)!=1){
-		if(verbose){
-			printf("ERROR IP RECEVE\n");
-		}
+		if(verbose){printf("ERROR IP RECEVE\n");}
 		fini=0;//TODO
 	}else{
-		if (verbose) {
-			printf("THREAD SERV : GOOD IP AND PORT RECEVE\n");
-		}
+		if (verbose) {printf("THREAD SERV : GOOD IP AND PORT RECEVE\n");}
 
 		memset(&adr_send, 0, sizeof(adr_send));
 		adr_send.sin_family	=AF_INET;
@@ -206,7 +202,7 @@ void *thread_UDP_SERVER(void *args) {
 		tv.tv_usec = 500000;
 		int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
 		if (ret == 0) {
-			printf("THREAD SERV : Timed out\n");
+			if(verbose){printf("THREAD SERV : Timed out\n");}
 			//TODO
 			//fini = 0;
 		} else if (FD_ISSET(sock, &rdfs)) {
@@ -216,7 +212,7 @@ void *thread_UDP_SERVER(void *args) {
 			}
 
 		} else {
-			printf("THREAD SERV : SELECT WITHOUT GOOD VALUE\n");
+			if(verbose){printf("THREAD SERV : SELECT WITHOUT GOOD VALUE\n");}
 		}
 	}
 
