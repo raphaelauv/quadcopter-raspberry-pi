@@ -10,41 +10,7 @@ void clean_args_SERVER(args_SERVER * arg) {
 	}
 }
 
-char isMessage(char * messageReceve, char * messageToTest) {
-	char str1[SIZE_SOCKET_MESSAGE];
-	char str2[SIZE_SOCKET_MESSAGE];
-	int res = 0;
 
-	strcpy(str1, messageToTest);
-	strcpy(str2, messageReceve);
-	res = strcmp(str1, str2);
-
-	return res == 0;
-}
-
-char isMessagePause(char * message) {
-	return isMessage(message,"PAUSE");
-}
-
-char isMessageSTOP(char * message){
-	return isMessage(message,"STOP");
-}
-
-char getAdresseIP(char *message,struct sockaddr_in * sa){
-
-	char ip[50];
-	int cmp=0;
-	while(*message!=' '){
-		ip[cmp]=*message;
-		message++;
-		cmp++;
-	}
-	cmp++;
-	ip[cmp]='\0';
-
-	//printf("ip get : %s\n",ip);
-	return inet_pton(AF_INET,(const char *) &ip, &(sa->sin_addr));
-}
 
 void MessageToStruc(char * message,int sizeFloat,DataController * dataTmp){
 
@@ -82,6 +48,8 @@ void MessageToStruc(char * message,int sizeFloat,DataController * dataTmp){
 }
 
 
+
+
 void *thread_UDP_SERVER(void *args) {
 
 	args_SERVER *argSERV = (args_SERVER*) args;
@@ -96,17 +64,20 @@ void *thread_UDP_SERVER(void *args) {
 	adr_svr.sin_addr.s_addr = htonl(INADDR_ANY);
 	adr_svr.sin_port 		= htons(8888);
 
-	if((sock=socket(PF_INET,SOCK_DGRAM,0)) ==-1 ){
-		perror("THREAD SERV : Socket error");
+	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
+		perror("THREAD SERV : Socket error\n");
+		return NULL;
 	}
 
-	if(bind(sock,(struct sockaddr *)&adr_svr,sizeof(adr_svr))){
-		perror("THREAD SERV : bind error");
+	if(bindUDPSock(&sock,&adr_svr)==0){
+		return NULL;
 	}
+
 	char buff[SIZE_SOCKET_MESSAGE];
 
 	if(receveNetwork(sock,NULL,buff)==0){
-		//TODO ERROR
+		perror("THREAD SERV : RECEVE NETWORK ERROR\n");
+		return NULL;
 	}
 
 	buff[SIZE_SOCKET_MESSAGE-1] = '\0';
@@ -115,30 +86,44 @@ void *thread_UDP_SERVER(void *args) {
 	int fini = 1;
 	int cmpNumberMessage=1;
 
-	struct sockaddr_in  sa;
-	if(getAdresseIP(buff,&sa)!=1){
+	struct sockaddr_in  ipReceve;
+
+	struct sockaddr_in adr_send;
+
+	if(get_IP_Port(buff,&ipReceve)!=1){
 		if(verbose){
 			printf("ERROR IP RECEVE\n");
 		}
 		fini=0;//TODO
 	}else{
 		if (verbose) {
-			printf("GOOD IP RECEVE\n");
+			printf("THREAD SERV : GOOD IP AND PORT RECEVE\n");
 		}
-	}
 
-	pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
-	pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
-	pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
+		memset(&adr_send, 0, sizeof(adr_send));
+		adr_send.sin_family	=AF_INET;
+		adr_send.sin_addr=ipReceve.sin_addr;
+		//adr_send.sin_port	=htons(); TODO
+
+	}
 
 
 	DataController dataTmp;
 
+	int firstMessage=0;
 
 	while(fini){
 
 		if (receveNetwork(sock, NULL, buff) == 0) {
-			//TODO ERROR
+			//TODO prendre decision sur controleur de vol , demander atterissage
+			perror("THREAD SERV : RECEVE NETWORK ERROR\n");
+			fini=0;
+		}
+
+		if(firstMessage){
+			pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
+			pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
+			pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
 		}
 
 		buff[SIZE_SOCKET_MESSAGE-1] = '\0';
@@ -167,7 +152,6 @@ void *thread_UDP_SERVER(void *args) {
 			}
 
 			pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
-
 
 			argSERV->dataController->axe_Rotation=dataTmp.axe_Rotation;
 			argSERV->dataController->axe_UpDown=dataTmp.axe_UpDown;

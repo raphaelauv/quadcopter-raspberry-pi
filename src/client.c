@@ -64,6 +64,10 @@ void concat(const char *s1, const char *s2, char * messageWithInfo){
     //return result;
 }
 
+void testCloseDrone(int sock,char * messageFlagStop){
+
+
+}
 
 
 void *thread_UDP_CLIENT(void *args) {
@@ -73,18 +77,40 @@ void *thread_UDP_CLIENT(void *args) {
 	if(verbose){printf("CLIENT UDP\n");}
 
 	int sock;
-	struct sockaddr_in adr_svr;
-	memset(&adr_svr, 0, sizeof(adr_svr));
-	adr_svr.sin_port	=htons(argClient->port);
-	adr_svr.sin_family	=AF_INET;
-	inet_aton(argClient->adresse, &adr_svr.sin_addr);
+	struct sockaddr_in adr_client;
+	memset(&adr_client, 0, sizeof(adr_client));
+	adr_client.sin_port	=htons(argClient->port);
+	adr_client.sin_family	=AF_INET;
+	inet_aton(argClient->adresse, &adr_client.sin_addr);
+
 
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
-		perror("Socket error");
+		perror("THREAD CLIENT : Socket error\n");
+		return (void*)EXIT_FAILURE;
+	}
+
+	//adr_my is for reception from drone
+	int myListeningPort=8899;
+	struct sockaddr_in adr_my;
+	memset(&adr_my, 0, sizeof(adr_my));
+	adr_my.sin_family 		= AF_INET;
+	adr_my.sin_addr.s_addr = htonl(INADDR_ANY);
+	adr_my.sin_port 		= htons(myListeningPort);
+
+
+	if(bindUDPSock(&sock,&adr_my)==0){
+		perror("THREAD CLIENT : Socket BIND error\n");
+		return (void*)EXIT_FAILURE;
+	}
+
+
+	if(fcntl(sock, F_SETFL, O_NONBLOCK) < 0) {
+		perror("THREAD CLIENT : Socket NONBLOCK error\n");
+		return (void*)EXIT_FAILURE;
 	}
 
 	char str[15];
-	sprintf(str, "%d", argClient->port);
+	sprintf(str, "%d", myListeningPort);
 
 	char myIP[64];
 
@@ -97,8 +123,9 @@ void *thread_UDP_CLIENT(void *args) {
 		concat(myIP,str,messageWithInfo);
 		messageWithInfo[SIZE_SOCKET_MESSAGE-1]='\0';
 
-		if(sendNetwork(sock,&adr_svr,messageWithInfo)==0){
-			//TODO ERROR;
+		if(sendNetwork(sock,&adr_client,messageWithInfo)==0){
+			perror("THREAD CLIENT : SEND NETWORK error\n");
+			return (void*)EXIT_FAILURE;
 		}
 
 		//sendto(sock, messageWithInfo,SIZE_SOCKET_MESSAGE, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
@@ -114,6 +141,7 @@ void *thread_UDP_CLIENT(void *args) {
 	char message[SIZE_SOCKET_MESSAGE];
 	int resultWait;
 
+	int flag;
 	while (continu) {
 
 
@@ -143,26 +171,37 @@ void *thread_UDP_CLIENT(void *args) {
 
 		argClient->argControler->newThing = 0;
 		dataControllerToMessage(sizeFLOAT,message ,argClient->argControler->manette);
-		pthread_mutex_unlock(
-				&argClient->argControler->pmutexReadDataController->mutex);
+		flag=argClient->argControler->manette->flag;
+		pthread_mutex_unlock(&argClient->argControler->pmutexReadDataController->mutex);
 
 		if(verbose){printf("THREAD CLIENT SENDING : %s\n", message);}
 
-		/*
-		if (*message == 'X') {
-			printf("CLIENT EXIT ASK !! \n");
-			continu = 0;
-		}
-		*/
-
 		message[SIZE_SOCKET_MESSAGE-1]='\0';
 
-		if(sendNetwork(sock,&adr_svr,message)==0){
+		if(sendNetwork(sock,&adr_client,message)==0){
 			//TODO ERROR
 		}
-		//recvfrom(sock,message,SIZE_SOCKET_MESSAGE, 0,NULL,NULL);
 
+		if(flag==0){
+			int stopNotReceve = 1;
+			while (stopNotReceve) {
+				char messageReceve[SIZE_SOCKET_MESSAGE];
+				recvfrom(sock, messageReceve, SIZE_SOCKET_MESSAGE, 0, NULL,NULL);//NON BLOCKING
+
+				if (isMessageSTOP(messageReceve) == 1) {
+					stopNotReceve = 0;
+				} else {
+					if(sendNetwork(sock, &adr_client,message)==0){
+						//TODO ERROR
+					}
+					sleepDuration(1);
+				}
+			}
+			continu=0;
+		}
 	}
+
+	close(sock);
 	return NULL;
 }
 

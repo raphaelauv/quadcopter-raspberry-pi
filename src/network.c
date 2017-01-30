@@ -1,5 +1,87 @@
 #include "network.h"
 
+char get_IP_Port(char *message,struct sockaddr_in * sa){
+
+
+	char ip[50];
+	int cmp=0;
+	while(*message!=' '){
+		ip[cmp]=*message;
+		message++;
+		cmp++;
+	}
+
+	message++;
+	int cmp2=0;
+
+	char port[5];
+
+	while(*message!='\0'){
+		port[cmp2]=*message;
+		message++;
+		cmp2++;
+	}
+
+	int nbPort = atoi(port);
+	if(nbPort>0 && nbPort<9999){
+		sa->sin_port=nbPort;
+	}else{
+		return 0;
+	}
+
+	cmp++;
+	ip[cmp]='\0';
+
+	//printf("ip get : %s\n",ip);
+	return inet_pton(AF_INET,(const char *) &ip, &(sa->sin_addr));
+}
+
+char isMessage(char * messageReceve, char * messageToTest) {
+	char str1[SIZE_SOCKET_MESSAGE];
+	char str2[SIZE_SOCKET_MESSAGE];
+	int res = 0;
+
+	strcpy(str1, messageToTest);
+	strcpy(str2, messageReceve);
+	res = strcmp(str1, str2);
+
+	return res == 0;
+}
+
+char isMessagePause(char * message) {
+	char msg[6] = { 'P', 'A', 'U', 'S', 'E' };
+	return isMessage(message,msg);
+}
+
+char isMessageSTOP(char * message){
+	char msg[5] = { 'S', 'T', 'O', 'P' };
+	return isMessage(message,msg);
+}
+
+
+int bindUDPSock(int * sock, struct sockaddr_in * adr_svr) {
+
+	int enable = 1;
+
+	if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+		perror("setsockopt(SO_REUSEADDR) failed");
+		return 0;
+	}
+
+	if (bind(*sock, (struct sockaddr *) adr_svr, sizeof(*adr_svr))) {
+		perror("bind error");
+		return 0;
+	}
+	return 1;
+}
+
+
+/**
+ * Fill message with the receved message , message size should be at least SIZE_SOCKET_MESSAGE
+ * Fill adr_svr with the receved Info
+ *
+ * Return 0 in case of Error else 1
+ */
 int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message) {
 	int sizeReveceTotal = 0;
 	int resultReceve=0;
@@ -22,6 +104,12 @@ int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message) {
 	}
 
 }
+
+/**
+ * Send message to adr_svr , message size should be at least SIZE_SOCKET_MESSAGE
+ *
+ * Return 0 in case of Error else 1
+ */
 int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message) {
 	int sended=0;
 	int resultSend=0;

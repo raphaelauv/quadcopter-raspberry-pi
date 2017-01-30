@@ -24,6 +24,14 @@
 
 #define SIZE_SOCKET_MESSAGE 100
 
+char get_IP_Port(char *message,struct sockaddr_in * sa);
+
+char isMessageSTOP(char * message);
+
+char isMessagePause(char * message);
+
+int bindUDPSock(int * sock, struct sockaddr_in * adr_svr);
+
 int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message);
 
 int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message);
