@@ -1,5 +1,40 @@
 #include "network.h"
 
+char get_IP_Port(char *message,struct sockaddr_in * sa){
+
+
+	char ip[50];
+	int cmp=0;
+	while(*message!=' '){
+		ip[cmp]=*message;
+		message++;
+		cmp++;
+	}
+
+	message++;
+	int cmp2=0;
+
+	char port[4];
+	while(*message!=' ' && *message!='\0' && *message==0){
+		port[cmp2]=*message;
+		message++;
+		cmp2++;
+	}
+
+	int nbPort = atoi(port);
+	printf("NUMERO DE PORT %d\n", nbPort);
+	if(nbPort>0 && nbPort<9999){
+		sa->sin_port=nbPort;
+	}else{
+		return 0;
+	}
+
+	cmp++;
+	ip[cmp]='\0';
+
+	//printf("ip get : %s\n",ip);
+	return inet_pton(AF_INET,(const char *) &ip, &(sa->sin_addr));
+}
 
 char isMessage(char * messageReceve, char * messageToTest) {
 	char str1[SIZE_SOCKET_MESSAGE];

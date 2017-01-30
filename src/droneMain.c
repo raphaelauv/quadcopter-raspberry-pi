@@ -112,11 +112,13 @@ int main (int argc, char *argv[]){
 
 	init_threads_motors(motorsAll,verbose);//start the 4 threads et ne rends pas la main
 
-	if (pthread_join(threadServer, NULL)){
+	int * returnValue;
+
+	if (pthread_join(threadServer,(void**) &returnValue)){
 		perror("pthread_join");
 		return EXIT_FAILURE;
 	}
-	if (pthread_join(threadControlerVOL, NULL)){
+	if (pthread_join(threadControlerVOL, (void**) &returnValue)){
 		perror("pthread_join");
 		return EXIT_FAILURE;
 	}

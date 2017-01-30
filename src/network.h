@@ -24,6 +24,8 @@
 
 #define SIZE_SOCKET_MESSAGE 100
 
+char get_IP_Port(char *message,struct sockaddr_in * sa);
+
 char isMessageSTOP(char * message);
 
 char isMessagePause(char * message);
