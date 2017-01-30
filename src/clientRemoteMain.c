@@ -35,12 +35,18 @@ int main (int argc, char *argv[]){
 	}
 	init_PMutex(pmutexRead);
 
+
+
+
+
+
 	args_CONTROLER * argControler =(args_CONTROLER *) malloc(sizeof(args_CONTROLER));
 	if (argControler == NULL) {
 		perror("MALLOC FAIL : argControler\n");
 		return EXIT_FAILURE;
 	}
 	argControler->newThing=0;
+	argControler->endController=0;
 	argControler->manette=(DataController *) malloc(sizeof( DataController));
 	if (argControler->manette == NULL) {
 		perror("MALLOC FAIL : argControler->manette\n");
@@ -90,6 +96,9 @@ int main (int argc, char *argv[]){
 		perror("pthread_join SERV");
 		return EXIT_FAILURE;
 	}
+
+	argControler->endController=1;
+
 	if (pthread_join(threadControler, NULL)) {
 		perror("pthread_join CONTROLER");
 		return EXIT_FAILURE;
@@ -97,9 +106,8 @@ int main (int argc, char *argv[]){
 
 
 	clean_args_CLIENT(argClient);
-	clean_args_CONTROLER(argControler);
+	//clean_args_CONTROLER(argControler);
+	if(verbose){printf("THREAD MAIN : END\n");}
 
 	return EXIT_SUCCESS;
-
-
 }
