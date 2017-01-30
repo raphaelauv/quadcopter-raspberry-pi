@@ -10,25 +10,6 @@ void clean_args_SERVER(args_SERVER * arg) {
 	}
 }
 
-char isMessage(char * messageReceve, char * messageToTest) {
-	char str1[SIZE_SOCKET_MESSAGE];
-	char str2[SIZE_SOCKET_MESSAGE];
-	int res = 0;
-
-	strcpy(str1, messageToTest);
-	strcpy(str2, messageReceve);
-	res = strcmp(str1, str2);
-
-	return res == 0;
-}
-
-char isMessagePause(char * message) {
-	return isMessage(message,"PAUSE");
-}
-
-char isMessageSTOP(char * message){
-	return isMessage(message,"STOP");
-}
 
 char getAdresseIP(char *message,struct sockaddr_in * sa){
 
@@ -82,6 +63,8 @@ void MessageToStruc(char * message,int sizeFloat,DataController * dataTmp){
 }
 
 
+
+
 void *thread_UDP_SERVER(void *args) {
 
 	args_SERVER *argSERV = (args_SERVER*) args;
@@ -96,16 +79,14 @@ void *thread_UDP_SERVER(void *args) {
 	adr_svr.sin_addr.s_addr = htonl(INADDR_ANY);
 	adr_svr.sin_port 		= htons(8888);
 
-	if((sock=socket(PF_INET,SOCK_DGRAM,0)) ==-1 ){
+	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
 		perror("THREAD SERV : Socket error");
 	}
-	int enable = 1;
-	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0){
-	    perror("setsockopt(SO_REUSEADDR) failed");
+
+	if(bindUDPSock(&sock,&adr_svr)==0){
+		//TODO ERROR;
 	}
-	if(bind(sock,(struct sockaddr *)&adr_svr,sizeof(adr_svr))){
-		perror("THREAD SERV : bind error");
-	}
+
 	char buff[SIZE_SOCKET_MESSAGE];
 
 	if(receveNetwork(sock,NULL,buff)==0){

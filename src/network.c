@@ -1,5 +1,43 @@
 #include "network.h"
 
+
+char isMessage(char * messageReceve, char * messageToTest) {
+	char str1[SIZE_SOCKET_MESSAGE];
+	char str2[SIZE_SOCKET_MESSAGE];
+	int res = 0;
+
+	strcpy(str1, messageToTest);
+	strcpy(str2, messageReceve);
+	res = strcmp(str1, str2);
+
+	return res == 0;
+}
+
+char isMessagePause(char * message) {
+	return isMessage(message,"PAUSE");
+}
+
+char isMessageSTOP(char * message){
+	return isMessage(message,"STOP");
+}
+
+
+int bindUDPSock(int * sock, struct sockaddr_in * adr_svr) {
+
+	int enable = 1;
+
+	if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+		perror("setsockopt(SO_REUSEADDR) failed");
+		return 0;
+	}
+
+	if (bind(*sock, (struct sockaddr *) adr_svr, sizeof(*adr_svr))) {
+		perror("bind error");
+		return 0;
+	}
+	return 1;
+}
+
 int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message) {
 	int sizeReveceTotal = 0;
 	int resultReceve=0;

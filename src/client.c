@@ -64,7 +64,8 @@ void concat(const char *s1, const char *s2, char * messageWithInfo){
     //return result;
 }
 
-void testCloseDrone(){
+void testCloseDrone(int sock,char * messageFlagStop){
+
 
 }
 
@@ -82,9 +83,21 @@ void *thread_UDP_CLIENT(void *args) {
 	adr_svr.sin_family	=AF_INET;
 	inet_aton(argClient->adresse, &adr_svr.sin_addr);
 
+
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
 		perror("Socket error\n");
 		//TODO
+	}
+
+	//adr_my is for reception from drone
+	struct sockaddr_in adr_my;
+	memset(&adr_my, 0, sizeof(adr_my));
+	adr_svr.sin_family 		= AF_INET;
+	adr_svr.sin_addr.s_addr = htonl(INADDR_ANY);
+	adr_svr.sin_port 		= htons(8888);
+
+	if(bindUDPSock(&sock,&adr_my)==0){
+		//TODO ERROR
 	}
 
 	if(fcntl(sock, F_SETFL, fcntl(sock, F_GETFL) | O_NONBLOCK) < 0) {
@@ -160,13 +173,26 @@ void *thread_UDP_CLIENT(void *args) {
 
 		message[SIZE_SOCKET_MESSAGE-1]='\0';
 
+
 		if(sendNetwork(sock,&adr_svr,message)==0){
 			//TODO ERROR
 		}
-		//recvfrom(sock,message,SIZE_SOCKET_MESSAGE, 0,NULL,NULL);
 
 		if(flag==0){
-			testCloseDrone();
+			int stopNotReceve = 1;
+			while (stopNotReceve) {
+				char messageReceve[SIZE_SOCKET_MESSAGE];
+				recvfrom(sock, messageReceve, SIZE_SOCKET_MESSAGE, 0, NULL,NULL);//NON BLOCKING
+
+				if (isMessageSTOP(messageReceve) == 1) {
+					stopNotReceve = 0;
+				} else {
+					if(sendNetwork(sock, &adr_svr,message)==0){
+						//TODO ERROR
+					}
+					sleepDuration(1);
+				}
+			}
 			continu=0;
 		}
 	}
