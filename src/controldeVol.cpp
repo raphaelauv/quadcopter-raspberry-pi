@@ -70,7 +70,7 @@ void * startCONTROLVOL(void * args){
 		if (data->flag== 0) {
 			pthread_mutex_unlock(&(mutexDataControler->mutex));
 
-			*controle_vol->motorsAll->bool_arret_moteur=1;
+			*(controle_vol->motorsAll->bool_arret_moteur)=1;
 
 			continuThread = 0;
 			continue;

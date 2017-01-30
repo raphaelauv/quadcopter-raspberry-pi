@@ -76,25 +76,18 @@ int manageNewMessage(args_SERVER *argSERV,int * firstMessage,int sock,char * buf
 
 	MessageToStruc(buff, 10, dataTmp);
 
-	if (dataTmp->flag == 0) {
-		if (verbose) {
-			printf("THREAD SERV : STOP MESSAGE\n");
-		}
-		//fini = 0;
-		return 0;
-	}
-
-	else if(dataTmp->flag==1){
+	if(dataTmp->flag==1){
 		if(verbose){printf("\nTHREAD SERV : PAUSE MESSAGE\n\n");}
 		return 1;
 	}
 
-	else if(dataTmp->flag==2) {
+	else {
 
 		if(argSERV->verbose){
 			printf ("THREAD SERV : float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  | FLAG = %d\n",
 					dataTmp->axe_FrontBack ,dataTmp->axe_UpDown,dataTmp->axe_LeftRight,dataTmp->axe_FrontBack,dataTmp->flag);
 		}
+
 
 		pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
 
@@ -108,13 +101,24 @@ int manageNewMessage(args_SERVER *argSERV,int * firstMessage,int sock,char * buf
 		pthread_cond_signal(&(argSERV->dataController->pmutex->condition));
 
 		pthread_mutex_unlock(&(argSERV->dataController->pmutex->mutex));
-		return 2;
 
+		if (dataTmp->flag == 0) {
+			if (verbose) {
+				printf("THREAD SERV : FLAG 0 MESSAGE\n");
+			}
+			//fini = 0;
+			return 0;
+		}
+		return 2;
 	}
+
+	/*
 	else{
 		if(verbose){printf("\nTHREAD SERV : UNKNOW MESSAGE\n\n");}
 		return 0;
 	}
+
+	*/
 }
 
 void *thread_UDP_SERVER(void *args) {

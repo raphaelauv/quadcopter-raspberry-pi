@@ -53,7 +53,7 @@
 #include "concurrent.h"
 
 typedef struct motor_info {
-	volatile int * bool_arret_moteur; // En cas d'arret d'urgenre =1  , TODO volatile
+	volatile int * bool_arret_moteur; // En cas d'arret d'urgenre =1
 	int broche; // nemero de la broche de sorti du signal.
 	double high_time; // temps haut du signal
 	double low_time; // temps bas du signal.
