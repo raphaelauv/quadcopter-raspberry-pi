@@ -90,11 +90,13 @@ void *thread_UDP_CLIENT(void *args) {
 	}
 
 	//adr_my is for reception from drone
+	int myListeningPort=8899;
 	struct sockaddr_in adr_my;
 	memset(&adr_my, 0, sizeof(adr_my));
 	adr_my.sin_family 		= AF_INET;
 	adr_my.sin_addr.s_addr = htonl(INADDR_ANY);
-	adr_my.sin_port 		= htons(8888);
+	adr_my.sin_port 		= htons(myListeningPort);
+
 
 	if(bindUDPSock(&sock,&adr_my)==0){
 		perror("THREAD CLIENT : Socket BIND error\n");
@@ -108,7 +110,7 @@ void *thread_UDP_CLIENT(void *args) {
 	}
 
 	char str[15];
-	sprintf(str, "%d", argClient->port);
+	sprintf(str, "%d", myListeningPort);
 
 	char myIP[64];
 

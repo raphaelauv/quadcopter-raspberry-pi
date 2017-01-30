@@ -14,15 +14,15 @@ char get_IP_Port(char *message,struct sockaddr_in * sa){
 	message++;
 	int cmp2=0;
 
-	char port[4];
-	while(*message!=' ' && *message!='\0' && *message==0){
+	char port[5];
+
+	while(*message!='\0'){
 		port[cmp2]=*message;
 		message++;
 		cmp2++;
 	}
 
 	int nbPort = atoi(port);
-	printf("NUMERO DE PORT %d\n", nbPort);
 	if(nbPort>0 && nbPort<9999){
 		sa->sin_port=nbPort;
 	}else{
@@ -49,11 +49,13 @@ char isMessage(char * messageReceve, char * messageToTest) {
 }
 
 char isMessagePause(char * message) {
-	return isMessage(message,"PAUSE");
+	char msg[6] = { 'P', 'A', 'U', 'S', 'E' };
+	return isMessage(message,msg);
 }
 
 char isMessageSTOP(char * message){
-	return isMessage(message,"STOP");
+	char msg[5] = { 'S', 'T', 'O', 'P' };
+	return isMessage(message,msg);
 }
 
 
@@ -73,6 +75,13 @@ int bindUDPSock(int * sock, struct sockaddr_in * adr_svr) {
 	return 1;
 }
 
+
+/**
+ * Fill message with the receved message , message size should be at least SIZE_SOCKET_MESSAGE
+ * Fill adr_svr with the receved Info
+ *
+ * Return 0 in case of Error else 1
+ */
 int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message) {
 	int sizeReveceTotal = 0;
 	int resultReceve=0;
@@ -95,6 +104,12 @@ int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message) {
 	}
 
 }
+
+/**
+ * Send message to adr_svr , message size should be at least SIZE_SOCKET_MESSAGE
+ *
+ * Return 0 in case of Error else 1
+ */
 int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message) {
 	int sended=0;
 	int resultSend=0;

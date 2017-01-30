@@ -97,7 +97,7 @@ void *thread_UDP_SERVER(void *args) {
 		fini=0;//TODO
 	}else{
 		if (verbose) {
-			printf("GOOD IP RECEVE\n");
+			printf("THREAD SERV : GOOD IP AND PORT RECEVE\n");
 		}
 
 		memset(&adr_send, 0, sizeof(adr_send));
