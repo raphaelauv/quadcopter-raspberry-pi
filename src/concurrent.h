@@ -38,4 +38,5 @@ typedef struct DataController{
 void clean_DataController(DataController * arg);
 
 void sleepDuration(int sleepTime);
+void UsleepDuration(int sleepTime);
 #endif /* CONCURRENT_H_ */

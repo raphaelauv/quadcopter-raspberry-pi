@@ -10,8 +10,6 @@ void clean_args_SERVER(args_SERVER * arg) {
 	}
 }
 
-
-
 void MessageToStruc(char * message,int sizeFloat,DataController * dataTmp){
 
 
@@ -49,10 +47,87 @@ void MessageToStruc(char * message,int sizeFloat,DataController * dataTmp){
 
 
 
+/**
+ * Manage the new Message receve by the drone
+ *
+ * return the value of the flag of the message or -1 in case of wrong message
+ */
+int manageNewMessage(args_SERVER *argSERV,int * firstMessage,int sock,char * buff,int * cmpNumberMessage,DataController * dataTmp){
+
+	char verbose =argSERV->verbose;
+
+	if (receveNetwork(sock, NULL, buff) == 0) {
+		//TODO prendre decision sur controleur de vol , demander atterissage
+		perror("THREAD SERV : RECEVE NETWORK ERROR\n");
+		//fini=0;
+		return 0;
+	}
+
+	if(*firstMessage){
+		pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
+		pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
+		pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
+		*firstMessage=0;
+	}
+
+	buff[SIZE_SOCKET_MESSAGE-1] = '\0';
+	if(verbose){printf("THREAD SERV : messag recu %d : %s\n",*cmpNumberMessage,buff);}
+	(*cmpNumberMessage)++;
+
+	MessageToStruc(buff, 10, dataTmp);
+
+	if(dataTmp->flag==1){
+		if(verbose){printf("\nTHREAD SERV : PAUSE MESSAGE\n\n");}
+		return 1;
+	}
+
+	else {
+
+		if(argSERV->verbose){
+			printf ("THREAD SERV : float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  | FLAG = %d\n",
+					dataTmp->axe_FrontBack ,dataTmp->axe_UpDown,dataTmp->axe_LeftRight,dataTmp->axe_FrontBack,dataTmp->flag);
+		}
+
+
+		pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
+
+		argSERV->dataController->axe_Rotation=dataTmp->axe_Rotation;
+		argSERV->dataController->axe_UpDown=dataTmp->axe_UpDown;
+		argSERV->dataController->axe_LeftRight=dataTmp->axe_LeftRight;
+		argSERV->dataController->axe_FrontBack=dataTmp->axe_FrontBack;
+		argSERV->dataController->flag=dataTmp->flag;
+		argSERV->dataController->pmutex->var=1;
+
+		pthread_cond_signal(&(argSERV->dataController->pmutex->condition));
+
+		pthread_mutex_unlock(&(argSERV->dataController->pmutex->mutex));
+
+		if (dataTmp->flag == 0) {
+			if (verbose) {
+				printf("THREAD SERV : FLAG 0 MESSAGE\n");
+			}
+			//fini = 0;
+			return 0;
+		}
+		return 2;
+	}
+
+	/*
+	else{
+		if(verbose){printf("\nTHREAD SERV : UNKNOW MESSAGE\n\n");}
+		return 0;
+	}
+
+	*/
+}
 
 void *thread_UDP_SERVER(void *args) {
 
 	args_SERVER *argSERV = (args_SERVER*) args;
+
+	/*********************************************************************/
+	/*								SETTINGS*/
+	/*********************************************************************/
 
 	char verbose =argSERV->verbose;
 	if(verbose){printf("THREAD SERV : SERVEUR UDP\n");}
@@ -73,13 +148,16 @@ void *thread_UDP_SERVER(void *args) {
 		return NULL;
 	}
 
+	/*********************************************************************/
+	/*				FIRST MESSAGE WITH UDP INFO FROM REMOTE*/
+	/*********************************************************************/
+
 	char buff[SIZE_SOCKET_MESSAGE];
 
 	if(receveNetwork(sock,NULL,buff)==0){
 		perror("THREAD SERV : RECEVE NETWORK ERROR\n");
 		return NULL;
 	}
-
 	buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 	if(verbose){printf("THREAD SERV : messag recu : %s\n",buff);}
 
@@ -108,68 +186,38 @@ void *thread_UDP_SERVER(void *args) {
 	}
 
 
-	DataController dataTmp;
+	/*********************************************************************/
+	/*				SELECT ON UDP SOCKET*/
+	/*********************************************************************/
 
-	int firstMessage=0;
+	DataController dataTmp;
+	int firstMessage=1;
+
+	fcntl(sock, F_SETFL, O_NONBLOCK);
+	int fd_max = sock + 1;
+	struct timeval tv;
+	fd_set rdfs;
 
 	while(fini){
 
-		if (receveNetwork(sock, NULL, buff) == 0) {
-			//TODO prendre decision sur controleur de vol , demander atterissage
-			perror("THREAD SERV : RECEVE NETWORK ERROR\n");
-			fini=0;
-		}
+		FD_ZERO(&rdfs);
+		FD_SET(sock, &rdfs);
+		tv.tv_sec = 1;
+		tv.tv_usec = 500000;
+		int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
+		if (ret == 0) {
+			printf("THREAD SERV : Timed out\n");
+			//TODO
+			//fini = 0;
+		} else if (FD_ISSET(sock, &rdfs)) {
 
-		if(firstMessage){
-			pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
-			pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
-			pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
-		}
-
-		buff[SIZE_SOCKET_MESSAGE-1] = '\0';
-		if(verbose){printf("THREAD SERV : messag recu %d : %s\n",cmpNumberMessage,buff);}
-		cmpNumberMessage++;
-
-		MessageToStruc(buff, 10, &dataTmp);
-
-		if(dataTmp.flag==1){
-			if(verbose){
-				printf("\nTHREAD SERV : PAUSE MESSAGE\n\n");
-			}
-
-		} else {
-
-			if(argSERV->verbose){
-				printf ("THREAD SERV : float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  | FLAG = %d\n",
-						dataTmp.axe_FrontBack ,dataTmp.axe_UpDown,dataTmp.axe_LeftRight,dataTmp.axe_FrontBack,dataTmp.flag);
-			}
-
-			if (dataTmp.flag==0) {
-				if (verbose) {
-					printf("THREAD SERV : STOP MESSAGE\n");
-				}
+			if(manageNewMessage(argSERV,&firstMessage,sock,buff,&cmpNumberMessage,&dataTmp)==0){
 				fini=0;
 			}
 
-			pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
-
-			argSERV->dataController->axe_Rotation=dataTmp.axe_Rotation;
-			argSERV->dataController->axe_UpDown=dataTmp.axe_UpDown;
-			argSERV->dataController->axe_LeftRight=dataTmp.axe_LeftRight;
-			argSERV->dataController->axe_FrontBack=dataTmp.axe_FrontBack;
-			argSERV->dataController->flag=dataTmp.flag;
-
-			if(argSERV->dataController->pmutex->var>0){
-				argSERV->dataController->pmutex->var=1;
-			}
-
-			pthread_cond_signal(&(argSERV->dataController->pmutex->condition));
-
-			pthread_mutex_unlock(&(argSERV->dataController->pmutex->mutex));
-
-
+		} else {
+			printf("THREAD SERV : SELECT WITHOUT GOOD VALUE\n");
 		}
-
 	}
 
 	close(sock);

@@ -63,10 +63,10 @@ void * thread_startMoteur(void * args){
     while(runMotor){
     	sleep(5);
 
-
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
     	pthread_mutex_lock(&info->MutexSetPower->mutex);
-        if(!(*(info->bool_arret_moteur))){//Dans le cas on est pas dans une demande d'arret moteur.
+
+        if((*(info->bool_arret_moteur))!=1){//Dans le cas on est pas dans une demande d'arret moteur.
         	hight=(int)info->high_time;
         	low=(int)info->low_time;
 
@@ -127,16 +127,16 @@ char init_motor_info(motor_info *info,int broche,volatile int * stop){
 }
 
 int set_power(motor_info * info,float power){
-    int a=(int)power;
+    int powerVerified=(int)power;
 
-    if( (a>0 && a<5) || a>10){
+    if( (powerVerified>0 && powerVerified<5) || powerVerified>10){
         return 1;
     }
 
-    if(a>10){
-    	a=10;
-    }else if(a<5){
-    	a=5;
+    if(powerVerified>10){
+    	powerVerified=10;
+    }else if(powerVerified<5){
+    	powerVerified=5;
     }
 
     //printf("THREAD CONTROLVOL : SET POWER avant lock\n");
@@ -144,7 +144,7 @@ int set_power(motor_info * info,float power){
 
     //printf("THREAD CONTROLVOL : SET POWER dans lock\n");
 
-    info->high_time=(periode*power/100.0); // On calcule le nouveaux rapport cyclique.
+    info->high_time=(periode*powerVerified/100.0); // On calcule le nouveaux rapport cyclique.
     info->low_time=periode-info->high_time; //
     pthread_mutex_unlock(&info->MutexSetPower->mutex);
 

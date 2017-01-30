@@ -56,11 +56,13 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 	motorsAll->bool_arret_moteur =(volatile int *) malloc(sizeof(int));
+
 	if (motorsAll->bool_arret_moteur == NULL) {
 		perror("MALLOC FAIL : motorsAll->bool_arret_moteur\n");
 		return EXIT_FAILURE;
 	}
-	*(motorsAll->bool_arret_moteur)= 0;
+	volatile int arret=0;
+	*(motorsAll->bool_arret_moteur)= arret;
 
 	if(init_Value_motors(motorsAll)==0){
 		return EXIT_FAILURE;
