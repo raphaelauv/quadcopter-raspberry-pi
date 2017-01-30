@@ -97,8 +97,8 @@ int main (int argc, char *argv[]){
 
 	pthread_mutex_lock(&PmutexRemoteConnect->mutex);
 
-	if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {
-		perror("pthread_create TCP");
+	if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)!=0) {
+		perror("THREAD MAIN : pthread_create SERVER\n");
 		return EXIT_FAILURE;
 	}
 
@@ -107,21 +107,23 @@ int main (int argc, char *argv[]){
 	pthread_mutex_unlock(&PmutexRemoteConnect->mutex);
 
 
-	if (pthread_create(&threadControlerVOL, NULL, startCONTROLVOL, argCONTROLVOL)) {
-		perror("pthread_create PID");
+	if (pthread_create(&threadControlerVOL, NULL, startCONTROLVOL, argCONTROLVOL)!=0) {
+		perror("THREAD MAIN : pthread_create PID\n");
 		return EXIT_FAILURE;
 	}
 
 	init_threads_motors(motorsAll,verbose);//start the 4 threads et ne rends pas la main
 
+	//TODO test fermeture NORMAL des PTHREADS moteurs
+
 	int * returnValue;
 
-	if (pthread_join(threadServer,(void**) &returnValue)){
-		perror("pthread_join");
+	if (pthread_join(threadServer,(void**) &returnValue)!=0){
+		perror("THREAD MAIN : pthread_join SERVER\n");
 		return EXIT_FAILURE;
 	}
-	if (pthread_join(threadControlerVOL, (void**) &returnValue)){
-		perror("pthread_join");
+	if (pthread_join(threadControlerVOL, (void**) &returnValue)!=0){
+		perror("THREAD MAIN : pthread_join PID\n");
 		return EXIT_FAILURE;
 	}
 

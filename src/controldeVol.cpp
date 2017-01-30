@@ -62,6 +62,8 @@ void * startCONTROLVOL(void * args){
 			RTIMU_DATA imuData = imu->getIMUData();
 			sampleCount++;
 			now = RTMath::currentUSecsSinceEpoch();
+			printf("*******************************\nSample rate : %s\n*******************************\n", RTMath::displayDegrees("", imuData.fusionPose));
+			fflush(stdout);
 		}
 		#endif
 

@@ -61,7 +61,7 @@ void * thread_startMoteur(void * args){
 
     int runMotor=1;
     while(runMotor){
-    	sleep(5);
+    	//sleep(5);
 
         //On Bloc le Mutex, on copie les valeurs info->high_time et info->low_time pour pas resté avec le mutex bloquée.
     	pthread_mutex_lock(&info->MutexSetPower->mutex);
@@ -195,7 +195,7 @@ char init_Value_motors(MotorsAll * motorsAll){
 
 }
 
-void init_threads_motors(MotorsAll * motorsAll,char verbose){
+int init_threads_motors(MotorsAll * motorsAll,char verbose){
     cpu_set_t cpuset;//ensemble des CPU utilisable.
 
     pthread_t thr0;
@@ -208,9 +208,6 @@ void init_threads_motors(MotorsAll * motorsAll,char verbose){
 
     //init avec les attributs par defaut.
     pthread_attr_init(& attributs);
-
-
-
 
 
 	#ifdef __arm__
@@ -235,37 +232,66 @@ void init_threads_motors(MotorsAll * motorsAll,char verbose){
 
 
     //creation du thread.
-	if (pthread_create(&thr0, &attributs, thread_startMoteur, motorsAll->motor0)) {
-		perror("pthread0_create");
-	}
+    int do1time=1;
+    int error=0;
+    int resultPthread=0;
+    while(do1time){
+		if ((resultPthread=pthread_create(&thr0, &attributs, thread_startMoteur, motorsAll->motor0))!=0) {
+			printf("pthread0_create -> %d\n",resultPthread);
+			perror("pthread0_create : ");
+			error=-1;
+			break;
+		}
 
-	if (pthread_create(&thr1, &attributs, thread_startMoteur, motorsAll->motor1)) {
-		perror("pthread1_create");
-	}
+		if ((resultPthread=pthread_create(&thr1, &attributs, thread_startMoteur, motorsAll->motor1)!=0)) {
+			printf("pthread1_create -> %d\n",resultPthread);
+			perror("pthread1_create : ");
+			error=-1;
+			break;
+		}
 
-	if (pthread_create(&thr2, &attributs, thread_startMoteur, motorsAll->motor2)) {
-		perror("pthread2_create");
-	}
+		if ((resultPthread=pthread_create(&thr2, &attributs, thread_startMoteur, motorsAll->motor2))!=0) {
+			printf("pthread2_create -> %d\n",resultPthread);
+			perror("pthread2_create : ");
+			error=-1;
+			break;
+		}
 
-	if (pthread_create(&thr3, &attributs, thread_startMoteur, motorsAll->motor3)) {
-		perror("pthread3_create");
-	}
+		if ((resultPthread=pthread_create(&thr3, &attributs, thread_startMoteur, motorsAll->motor3))!=0) {
+			printf("pthread3_create -> %d\n",resultPthread);
+			perror("pthread3_create : ");
+			error=-1;
+			break;
+		}
+
+		break;
+    }
+
+    if(error==-1){
+    	//TODO barriere
+    }
 
 	pthread_attr_destroy(&attributs);//Libere les resource.
 
-	if (pthread_join(thr0, NULL)) {
-		perror("pthread_join");
+	if ((resultPthread = pthread_join(thr0, NULL)) != 0) {
+		printf("pthread0_join -> %d\n", resultPthread);
+		perror("pthread0_join : ");
 	}
-	if (pthread_join(thr1, NULL)) {
-		perror("pthread_join");
+	if ((resultPthread = pthread_join(thr1, NULL)) != 0) {
+		printf("pthread1_join -> %d\n", resultPthread);
+		perror("pthread1_join : ");
 	}
-	if (pthread_join(thr2, NULL)) {
-		perror("pthread_join");
+	if ((resultPthread = pthread_join(thr2, NULL)) != 0) {
+		printf("pthread2_join -> %d\n", resultPthread);
+		perror("pthread2_join : ");
 	}
-	if (pthread_join(thr3, NULL)) {
-		perror("pthread_join");
+	if ((resultPthread = pthread_join(thr3, NULL)) != 0) {
+		printf("pthread3_join -> %d\n", resultPthread);
+		perror("pthread3_join : ");
 	}
+
 
 	if(verbose){printf("THREADS 4 MOTORS : END\n");}
 
+	return error;
 }
