@@ -64,9 +64,32 @@ void concat(const char *s1, const char *s2, char * messageWithInfo){
     //return result;
 }
 
-void testCloseDrone(int sock,char * messageFlagStop){
 
-
+/**
+ *
+ * testCloseDrone wait for STOP confirmation from DRONE else resend a STOP MESSAGE
+ *
+ * if succes return 1 else return 0
+ */
+int testCloseDrone(int sock,struct sockaddr_in * adr_client , char * message) {
+	int stopNotReceve = 1;
+	int cmp=0;
+	while (stopNotReceve) {
+		char messageReceve[SIZE_SOCKET_MESSAGE];
+		recvfrom(sock, messageReceve, SIZE_SOCKET_MESSAGE, 0, NULL, NULL); //NON BLOCKING
+		cmp++;
+		if (isMessageSTOP(messageReceve) == 1) {
+			stopNotReceve = 0;
+			return 1;
+		} else {
+			if (sendNetwork(sock, adr_client, message) == 0  || cmp==10) {
+				stopNotReceve = 0;
+				return 0;
+			}
+			UsleepDuration(100000);
+		}
+	}
+	return 0;
 }
 
 
@@ -182,19 +205,17 @@ void *thread_UDP_CLIENT(void *args) {
 			//TODO ERROR
 		}
 
-		if(flag==0){
-			int stopNotReceve = 1;
-			while (stopNotReceve) {
-				char messageReceve[SIZE_SOCKET_MESSAGE];
-				recvfrom(sock, messageReceve, SIZE_SOCKET_MESSAGE, 0, NULL,NULL);//NON BLOCKING
 
-				if (isMessageSTOP(messageReceve) == 1) {
-					stopNotReceve = 0;
-				} else {
-					if(sendNetwork(sock, &adr_client,message)==0){
-						//TODO ERROR
-					}
-					sleepDuration(1);
+		//ARRET
+		if(flag==0){
+
+			if(testCloseDrone(sock,&adr_client,message)==0) {
+				if (verbose) {
+					printf("THREAD CLIENT :ERROR message STOP from DRONE NOT RECEVE\n");
+				}
+			} else {
+				if (verbose) {
+					printf("THREAD CLIENT STOP MSG RECEVE FROM DRONE\n");
 				}
 			}
 			continu=0;
@@ -202,6 +223,7 @@ void *thread_UDP_CLIENT(void *args) {
 	}
 
 	close(sock);
+	if(verbose){printf("THREAD CLIEN : END\n");}
 	return NULL;
 }
 

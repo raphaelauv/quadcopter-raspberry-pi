@@ -35,3 +35,11 @@ void sleepDuration(int sleepTime) {
 		sleepTime -= result;
 	}
 }
+
+void UsleepDuration(int sleepTime) {
+	int result = -1;
+	while (result != 0) {
+		result = usleep(sleepTime);
+		sleepTime -= result;
+	}
+}
