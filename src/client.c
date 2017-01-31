@@ -12,10 +12,15 @@ void clean_args_CLIENT(args_CLIENT * arg) {
 
 void dataControllerToMessage(int sizeFloat,char * output,DataController * dataController){
 
+	snprintf(output,SIZE_MSG_HEADER_DATA,"%s",STR_DATA);
 
-	int tmp=sizeFloat;
+	int tmp=SIZE_MSG_HEADER_DATA+1;
 
-	snprintf(output, sizeFloat, "%f", dataController->axe_Rotation);
+	output[tmp-2]=' ';
+
+	snprintf(output+tmp-1, sizeFloat, "%f", dataController->axe_Rotation);
+
+	tmp+=sizeFloat-1;
 
 	output[tmp-2]=' ';
 

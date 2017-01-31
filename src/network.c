@@ -13,7 +13,6 @@ char get_IP_Port(char *message,struct sockaddr_in * sa){
 		return 0;
 	}
 
-	printf("MESSAGE REMOTE GOOD START\n");
 	char ip[50];
 	int cmp=0;
 	while(*message!=' '){

@@ -13,27 +13,25 @@ void clean_args_SERVER(args_SERVER * arg) {
 void MessageToStruc(char * message,int sizeFloat,DataController * dataTmp){
 
 
-	//PMutex * pmutex = arg->dataController->pmutex->mutex;
+	int tmp=SIZE_MSG_HEADER_DATA;
 
-
-	int tmp=sizeFloat;
-
-	float a=strtof(message,0);
-
-
-	float b=strtof(message+tmp-1,0);
+	float a=strtof(message+tmp,NULL);
 
 	tmp+=sizeFloat-1;
 
-	float c=strtof(message+tmp-1,0);
+	float b=strtof(message+tmp-1,NULL);
 
 	tmp+=sizeFloat-1;
 
-	float d=strtof(message+tmp-1,0);
+	float c=strtof(message+tmp-1,NULL);
 
 	tmp+=sizeFloat-1;
 
-	float flagTMP=strtof(message+tmp-1,0);
+	float d=strtof(message+tmp-1,NULL);
+
+	tmp+=sizeFloat-1;
+
+	float flagTMP=strtof(message+tmp-1,NULL);
 
 	char flag = (char ) flagTMP;
 
@@ -74,7 +72,21 @@ int manageNewMessage(args_SERVER *argSERV,int * firstMessage,int sock,char * buf
 	if(verbose){printf("THREAD SERV : messag recu %d : %s\n",*cmpNumberMessage,buff);}
 	(*cmpNumberMessage)++;
 
-	MessageToStruc(buff, 10, dataTmp);
+	if(isMessageStop(buff)){
+
+	}
+	else if(isMessageRemote(buff)){
+
+	}else if(isMessagePause(buff)){
+
+	}else if(isMessageStop(buff)){
+
+	}else if(isMessageData(buff)){
+		MessageToStruc(buff, 10, dataTmp);
+	}else{
+
+	}
+
 
 	if(dataTmp->flag==1){
 		if(verbose){printf("\nTHREAD SERV : PAUSE MESSAGE\n\n");}
@@ -85,7 +97,7 @@ int manageNewMessage(args_SERVER *argSERV,int * firstMessage,int sock,char * buf
 
 		if(argSERV->verbose){
 			printf ("THREAD SERV : float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  | FLAG = %d\n",
-					dataTmp->axe_FrontBack ,dataTmp->axe_UpDown,dataTmp->axe_LeftRight,dataTmp->axe_FrontBack,dataTmp->flag);
+					dataTmp->axe_Rotation ,dataTmp->axe_UpDown,dataTmp->axe_LeftRight,dataTmp->axe_FrontBack,dataTmp->flag);
 		}
 
 
