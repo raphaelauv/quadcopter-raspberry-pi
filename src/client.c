@@ -45,7 +45,7 @@ void dataControllerToMessage(int sizeFloat,char * output,DataController * dataCo
 }
 
 
-void concat(const char *s1, const char *s2, char * messageWithInfo){
+void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWithInfo){
 
 	/*
 	char *result;
@@ -56,7 +56,10 @@ void concat(const char *s1, const char *s2, char * messageWithInfo){
     char space[2];
     space[0]=' ';
     space[1]=0;
-    strcpy(messageWithInfo, s1);
+
+    strcpy(messageWithInfo, typeMsg);
+    strcat(messageWithInfo,(const char *) &space);
+    strcat(messageWithInfo, s1);
     strcat(messageWithInfo,(const char *) &space);
     strcat(messageWithInfo, s2);
 
@@ -77,7 +80,7 @@ int testCloseDrone(int sock,struct sockaddr_in * adr_client , char * message) {
 		char messageReceve[SIZE_SOCKET_MESSAGE];
 		recvfrom(sock, messageReceve, SIZE_SOCKET_MESSAGE, 0, NULL, NULL); //NON BLOCKING
 		cmp++;
-		if (isMessageSTOP(messageReceve) == 1) {
+		if (isMessageStop(messageReceve) == 1) {
 			stopNotReceve = 0;
 			return 1;
 		}
@@ -143,7 +146,7 @@ void *thread_UDP_CLIENT(void *args) {
 
 	getIP(myIP);
 	if(myIP!=NULL){
-		concat(myIP,str,messageWithInfo);
+		concat("REMOTE",myIP,str,messageWithInfo);
 		messageWithInfo[SIZE_SOCKET_MESSAGE-1]='\0';
 
 		if(sendNetwork(sock,&adr_client,messageWithInfo)==0){

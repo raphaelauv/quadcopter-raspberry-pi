@@ -7,7 +7,13 @@
  */
 char get_IP_Port(char *message,struct sockaddr_in * sa){
 
+	if(isMessageRemote(message)){
+		message+=SIZE_MSG_HEADER_REMOTE;
+	}else{
+		return 0;
+	}
 
+	printf("MESSAGE REMOTE GOOD START\n");
 	char ip[50];
 	int cmp=0;
 	while(*message!=' '){
@@ -41,26 +47,39 @@ char get_IP_Port(char *message,struct sockaddr_in * sa){
 	return inet_pton(AF_INET,(const char *) &ip, &(sa->sin_addr));
 }
 
-char isMessage(char * messageReceve, char * messageToTest) {
+char isMessage(char * messageReceve, char * messageToTest,int nb) {
 	char str1[SIZE_SOCKET_MESSAGE];
 	char str2[SIZE_SOCKET_MESSAGE];
 	int res = 0;
 
 	strcpy(str1, messageToTest);
 	strcpy(str2, messageReceve);
-	res = strcmp(str1, str2);
 
+	if(nb>0){
+		res = strncmp(str1, str2, nb);
+	}else{
+		res = strcmp(str1, str2);
+	}
 	return res == 0;
 }
 
-char isMessagePause(char * message) {
-	char msg[6] = { 'P', 'A', 'U', 'S', 'E' };
-	return isMessage(message,msg);
+char isMessageRemote(char * message){
+	char msg[SIZE_MSG_HEADER_REMOTE+1] = STR_REMOTE;
+	return isMessage(message,msg,SIZE_MSG_HEADER_REMOTE);
+}
+char isMessageData(char * message){
+	char msg[SIZE_MSG_HEADER_DATA+1] = STR_DATA;
+	return isMessage(message,msg,SIZE_MSG_HEADER_DATA);
 }
 
-char isMessageSTOP(char * message){
-	char msg[5] = { 'S', 'T', 'O', 'P' };
-	return isMessage(message,msg);
+char isMessagePause(char * message) {
+	char msg[SIZE_MSG_HEADER_PAUSE+1] = STR_PAUSE;
+	return isMessage(message,msg,0);
+}
+
+char isMessageStop(char * message){
+	char msg[SIZE_MSG_HEADER_STOP+1] = STR_STOP;
+	return isMessage(message,msg,0);
 }
 
 

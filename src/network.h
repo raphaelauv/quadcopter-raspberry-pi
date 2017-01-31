@@ -24,13 +24,33 @@
 
 #define SIZE_SOCKET_MESSAGE 100
 
+#define SIZE_MSG_HEADER_REMOTE 7
+
+#define SIZE_MSG_HEADER_DATA 5
+
+#define SIZE_MSG_HEADER_PAUSE 5
+
+#define SIZE_MSG_HEADER_STOP 4
+
+#define STR_REMOTE "REMOTE "
+
+#define STR_DATA "DATA "
+
+#define STR_PAUSE "PAUSE"
+
+#define STR_STOP "STOP"
+
 #define UDP_PORT_DRONE 8888
 
 #define UDP_PORT_REMOTE 8899
 
 char get_IP_Port(char *message,struct sockaddr_in * sa);
 
-char isMessageSTOP(char * message);
+char isMessageRemote(char * message);
+
+char isMessageData(char * message);
+
+char isMessageStop(char * message);
 
 char isMessagePause(char * message);
 

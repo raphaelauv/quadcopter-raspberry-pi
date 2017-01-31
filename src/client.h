@@ -33,7 +33,7 @@ typedef struct args_CLIENT {
 void clean_args_CLIENT(args_CLIENT * arg);
 
 void dataControllerToMessage(int sizeFloat,char * output,DataController * dataController);
-void concat(const char *s1, const char *s2, char * messageWithInfo);
+void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWithInfo);
 
 void *thread_UDP_CLIENT(void *args);
 void *thread_TCP_CLIENT(void *args);
