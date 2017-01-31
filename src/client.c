@@ -3,7 +3,7 @@
 void clean_args_CLIENT(args_CLIENT * arg) {
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutex);
-		clean_args_CONTROLER(arg->argControler);
+		//clean_args_CONTROLER(arg->argControler);
 		free(arg);
 		arg = NULL;
 	}
@@ -102,8 +102,8 @@ void *thread_UDP_CLIENT(void *args) {
 	int sock;
 	struct sockaddr_in adr_client;
 	memset(&adr_client, 0, sizeof(adr_client));
-	adr_client.sin_port	=htons(argClient->port);
-	adr_client.sin_family	=AF_INET;
+	adr_client.sin_family	= AF_INET;
+	adr_client.sin_port		= htons(argClient->port);
 	inet_aton(argClient->adresse, &adr_client.sin_addr);
 
 
@@ -113,12 +113,12 @@ void *thread_UDP_CLIENT(void *args) {
 	}
 
 	//adr_my is for reception from drone
-	int myListeningPort=8899;
+
 	struct sockaddr_in adr_my;
 	memset(&adr_my, 0, sizeof(adr_my));
 	adr_my.sin_family 		= AF_INET;
-	adr_my.sin_addr.s_addr = htonl(INADDR_ANY);
-	adr_my.sin_port 		= htons(myListeningPort);
+	adr_my.sin_addr.s_addr 	= htonl(INADDR_ANY);
+	adr_my.sin_port 		= htons(UDP_PORT_REMOTE);
 
 
 	if(bindUDPSock(&sock,&adr_my)==0){
@@ -133,7 +133,7 @@ void *thread_UDP_CLIENT(void *args) {
 	}
 
 	char str[15];
-	sprintf(str, "%d", myListeningPort);
+	sprintf(str, "%d", UDP_PORT_REMOTE);
 
 	char myIP[64];
 

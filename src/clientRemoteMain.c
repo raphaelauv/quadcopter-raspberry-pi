@@ -16,8 +16,6 @@ int main (int argc, char *argv[]){
 	}
 	printf("adresse choisit : %s\n",argv[1]);
 
-
-
 	char * adresse=argv[1];
 
 	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
@@ -34,11 +32,6 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 	init_PMutex(pmutexRead);
-
-
-
-
-
 
 	args_CONTROLER * argControler =(args_CONTROLER *) malloc(sizeof(args_CONTROLER));
 	if (argControler == NULL) {
@@ -106,7 +99,7 @@ int main (int argc, char *argv[]){
 
 
 	clean_args_CLIENT(argClient);
-	//clean_args_CONTROLER(argControler);
+	clean_args_CONTROLER(argControler);
 	if(verbose){printf("THREAD MAIN : END\n");}
 
 	return EXIT_SUCCESS;

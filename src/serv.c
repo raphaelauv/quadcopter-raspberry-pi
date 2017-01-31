@@ -132,12 +132,13 @@ void *thread_UDP_SERVER(void *args) {
 	char verbose =argSERV->verbose;
 	if(verbose){printf("THREAD SERV : SERVEUR UDP\n");}
 	int sock;
+	int sockSend;
 	struct sockaddr_in adr_svr;
 
 	memset(&adr_svr, 0, sizeof(adr_svr));
 	adr_svr.sin_family 		= AF_INET;
 	adr_svr.sin_addr.s_addr = htonl(INADDR_ANY);
-	adr_svr.sin_port 		= htons(8888);
+	adr_svr.sin_port 		= htons(UDP_PORT_DRONE);
 
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
 		perror("THREAD SERV : Socket error\n");
@@ -164,21 +165,15 @@ void *thread_UDP_SERVER(void *args) {
 	int fini = 1;
 	int cmpNumberMessage=1;
 
-	struct sockaddr_in  ipReceve;
-
 	struct sockaddr_in adr_send;
+	memset(&adr_send, 0, sizeof(adr_send));
+	adr_send.sin_family	=AF_INET;
 
-	if(get_IP_Port(buff,&ipReceve)!=1){
+	if(get_IP_Port(buff,&adr_send)!=1){
 		if(verbose){printf("ERROR IP RECEVE\n");}
 		fini=0;//TODO
 	}else{
 		if (verbose) {printf("THREAD SERV : GOOD IP AND PORT RECEVE\n");}
-
-		memset(&adr_send, 0, sizeof(adr_send));
-		adr_send.sin_family	=AF_INET;
-		adr_send.sin_addr=ipReceve.sin_addr;
-		//adr_send.sin_port	=htons(); TODO
-
 	}
 
 
@@ -216,6 +211,20 @@ void *thread_UDP_SERVER(void *args) {
 		}
 	}
 
+
+
+	/*
+	 * Code without any receve security ( and no need for )
+	 * NO CRITIC SECTION
+	 */
+	char stop[5]="STOP";
+	for (int i = 0; i < 10; i++) {
+		if (sendNetwork(sock, &adr_send, stop) == 0) {
+			perror("THREAD SERV : SEND STOP , NETWORK ERROR\n");
+			break;
+		}
+	}
+
 	close(sock);
 
 	if(verbose){printf("THREAD SERV : END\n");}
@@ -232,9 +241,9 @@ void *thread_TCP_SERVER(void *args) {
 	int sock = socket(PF_INET, SOCK_STREAM, 0);
 	struct sockaddr_in address_sock;
 	address_sock.sin_family = AF_INET;
-	address_sock.sin_port = htons(8888);
+	address_sock.sin_port = htons(UDP_PORT_DRONE);
 
-	printf("THREAD SERV : attente sur port : %d\n", 8888);
+	printf("THREAD SERV : attente sur port : %d\n", UDP_PORT_DRONE);
 
 	address_sock.sin_addr.s_addr = htonl(INADDR_ANY);
 	int r = bind(sock, (struct sockaddr *) &address_sock,

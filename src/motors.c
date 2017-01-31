@@ -10,7 +10,7 @@ double periode=0; // periode = 1/frequence. Initialisée plus tard.
 void clean_motorsAll(MotorsAll * arg) {
 	if (arg != NULL) {
 		if (arg->bool_arret_moteur != NULL) {
-			free((int *)arg->bool_arret_moteur);
+			free((void *)arg->bool_arret_moteur);
 			arg->bool_arret_moteur=NULL;
 		}
 		clean_motor_info(arg->motor0);
@@ -46,7 +46,7 @@ void * thread_startMoteur(void * args){
 
     motor_info * info=(motor_info *)args;
 
-    printf("THREAD MOTOR INIT-> %d \n",info->broche);
+    //printf("THREAD MOTOR INIT-> %d \n",info->broche);
 
     int low,hight;
 
@@ -268,7 +268,7 @@ int init_threads_motors(MotorsAll * motorsAll,char verbose){
     }
 
     if(error==-1){
-    	//TODO barriere
+    	*(motorsAll->bool_arret_moteur)=1;
     }
 
 	pthread_attr_destroy(&attributs);//Libere les resource.

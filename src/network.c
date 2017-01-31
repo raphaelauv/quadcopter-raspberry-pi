@@ -1,5 +1,10 @@
 #include "network.h"
 
+/**
+ * Fill sa ( sockaddr_in ) with the ip and number port inside the message
+ *
+ * return 0 if FAIL ,else 1
+ */
 char get_IP_Port(char *message,struct sockaddr_in * sa){
 
 
@@ -24,7 +29,7 @@ char get_IP_Port(char *message,struct sockaddr_in * sa){
 
 	int nbPort = atoi(port);
 	if(nbPort>0 && nbPort<9999){
-		sa->sin_port=nbPort;
+		sa->sin_port=htons(nbPort);
 	}else{
 		return 0;
 	}
@@ -59,6 +64,11 @@ char isMessageSTOP(char * message){
 }
 
 
+/**
+ * Bind the sock with adr_svr information and set it SO_REUSEADDR
+ *
+ * return 0 if FAIL , else 1
+ */
 int bindUDPSock(int * sock, struct sockaddr_in * adr_svr) {
 
 	int enable = 1;
@@ -133,15 +143,24 @@ int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message) {
 	}
 }
 
+/**
+ * Fill myIP with an IP availalble on the network interface
+ * myIP need to be malloc of a size of 64 char
+ *
+ */
 void getIP(char*  myIP) {
-	//char * nameIp=(char *)malloc(sizeof(char)*64);
 	if(myIP==NULL){
 		return;
 	}
 	struct ifaddrs *myaddrs, *addrsTMP;
 	struct sockaddr_in *s4;
 	int status;
+	/*
 	char *ip = (char *) malloc(64 * sizeof(char));
+	if(ip==NULL){
+		return;
+	}
+	*/
 	status = getifaddrs(&myaddrs);
 	if (status != 0) {
 		perror("Probleme de recuperation d'adresse IP");
@@ -159,7 +178,7 @@ void getIP(char*  myIP) {
 		if (addrsTMP->ifa_addr->sa_family == AF_INET) {
 			s4 = (struct sockaddr_in *) (addrsTMP->ifa_addr);
 			if (inet_ntop(addrsTMP->ifa_addr->sa_family,
-					(void *) &(s4->sin_addr), ip, 64 * sizeof(char)) != NULL) {
+					(void *) &(s4->sin_addr), myIP, 64 * sizeof(char)) != NULL) {
 
 				char str1[15];
 				char str2[15];
@@ -167,18 +186,18 @@ void getIP(char*  myIP) {
 				int ret = 0;
 
 				strcpy(str1, "127.0.0.1");
-				strcpy(str2, ip);
+				strcpy(str2, myIP);
 
 				ret = strcmp(str1, str2);
 
 				if (ret != 0) {
-					printf("Adresse IP :%s\n", ip);
+					printf("Adresse IP :%s\n", myIP);
 				}
-				strcpy(myIP,ip);
+				//strcpy(myIP,ip);
 			}
 		}
 	}
 	freeifaddrs(myaddrs);
-	free(ip);
+	//free(ip);
 	//return nameIp;
 }

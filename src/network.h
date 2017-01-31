@@ -24,6 +24,10 @@
 
 #define SIZE_SOCKET_MESSAGE 100
 
+#define UDP_PORT_DRONE 8888
+
+#define UDP_PORT_REMOTE 8899
+
 char get_IP_Port(char *message,struct sockaddr_in * sa);
 
 char isMessageSTOP(char * message);
