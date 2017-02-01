@@ -95,10 +95,12 @@ int manageNewMessage(args_SERVER *argSERV,int * firstMessage,int sock,char * buf
 
 	else {
 
+		/*
 		if(argSERV->verbose){
 			printf ("THREAD SERV : float a = %.6f  |float b = %.6f  |float c = %.6f  |float d = %.6f  | FLAG = %d\n",
 					dataTmp->axe_Rotation ,dataTmp->axe_UpDown,dataTmp->axe_LeftRight,dataTmp->axe_FrontBack,dataTmp->flag);
 		}
+		*/
 
 
 		pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);

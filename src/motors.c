@@ -195,8 +195,11 @@ char init_Value_motors(MotorsAll * motorsAll){
 
 }
 
+
+/**
+ * Return -1 if fail to open threads , else 0
+ */
 int init_threads_motors(MotorsAll * motorsAll,char verbose){
-    cpu_set_t cpuset;//ensemble des CPU utilisable.
 
     pthread_t thr0;
     pthread_t thr1;
@@ -204,34 +207,13 @@ int init_threads_motors(MotorsAll * motorsAll,char verbose){
     pthread_t thr3;
     pthread_attr_t attributs;
 
-    struct sched_param parametres;
 
-    //init avec les attributs par defaut.
-    pthread_attr_init(& attributs);
+    int result;
+    result=init_Attr_Pthread(&attributs,99,0);
+    if(result==0){
+    	return -1;
+    }
 
-
-	#ifdef __arm__
-
-    //Definir la taille de la memoire virtuelle pour que le kernel de fasse pas d'allocation dynamique.
-    //mlockall(MCL_CURRENT | MCL_FUTURE);
-    
-
-    //Mettre Sur un coeur ici le coeur 0;
-    CPU_ZERO(& cpuset);//mes lensemble a vide
-    CPU_SET(0,& cpuset);//ajoute i a lensemble des CPU
-    //fixer l'affinity
-    pthread_attr_setaffinity_np(& attributs, sizeof(cpu_set_t), & cpuset);
-    
-    //Priorite temps reel.
-    parametres.sched_priority=99; //choisir le prioroté (de 0 a 99)
-    pthread_attr_setschedpolicy(&attributs,SCHED_FIFO);//Inscrire le type d ordonnancement voulu dans les attribue.
-    pthread_attr_setschedparam(&attributs,&parametres); //incrire la priorite dans les attributs.
-    pthread_attr_setinheritsched(&attributs,PTHREAD_EXPLICIT_SCHED); //chaque aura sa propre priorité.
-    pthread_attr_setscope(&attributs,PTHREAD_SCOPE_SYSTEM); // Pour ne pas etre preemte par des processus du system
-	#endif
-
-
-    //creation du thread.
     int do1time=1;
     int error=0;
     int resultPthread=0;
@@ -263,7 +245,7 @@ int init_threads_motors(MotorsAll * motorsAll,char verbose){
 			error=-1;
 			break;
 		}
-
+		do1time=0;
 		break;
     }
 

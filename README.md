@@ -9,7 +9,7 @@ necessite :SDL 2 - la lib pour utiliser la manette XBOX360 (libSDL)
 
 	make client
 
-Pour claibrer la manette XBOX360   ->   jstest-gtk
+Pour calibrer la manette XBOX360   ->   jstest-gtk
 https://apps.ubuntu.com/cat/applications/jstest-gtk/
 
 Pour simuler manette XBOX360 from DualShocks
@@ -40,12 +40,6 @@ pour executer le code du client/controlleur :
 --------------
 A faire
 
--Passer en UDP -> 65 %
+- Passer en UDP -> 99 %
 
--Faire protocol d'arret totale et de "pause"
-
--Volatile , variable bool_arret_motor
-
--Interfacer correctement Code C appeler en C++
-
-- choisir une action quand il n'y a pas de manette (quité / continuer au clavier) ?
+- choisir une action quand il n'y a plus de manette 

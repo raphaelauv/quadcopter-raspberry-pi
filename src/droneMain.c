@@ -92,7 +92,7 @@ int main (int argc, char *argv[]){
 	#endif
 
 	pthread_t threadServer;
-	pthread_t threadControlerVOL;
+	pthread_t threadPID;
 
 
 	pthread_mutex_lock(&PmutexRemoteConnect->mutex);
@@ -106,15 +106,16 @@ int main (int argc, char *argv[]){
 
 	pthread_mutex_unlock(&PmutexRemoteConnect->mutex);
 
-
-	if (pthread_create(&threadControlerVOL, NULL, startCONTROLVOL, argCONTROLVOL)!=0) {
-		perror("THREAD MAIN : pthread_create PID\n");
+	if(init_thread_PID(&threadPID,argCONTROLVOL)!=0){
+		//TODO demander fermeture reseaux
 		return EXIT_FAILURE;
 	}
 
-	init_threads_motors(motorsAll,verbose);//start the 4 threads et ne rends pas la main
-
-	//TODO test fermeture NORMAL des PTHREADS moteurs
+	//start the 4 threads et ne rends pas la main si succes
+	if(init_threads_motors(motorsAll,verbose)==-1){
+		//TODO demander fermeture reseaux
+		return EXIT_FAILURE;
+	}
 
 	int * returnValue;
 
@@ -122,11 +123,10 @@ int main (int argc, char *argv[]){
 		perror("THREAD MAIN : pthread_join SERVER\n");
 		return EXIT_FAILURE;
 	}
-	if (pthread_join(threadControlerVOL, (void**) &returnValue)!=0){
+	if (pthread_join(threadPID, (void**) &returnValue)!=0){
 		perror("THREAD MAIN : pthread_join PID\n");
 		return EXIT_FAILURE;
 	}
-
 
 	clean_args_SERVER(argServ);
 	clean_args_CONTROLDEVOL(argCONTROLVOL);

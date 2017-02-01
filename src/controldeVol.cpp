@@ -62,8 +62,10 @@ void * startCONTROLVOL(void * args){
 			RTIMU_DATA imuData = imu->getIMUData();
 			sampleCount++;
 			now = RTMath::currentUSecsSinceEpoch();
-			printf("*******************************\nSample rate : %s\n*******************************\n", RTMath::displayDegrees("", imuData.fusionPose));
-			fflush(stdout);
+			if(verbose){
+			printf("*******************************\nTHREAD CONTROLVOL : CAPTEUR -> %s\n*******************************\n", RTMath::displayDegrees("", imuData.fusionPose));
+			}
+			//fflush(stdout);
 		}
 		#endif
 
@@ -79,7 +81,7 @@ void * startCONTROLVOL(void * args){
 		}
 
 		if (mutexDataControler->var < 1) {
-			if(verbose){printf("Controleur de vol attends des nouvel données de serv \n");}
+			//if(verbose){printf("Controleur de vol attends des nouvel données de serv \n");}
 
 			//TODO mettre un timer au wait
 			pthread_cond_wait(&mutexDataControler->condition,
@@ -98,4 +100,27 @@ void * startCONTROLVOL(void * args){
 	}
 	if(verbose){printf("THREAD CONTROLVOL : END\n");}
 	return NULL;
+}
+
+
+/**
+ * return 0 if Succes
+ */
+int init_thread_PID(pthread_t * threadControlerVOL,args_CONTROLDEVOL * argCONTROLVOL){
+
+	pthread_attr_t attributs;
+	if(init_Attr_Pthread(&attributs,99,1)==0){
+		perror("THREAD MAIN : ERROR pthread_attributs PID\n");
+		return -1;
+	}
+
+	int result;
+
+	if ((result=pthread_create(threadControlerVOL, &attributs, startCONTROLVOL, argCONTROLVOL))!=0) {
+			perror("THREAD MAIN : ERROR pthread_create PID\n");
+		}
+
+	pthread_attr_destroy(&attributs);
+
+	return result;
 }

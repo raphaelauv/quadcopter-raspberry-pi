@@ -43,3 +43,38 @@ void UsleepDuration(int sleepTime) {
 		sleepTime -= result;
 	}
 }
+
+/**
+ * if Fail return -1 , else return 1
+ */
+int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu){
+	int result;
+	result=pthread_attr_init( attributs);
+
+	/*
+	if(result){
+		return -1;
+	}
+	*/
+	#ifdef __arm__
+	cpu_set_t cpuset;
+
+	struct sched_param parametres;
+	//Definir la taille de la memoire virtuelle pour que le kernel de fasse pas d'allocation dynamique.
+	mlockall(MCL_CURRENT | MCL_FUTURE);
+
+	CPU_ZERO(& cpuset);//mes lensemble a vide
+	CPU_SET(id_cpu,& cpuset);//ajoute i a lensemble des CPU
+	//fixer l'affinity
+	pthread_attr_setaffinity_np( attributs, sizeof(cpu_set_t), & cpuset);
+
+	parametres.sched_priority=priority; //choisir le prioroté (de 0 a 99)
+	pthread_attr_setschedpolicy(attributs,SCHED_FIFO);//Inscrire le type d ordonnancement voulu dans les attribue.
+	pthread_attr_setschedparam(attributs,&parametres); //incrire la priorite dans les attributs.
+	pthread_attr_setinheritsched(attributs,PTHREAD_EXPLICIT_SCHED); //chaque aura sa propre priorité.
+	pthread_attr_setscope(attributs,PTHREAD_SCOPE_SYSTEM); // Pour ne pas etre preemte par des processus du system
+
+	#endif
+
+	return 1;
+}
