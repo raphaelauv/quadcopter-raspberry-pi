@@ -1,3 +1,16 @@
+* <2017-02-01>
+** Fait
+   - Organisation du code (Makefile, architecture, ...)
+   - Passage à UDP
+   - Protocole de communication pour les commandes et la
+     vérification de la bonne communication
+   - Une phase d'initialisation qui effectue un maximum des appels
+     systèmes pour qu'aucun appel système ne soit nécessaire
+     quand le drone vole.
+   - Une première version du PID pour le contrôle
+** A faire:
+   - Une démo du cas "simple"?
+
 * <2016-12-02>
 ** Fait
    - Implémenté le protocole de sécurité
