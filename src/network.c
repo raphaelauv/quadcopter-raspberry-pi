@@ -85,22 +85,22 @@ char isMessageStop(char * message){
 /**
  * Bind the sock with adr_svr information and set it SO_REUSEADDR
  *
- * return 0 if FAIL , else 1
+ * return -1 if FAIL , else 0
  */
 int bindUDPSock(int * sock, struct sockaddr_in * adr_svr) {
 
-	int enable = 1;
+	int enable = 0;
 
 	if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
 		perror("setsockopt(SO_REUSEADDR) failed");
-		return 0;
+		return -1;
 	}
 
 	if (bind(*sock, (struct sockaddr *) adr_svr, sizeof(*adr_svr))) {
 		perror("bind error");
-		return 0;
+		return -1;
 	}
-	return 1;
+	return 0;
 }
 
 

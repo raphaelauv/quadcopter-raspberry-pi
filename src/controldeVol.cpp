@@ -63,7 +63,7 @@ void * startCONTROLVOL(void * args){
 			sampleCount++;
 			now = RTMath::currentUSecsSinceEpoch();
 			if(verbose){
-			printf("*******************************\nTHREAD CONTROLVOL : CAPTEUR -> %s\n*******************************\n", RTMath::displayDegrees("", imuData.fusionPose));
+			//printf("*******************************\nTHREAD CONTROLVOL : CAPTEUR -> %s\n*******************************\n", RTMath::displayDegrees("", imuData.fusionPose));
 			}
 			//fflush(stdout);
 		}
@@ -80,6 +80,7 @@ void * startCONTROLVOL(void * args){
 			continue;
 		}
 
+		/*
 		if (mutexDataControler->var < 1) {
 			//if(verbose){printf("Controleur de vol attends des nouvel données de serv \n");}
 
@@ -87,6 +88,7 @@ void * startCONTROLVOL(void * args){
 			pthread_cond_wait(&mutexDataControler->condition,
 					&mutexDataControler->mutex);
 		}
+		*/
 		mutexDataControler->var = 0;
 		power0 = data->axe_Rotation;
 		power1 = data->axe_UpDown;

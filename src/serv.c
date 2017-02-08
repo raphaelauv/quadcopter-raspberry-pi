@@ -44,13 +44,18 @@ void MessageToStruc(char * message,int sizeFloat,DataController * dataTmp){
 }
 
 
+void unlockWaitMain(args_SERVER *argSERV) {
+	pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
+	pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
+	pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
+}
 
 /**
  * Manage the new Message receve by the drone
  *
  * return the value of the flag of the message or -1 in case of wrong message
  */
-int manageNewMessage(args_SERVER *argSERV,int * firstMessage,int sock,char * buff,int * cmpNumberMessage,DataController * dataTmp){
+int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMessage,DataController * dataTmp){
 
 	char verbose =argSERV->verbose;
 
@@ -61,12 +66,6 @@ int manageNewMessage(args_SERVER *argSERV,int * firstMessage,int sock,char * buf
 		return 0;
 	}
 
-	if(*firstMessage){
-		pthread_mutex_lock(&argSERV->pmutexRemoteConnect->mutex);
-		pthread_cond_signal(&argSERV->pmutexRemoteConnect->condition);
-		pthread_mutex_unlock(&argSERV->pmutexRemoteConnect->mutex);
-		*firstMessage=0;
-	}
 
 	buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 	if(verbose){printf("THREAD SERV : messag recu %d : %s\n",*cmpNumberMessage,buff);}
@@ -146,8 +145,12 @@ void *thread_UDP_SERVER(void *args) {
 	char verbose =argSERV->verbose;
 	if(verbose){printf("THREAD SERV : SERVEUR UDP\n");}
 	int sock;
-	int sockSend;
+	//int sockSend;
 	struct sockaddr_in adr_svr;
+	struct sockaddr_in adr_send;
+	int runServ = 1;
+	int sockCreationSucces=1;
+	int socketConnectionMade=0;
 
 	memset(&adr_svr, 0, sizeof(adr_svr));
 	adr_svr.sin_family 		= AF_INET;
@@ -156,11 +159,15 @@ void *thread_UDP_SERVER(void *args) {
 
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
 		perror("THREAD SERV : Socket error\n");
-		return NULL;
+		runServ=0;
+		sockCreationSucces=0;
+		//return NULL;
 	}
 
-	if(bindUDPSock(&sock,&adr_svr)==0){
-		return NULL;
+	if(bindUDPSock(&sock,&adr_svr) == -1){
+		runServ=0;
+		sockCreationSucces=0;
+		//return NULL;
 	}
 
 	/*********************************************************************/
@@ -168,26 +175,32 @@ void *thread_UDP_SERVER(void *args) {
 	/*********************************************************************/
 
 	char buff[SIZE_SOCKET_MESSAGE];
+	int cmpNumberMessage = 1;
 
-	if(receveNetwork(sock,NULL,buff)==0){
-		perror("THREAD SERV : RECEVE NETWORK ERROR\n");
-		return NULL;
-	}
-	buff[SIZE_SOCKET_MESSAGE-1] = '\0';
-	if(verbose){printf("THREAD SERV : messag recu : %s\n",buff);}
+	if(sockCreationSucces){
+		if (receveNetwork(sock, NULL, buff) == 0) {
+			perror("THREAD SERV : RECEVE NETWORK ERROR\n");
+			return NULL;
+		}
+		buff[SIZE_SOCKET_MESSAGE - 1] = '\0';
+		if (verbose) {
+			printf("THREAD SERV : messag recu : %s\n", buff);
+		}
 
-	int fini = 1;
-	int cmpNumberMessage=1;
+		memset(&adr_send, 0, sizeof(adr_send));
+		adr_send.sin_family = AF_INET;
 
-	struct sockaddr_in adr_send;
-	memset(&adr_send, 0, sizeof(adr_send));
-	adr_send.sin_family	=AF_INET;
-
-	if(get_IP_Port(buff,&adr_send)!=1){
-		if(verbose){printf("ERROR IP RECEVE\n");}
-		fini=0;//TODO
-	}else{
-		if (verbose) {printf("THREAD SERV : GOOD IP AND PORT RECEVE\n");}
+		if (get_IP_Port(buff, &adr_send) != 1) {
+			if (verbose) {
+				printf("ERROR IP RECEVE\n");
+			}
+			runServ = 0;
+		} else {
+			if (verbose) {
+				printf("THREAD SERV : GOOD IP AND PORT RECEVE\n");
+			}
+		}
+		socketConnectionMade = 1;
 	}
 
 
@@ -203,12 +216,12 @@ void *thread_UDP_SERVER(void *args) {
 	struct timeval tv;
 	fd_set rdfs;
 
-	while(fini){
+	while(runServ){
 
 		FD_ZERO(&rdfs);
 		FD_SET(sock, &rdfs);
-		tv.tv_sec = 1;
-		tv.tv_usec = 500000;
+		tv.tv_sec = UDP_TIME_SEC_TIMER;
+		tv.tv_usec = UDP_TIME_USEC_TIMER;
 		int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
 		if (ret == 0) {
 			if(verbose){printf("THREAD SERV : Timed out\n");}
@@ -216,8 +229,13 @@ void *thread_UDP_SERVER(void *args) {
 			//fini = 0;
 		} else if (FD_ISSET(sock, &rdfs)) {
 
-			if(manageNewMessage(argSERV,&firstMessage,sock,buff,&cmpNumberMessage,&dataTmp)==0){
-				fini=0;
+			if (firstMessage) {
+				unlockWaitMain(argSERV);
+				firstMessage = 0;
+			}
+
+			if(manageNewMessage(argSERV,sock,buff,&cmpNumberMessage,&dataTmp)==0){
+				runServ=0;
 			}
 
 		} else {
@@ -225,21 +243,30 @@ void *thread_UDP_SERVER(void *args) {
 		}
 	}
 
+	/*********************************************************************/
+	/*				CLOSE CONNECTION AND THREAD							 */
+	/*********************************************************************/
 
 
-	/*
-	 * Code without any receve security ( and no need for )
-	 * NO CRITIC SECTION
-	 */
-	char stop[5]="STOP";
-	for (int i = 0; i < 10; i++) {
-		if (sendNetwork(sock, &adr_send, stop) == 0) {
-			perror("THREAD SERV : SEND STOP , NETWORK ERROR\n");
-			break;
+	if (socketConnectionMade) {
+		/*
+		 * Code without any receve security ( and no need for )
+		 * NO CRITIC SECTION
+		 */
+		char stop[5] = "STOP";
+		for (int i = 0; i < 10; i++) {
+			if (sendNetwork(sock, &adr_send, stop) == 0) {
+				perror("THREAD SERV : SEND STOP , NETWORK ERROR\n");
+				break;
+			}
 		}
+
 	}
 
 	close(sock);
+
+	//Pour debloquer attente dans main si
+	unlockWaitMain(argSERV);
 
 	if(verbose){printf("THREAD SERV : END\n");}
 

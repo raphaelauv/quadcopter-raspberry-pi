@@ -1,6 +1,11 @@
 #ifndef CONCURRENT_H_
 #define CONCURRENT_H_
 
+/*
+#ifdef __cplusplus
+extern "C" {
+#endif
+*/
 #include <pthread.h>
 #include <sys/time.h>
 #include <time.h>
@@ -41,5 +46,9 @@ void sleepDuration(int sleepTime);
 void UsleepDuration(int sleepTime);
 
 int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu);
-
+/*
+#ifdef __cplusplus
+}
+#endif
+*/
 #endif /* CONCURRENT_H_ */

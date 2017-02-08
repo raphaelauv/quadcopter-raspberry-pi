@@ -1,26 +1,29 @@
 #ifndef NETWORK_H_
 #define NETWORK_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
+
+#include <ifaddrs.h>
 #include <netdb.h>
+
+#include <net/if.h>
 #include <netinet/in.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <ifaddrs.h>
-#include <net/if.h>
-#include <pthread.h>
 #include <sys/select.h>
+
+#include <unistd.h>
+
+#include <pthread.h>
 
 #define SIZE_SOCKET_MESSAGE 100
 
@@ -44,6 +47,10 @@
 
 #define UDP_PORT_REMOTE 8899
 
+#define UDP_TIME_SEC_TIMER 1
+
+#define UDP_TIME_USEC_TIMER 500000
+
 char get_IP_Port(char *message,struct sockaddr_in * sa);
 
 char isMessageRemote(char * message);
@@ -61,5 +68,9 @@ int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message);
 int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message);
 
 void getIP(char*  myIP);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* NETWORK_H_ */
