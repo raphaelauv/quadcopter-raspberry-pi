@@ -1,8 +1,45 @@
 #include "controller.h"
 
+int init_args_CONTROLER(args_CONTROLER ** argControler,char verbose){
+
+	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
+	if (pmutexControllerPlug == NULL) {
+		perror("MALLOC FAIL : pmutexControllerPlug\n");
+		return EXIT_FAILURE;
+	}
+	init_PMutex(pmutexControllerPlug);
+
+
+	PMutex * pmutexRead =(PMutex *) malloc(sizeof(PMutex));
+	if (pmutexRead == NULL) {
+		perror("MALLOC FAIL : pmutexRead\n");
+		return EXIT_FAILURE;
+	}
+	init_PMutex(pmutexRead);
+
+	*argControler =(args_CONTROLER *) malloc(sizeof(args_CONTROLER));
+	if (*argControler == NULL) {
+		perror("MALLOC FAIL : argControler\n");
+		return EXIT_FAILURE;
+	}
+	(*argControler)->newThing=0;
+	(*argControler)->endController=0;
+	(*argControler)->manette=(DataController *) malloc(sizeof( DataController));
+	if ((*argControler)->manette == NULL) {
+		perror("MALLOC FAIL : argControler->manette\n");
+		return EXIT_FAILURE;
+	}
+	(*argControler)->pmutexReadDataController=pmutexRead;
+	(*argControler)->pmutexControllerPlug=pmutexControllerPlug;
+	(*argControler)->verbose=verbose;
+
+	return 0;
+}
+
+
 void clean_args_CONTROLER(args_CONTROLER * arg) {
 	if (arg != NULL) {
-		clean_PMutex(arg->pmutexControlerPlug);
+		clean_PMutex(arg->pmutexControllerPlug);
 		clean_PMutex(arg->pmutexReadDataController);
 		clean_DataController(arg->manette);
 		free(arg);
@@ -118,9 +155,9 @@ void control(args_CONTROLER * argsControl) {
 			}
 			sleep(1);
 
-			pthread_mutex_lock(&argsControl->pmutexControlerPlug->mutex);
-			pthread_cond_signal(&argsControl->pmutexControlerPlug->condition);
-			pthread_mutex_unlock(&argsControl->pmutexControlerPlug->mutex);
+			pthread_mutex_lock(&argsControl->pmutexControllerPlug->mutex);
+			pthread_cond_signal(&argsControl->pmutexControllerPlug->condition);
+			pthread_mutex_unlock(&argsControl->pmutexControllerPlug->mutex);
 		}
 
 		//printf("APRES IF\n");

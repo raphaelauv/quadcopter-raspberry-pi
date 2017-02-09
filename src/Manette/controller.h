@@ -18,12 +18,13 @@ typedef struct args_CONTROLER {
 	volatile int newThing;
 	DataController * manette;
 	PMutex * pmutexReadDataController;
-	PMutex * pmutexControlerPlug;
+	PMutex * pmutexControllerPlug;
 } args_CONTROLER;
 
 
 void control( args_CONTROLER * argsControl);
 
+int init_args_CONTROLER(args_CONTROLER ** argControler,char verbose);
 void clean_args_CONTROLER(args_CONTROLER * arg);
 
 

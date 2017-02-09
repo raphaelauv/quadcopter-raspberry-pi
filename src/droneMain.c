@@ -46,7 +46,7 @@ int main (int argc, char *argv[]){
 
 	pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
 
-	if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)!=0) {
+	if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {
 		perror("THREAD MAIN : pthread_create SERVER\n");
 		return EXIT_FAILURE;
 	}
@@ -55,7 +55,7 @@ int main (int argc, char *argv[]){
 
 	pthread_mutex_unlock(&argServ->pmutexRemoteConnect->mutex);
 
-	if(init_thread_PID(&threadPID,argCONTROLVOL)!=0){
+	if(init_thread_PID(&threadPID,argCONTROLVOL)){
 		//TODO demander fermeture reseaux
 		return EXIT_FAILURE;
 	}
@@ -68,11 +68,11 @@ int main (int argc, char *argv[]){
 
 	int * returnValue;
 
-	if (pthread_join(threadServer,(void**) &returnValue)!=0){
+	if (pthread_join(threadServer,(void**) &returnValue)){
 		perror("THREAD MAIN : pthread_join SERVER\n");
 		return EXIT_FAILURE;
 	}
-	if (pthread_join(threadPID, (void**) &returnValue)!=0){
+	if (pthread_join(threadPID, (void**) &returnValue)){
 		perror("THREAD MAIN : pthread_join PID\n");
 		return EXIT_FAILURE;
 	}

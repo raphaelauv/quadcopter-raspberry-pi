@@ -60,9 +60,7 @@ int initArgServ(args_SERVER ** argServ,char verbose){
 
 void clean_args_SERVER(args_SERVER * arg) {
 	if (arg != NULL) {
-		if (arg->pmutexRemoteConnect != NULL) {
-			clean_PMutex(arg->pmutexRemoteConnect);
-		}
+		clean_PMutex(arg->pmutexRemoteConnect);
 		free(arg);
 		arg=NULL;
 	}

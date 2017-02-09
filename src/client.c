@@ -1,5 +1,66 @@
 #include "client.h"
 
+int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * argControler,char verbose){
+
+
+	* argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
+	if (*argClient == NULL) {
+		perror("MALLOC FAIL : argClient\n");
+		return EXIT_FAILURE;
+	}
+
+	(*argClient)->adresse=adresse;
+	(*argClient)->verbose=verbose;
+
+	(*argClient)->argControler=argControler;
+
+	int sock;
+	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
+		perror("args_CLIENT CLIENT : Socket error\n");
+		return EXIT_FAILURE;
+	}
+
+	//adr_my is for reception from drone
+
+	struct sockaddr_in adr_my;
+	memset(&adr_my, 0, sizeof(adr_my));
+	adr_my.sin_family 		= AF_INET;
+	adr_my.sin_addr.s_addr 	= htonl(INADDR_ANY);
+	adr_my.sin_port 		= htons(UDP_PORT_REMOTE);
+
+
+	if(bindUDPSock(&sock,&adr_my)==-1){
+		perror("THREAD CLIENT : Socket BIND error\n");
+		close(sock);
+		return EXIT_FAILURE;
+	}
+
+
+	if(fcntl(sock, F_SETFL, O_NONBLOCK) < 0) {
+		perror("THREAD CLIENT : Socket NONBLOCK error\n");
+		close(sock);
+		return EXIT_FAILURE;
+	}
+
+	(*argClient)->sock=sock;
+
+	struct sockaddr_in * adr_client=calloc(1,sizeof(struct sockaddr_in));
+	if (adr_client == NULL) {
+		perror("MALLOC FAIL : argClient->adr_client\n");
+		return EXIT_FAILURE;
+	}
+	//memset(adr_client, 0, sizeof(struct sockaddr_in));
+	adr_client->sin_family	= AF_INET;
+	adr_client->sin_port	= htons(UDP_PORT_DRONE);
+
+	if(inet_aton(adresse, &adr_client->sin_addr)==0){
+		return EXIT_FAILURE;
+	}
+	(*argClient)->adr_client=adr_client;
+
+	return 0;
+}
+
 void clean_args_CLIENT(args_CLIENT * arg) {
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutex);
@@ -107,38 +168,9 @@ void *thread_UDP_CLIENT(void *args) {
 	char verbose=argClient->verbose;
 	if(verbose){printf("CLIENT UDP\n");}
 
-	int sock;
-	struct sockaddr_in adr_client;
-	memset(&adr_client, 0, sizeof(adr_client));
-	adr_client.sin_family	= AF_INET;
-	adr_client.sin_port		= htons(argClient->port);
-	inet_aton(argClient->adresse, &adr_client.sin_addr);
+	int sock=argClient->sock;
 
-
-	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
-		perror("THREAD CLIENT : Socket error\n");
-		return (void*)EXIT_FAILURE;
-	}
-
-	//adr_my is for reception from drone
-
-	struct sockaddr_in adr_my;
-	memset(&adr_my, 0, sizeof(adr_my));
-	adr_my.sin_family 		= AF_INET;
-	adr_my.sin_addr.s_addr 	= htonl(INADDR_ANY);
-	adr_my.sin_port 		= htons(UDP_PORT_REMOTE);
-
-
-	if(bindUDPSock(&sock,&adr_my)==-1){
-		perror("THREAD CLIENT : Socket BIND error\n");
-		return (void*)EXIT_FAILURE;
-	}
-
-
-	if(fcntl(sock, F_SETFL, O_NONBLOCK) < 0) {
-		perror("THREAD CLIENT : Socket NONBLOCK error\n");
-		return (void*)EXIT_FAILURE;
-	}
+	struct sockaddr_in * adr_client=argClient->adr_client;
 
 	char str[15];
 	sprintf(str, "%d", UDP_PORT_REMOTE);
@@ -150,12 +182,13 @@ void *thread_UDP_CLIENT(void *args) {
 
 
 	getIP(myIP,verbose);
-	if(myIP!=NULL){
+	if(myIP!=NULL){//TODO
 		concat("REMOTE",myIP,str,messageWithInfo);
 		messageWithInfo[SIZE_SOCKET_MESSAGE-1]='\0';
 
-		if(sendNetwork(sock,&adr_client,messageWithInfo)==-1){
+		if(sendNetwork(sock,adr_client,messageWithInfo)==-1){
 			perror("THREAD CLIENT : SEND NETWORK error\n");
+			//TODO
 			return (void*)EXIT_FAILURE;
 		}
 
@@ -209,7 +242,7 @@ void *thread_UDP_CLIENT(void *args) {
 
 		message[SIZE_SOCKET_MESSAGE-1]='\0';
 
-		if(sendNetwork(sock,&adr_client,message)==-1){
+		if(sendNetwork(sock,adr_client,message)==-1){
 			//TODO ERROR
 		}
 
@@ -217,7 +250,7 @@ void *thread_UDP_CLIENT(void *args) {
 		//ARRET
 		if(flag==0){
 
-			if(testCloseDrone(sock,&adr_client,message)==0) {
+			if(testCloseDrone(sock,adr_client,message)==0) {
 				if (verbose) {
 					printf("THREAD CLIENT :ERROR message STOP from DRONE NOT RECEVE\n");
 				}
@@ -247,7 +280,7 @@ void *thread_TCP_CLIENT(void *args) {
 
 	struct sockaddr_in adress_sock;
 	adress_sock.sin_family = AF_INET;
-	adress_sock.sin_port = htons(argClient->port);
+	adress_sock.sin_port = htons(UDP_PORT_DRONE);
 	inet_aton(argClient->adresse, &adress_sock.sin_addr);
 	int descr = socket(PF_INET, SOCK_STREAM, 0);
 
