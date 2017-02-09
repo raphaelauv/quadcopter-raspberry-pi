@@ -12,6 +12,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -26,10 +27,13 @@ extern "C" {
 
 typedef struct args_SERVER {
 	char verbose;
+	int sock;
 	PMutex * pmutexRemoteConnect;
 	DataController * dataController;
 
 } args_SERVER;
+
+int initArgServ(args_SERVER ** argServ,char verbose);
 
 void clean_args_SERVER(args_SERVER * arg);
 

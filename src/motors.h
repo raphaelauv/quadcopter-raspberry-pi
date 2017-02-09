@@ -69,6 +69,8 @@ typedef struct motorsAll {
 } MotorsAll;
 
 
+int initMotorAll(MotorsAll ** motorsAll);
+
 void clean_motorsAll(MotorsAll * arg);
 
 void clean_motor_info(motor_info * arg);

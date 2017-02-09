@@ -6,15 +6,17 @@
 extern "C" {
 #endif
 */
+
+#include <errno.h>
 #include <pthread.h>
 #include <sys/time.h>
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include <errno.h>
 #include <unistd.h>
 
+#include <string.h>
 
 typedef struct PMutex {
 	int var;
@@ -46,6 +48,8 @@ void sleepDuration(int sleepTime);
 void UsleepDuration(int sleepTime);
 
 int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu);
+
+void setVerbose(char * verbose, int argc, char * argv,int min);
 /*
 #ifdef __cplusplus
 }

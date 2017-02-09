@@ -6,14 +6,8 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 	char verbose=0;
-	if(argc>2){
-		if(strcmp(argv[2],"--verbose")==0){
-			printf("verbose MODE select\n");
-			verbose=1;
-		}
-	}else{
-		printf("add    --verbose   for verbose mode\n");
-	}
+	setVerbose(&verbose,argc,argv[2],2);
+
 	printf("adresse choisit : %s\n",argv[1]);
 
 	char * adresse=argv[1];
@@ -54,7 +48,7 @@ int main (int argc, char *argv[]){
 		perror("MALLOC FAIL : argClient\n");
 		return EXIT_FAILURE;
 	}
-	argClient->port=8888;
+	argClient->port=UDP_PORT_DRONE;
 	argClient->adresse=adresse;
 	argClient->verbose=verbose;
 

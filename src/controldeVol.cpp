@@ -1,11 +1,28 @@
 #include "controldeVol.hpp"
 
+
+int initArgsCONTROLDEVOL(args_CONTROLDEVOL ** argCONTROLVOL,DataController * dataControl,MotorsAll * motorsAll,char verbose){
+
+	*argCONTROLVOL =(args_CONTROLDEVOL *) malloc(sizeof(args_CONTROLDEVOL));
+	if (*argCONTROLVOL == NULL) {
+		perror("MALLOC FAIL : argCONTROLVOL\n");
+		return EXIT_FAILURE;
+	}
+
+	(*argCONTROLVOL)->dataController = dataControl;
+	(*argCONTROLVOL)->motorsAll = motorsAll;
+	(*argCONTROLVOL)->verbose = verbose;
+
+	return 0;
+}
+
 void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg) {
 	if (arg != NULL) {
 		clean_motorsAll(arg->motorsAll);
 		clean_DataController(arg->dataController);
 		if( arg->imu !=NULL){
 			delete(arg->imu);
+			arg->imu=NULL;
 		}
 		free(arg);
 		arg = NULL;

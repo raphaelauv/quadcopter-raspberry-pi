@@ -90,7 +90,7 @@ int testCloseDrone(int sock,struct sockaddr_in * adr_client , char * message) {
 			return 1;
 		}
 		else {
-			if (sendNetwork(sock, adr_client, message) == 0  || cmp==10) {
+			if (sendNetwork(sock, adr_client, message) == -1  || cmp==10) {
 				stopNotReceve = 0;
 				return 0;
 			}
@@ -129,7 +129,7 @@ void *thread_UDP_CLIENT(void *args) {
 	adr_my.sin_port 		= htons(UDP_PORT_REMOTE);
 
 
-	if(bindUDPSock(&sock,&adr_my)==0){
+	if(bindUDPSock(&sock,&adr_my)==-1){
 		perror("THREAD CLIENT : Socket BIND error\n");
 		return (void*)EXIT_FAILURE;
 	}
@@ -149,12 +149,12 @@ void *thread_UDP_CLIENT(void *args) {
 	char messageWithInfo[SIZE_SOCKET_MESSAGE];
 
 
-	getIP(myIP);
+	getIP(myIP,verbose);
 	if(myIP!=NULL){
 		concat("REMOTE",myIP,str,messageWithInfo);
 		messageWithInfo[SIZE_SOCKET_MESSAGE-1]='\0';
 
-		if(sendNetwork(sock,&adr_client,messageWithInfo)==0){
+		if(sendNetwork(sock,&adr_client,messageWithInfo)==-1){
 			perror("THREAD CLIENT : SEND NETWORK error\n");
 			return (void*)EXIT_FAILURE;
 		}
@@ -209,7 +209,7 @@ void *thread_UDP_CLIENT(void *args) {
 
 		message[SIZE_SOCKET_MESSAGE-1]='\0';
 
-		if(sendNetwork(sock,&adr_client,message)==0){
+		if(sendNetwork(sock,&adr_client,message)==-1){
 			//TODO ERROR
 		}
 

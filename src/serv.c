@@ -1,5 +1,63 @@
 #include "serv.h"
 
+int initArgServ(args_SERVER ** argServ,char verbose){
+
+	PMutex * PmutexDataControler = (PMutex *) malloc(sizeof(PMutex));
+	if (PmutexDataControler == NULL) {
+		perror("MALLOC FAIL : PmutexDataControler\n");
+		return EXIT_FAILURE;
+	}
+	init_PMutex(PmutexDataControler);
+
+
+	DataController * dataControl =(DataController *) malloc(sizeof(DataController));
+	if (dataControl == NULL) {
+		perror("MALLOC FAIL : dataControl\n");
+		return EXIT_FAILURE;
+	}
+	dataControl->pmutex=PmutexDataControler;
+	dataControl->flag=2;
+
+
+	PMutex * PmutexRemoteConnect = (PMutex *) malloc(sizeof(PMutex));
+	if(PmutexRemoteConnect==NULL){
+		perror("MALLOC FAIL : PmutexRemoteConnect\n");
+		return EXIT_FAILURE;
+	}
+	init_PMutex(PmutexRemoteConnect);
+
+
+	*argServ =(args_SERVER *) malloc(sizeof(args_SERVER));
+	if (*argServ == NULL) {
+		perror("MALLOC FAIL : argServ\n");
+		return EXIT_FAILURE;
+	}
+	(*argServ)->pmutexRemoteConnect = PmutexRemoteConnect;
+	(*argServ)->dataController = dataControl;
+	(*argServ)->verbose=verbose;
+
+	int sock;
+	struct sockaddr_in adr_svr;
+	memset(&adr_svr, 0, sizeof(adr_svr));
+	adr_svr.sin_family 		= AF_INET;
+	adr_svr.sin_addr.s_addr = htonl(INADDR_ANY);
+	adr_svr.sin_port 		= htons(UDP_PORT_DRONE);
+
+	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
+		perror("THREAD SERV : Socket error\n");
+		return EXIT_FAILURE;
+	}
+
+	if(bindUDPSock(&sock,&adr_svr) == -1){
+		return EXIT_FAILURE;
+	}
+	(*argServ)->sock=sock;
+
+
+	return 0;
+}
+
+
 void clean_args_SERVER(args_SERVER * arg) {
 	if (arg != NULL) {
 		if (arg->pmutexRemoteConnect != NULL) {
@@ -59,7 +117,7 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 
 	char verbose =argSERV->verbose;
 
-	if (receveNetwork(sock, NULL, buff) == 0) {
+	if (receveNetwork(sock, NULL, buff) == -1) {
 		//TODO prendre decision sur controleur de vol , demander atterissage
 		perror("THREAD SERV : RECEVE NETWORK ERROR\n");
 		//fini=0;
@@ -138,37 +196,13 @@ void *thread_UDP_SERVER(void *args) {
 
 	args_SERVER *argSERV = (args_SERVER*) args;
 
-	/*********************************************************************/
-	/*								SETTINGS*/
-	/*********************************************************************/
-
 	char verbose =argSERV->verbose;
 	if(verbose){printf("THREAD SERV : SERVEUR UDP\n");}
-	int sock;
-	//int sockSend;
-	struct sockaddr_in adr_svr;
+	int sock=argSERV->sock;
+
 	struct sockaddr_in adr_send;
 	int runServ = 1;
-	int sockCreationSucces=1;
 	int socketConnectionMade=0;
-
-	memset(&adr_svr, 0, sizeof(adr_svr));
-	adr_svr.sin_family 		= AF_INET;
-	adr_svr.sin_addr.s_addr = htonl(INADDR_ANY);
-	adr_svr.sin_port 		= htons(UDP_PORT_DRONE);
-
-	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
-		perror("THREAD SERV : Socket error\n");
-		runServ=0;
-		sockCreationSucces=0;
-		//return NULL;
-	}
-
-	if(bindUDPSock(&sock,&adr_svr) == -1){
-		runServ=0;
-		sockCreationSucces=0;
-		//return NULL;
-	}
 
 	/*********************************************************************/
 	/*				FIRST MESSAGE WITH UDP INFO FROM REMOTE*/
@@ -177,11 +211,14 @@ void *thread_UDP_SERVER(void *args) {
 	char buff[SIZE_SOCKET_MESSAGE];
 	int cmpNumberMessage = 1;
 
-	if(sockCreationSucces){
-		if (receveNetwork(sock, NULL, buff) == 0) {
-			perror("THREAD SERV : RECEVE NETWORK ERROR\n");
-			return NULL;
-		}
+	int notConnected=1;
+	while(notConnected){
+		if (receveNetwork(sock, NULL, buff) == -1) {
+				perror("THREAD SERV : RECEVE NETWORK ERROR\n");
+				runServ=0;//TODO
+				notConnected=0;
+			}
+
 		buff[SIZE_SOCKET_MESSAGE - 1] = '\0';
 		if (verbose) {
 			printf("THREAD SERV : messag recu : %s\n", buff);
@@ -193,14 +230,16 @@ void *thread_UDP_SERVER(void *args) {
 		if (get_IP_Port(buff, &adr_send) != 1) {
 			if (verbose) {
 				printf("ERROR IP RECEVE\n");
+
 			}
-			runServ = 0;
+			runServ=0;//TODO
 		} else {
 			if (verbose) {
 				printf("THREAD SERV : GOOD IP AND PORT RECEVE\n");
 			}
+			socketConnectionMade = 1;
+			notConnected=0;
 		}
-		socketConnectionMade = 1;
 	}
 
 
@@ -255,7 +294,7 @@ void *thread_UDP_SERVER(void *args) {
 		 */
 		char stop[5] = "STOP";
 		for (int i = 0; i < 10; i++) {
-			if (sendNetwork(sock, &adr_send, stop) == 0) {
+			if (sendNetwork(sock, &adr_send, stop) == -1) {
 				perror("THREAD SERV : SEND STOP , NETWORK ERROR\n");
 				break;
 			}

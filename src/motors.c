@@ -7,6 +7,28 @@ double periode=0; // periode = 1/frequence. Initialisée plus tard.
 // Pointeur de fonction qui controle chaque ESC
 
 
+int initMotorAll(MotorsAll ** motorsAll){
+	*motorsAll =(MotorsAll *) malloc(sizeof(MotorsAll));
+	if (*motorsAll == NULL) {
+		perror("MALLOC FAIL : motorsAll\n");
+		return -1;
+	}
+	(*motorsAll)->bool_arret_moteur =(volatile int *) malloc(sizeof(int));
+
+	if ((*motorsAll)->bool_arret_moteur == NULL) {
+		perror("MALLOC FAIL : motorsAll->bool_arret_moteur\n");
+		return -1;
+	}
+	volatile int arret=0;
+	(*(*motorsAll)->bool_arret_moteur)= arret;
+
+	if(init_Value_motors(*motorsAll)==0){
+		return -1;
+	}
+	return 0;
+}
+
+
 void clean_motorsAll(MotorsAll * arg) {
 	if (arg != NULL) {
 		if (arg->bool_arret_moteur != NULL) {

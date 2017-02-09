@@ -16,6 +16,8 @@ typedef struct args_CONTROLDEVOL {
 
 } args_CONTROLDEVOL;
 
+int initArgsCONTROLDEVOL(args_CONTROLDEVOL ** argCONTROLVOL,DataController * dataControl,MotorsAll * motorsAll,char verbose);
+
 int init_thread_PID(pthread_t * threadControlerVOL,args_CONTROLDEVOL * argCONTROLVOL);
 
 void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg);

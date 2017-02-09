@@ -78,3 +78,14 @@ int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu){
 
 	return 1;
 }
+
+void setVerbose(char * verbose, int argc, char * argv,int min) {
+	if (argc > min) {
+		if (strcmp(argv, "--verbose") == 0) {
+			printf("verbose MODE select\n");
+			*verbose = 1;
+		}
+	} else {
+		printf("add    --verbose   for verbose mode\n");
+	}
+}

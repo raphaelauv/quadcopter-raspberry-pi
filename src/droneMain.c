@@ -3,80 +3,29 @@
 #include "controldeVol.hpp"
 #include "capteur.hpp"
 
+
 int main (int argc, char *argv[]){
 
-	char verbose = 0;
-	if (argc > 1) {
-		if (strcmp(argv[1], "--verbose") == 0) {
-			printf("verbose MODE select\n");
-			verbose = 1;
-		}
-	}else{
-		printf("add    --verbose   for verbose mode\n");
-	}
-
-	PMutex * PmutexRemoteConnect = (PMutex *) malloc(sizeof(PMutex));
-	if(PmutexRemoteConnect==NULL){
-		perror("MALLOC FAIL : PmutexRemoteConnect\n");
-		return EXIT_FAILURE;
-	}
-	init_PMutex(PmutexRemoteConnect);
-
-	PMutex * PmutexDataControler = (PMutex *) malloc(sizeof(PMutex));
-	if (PmutexDataControler == NULL) {
-		perror("MALLOC FAIL : PmutexDataControler\n");
-		return EXIT_FAILURE;
-	}
-	init_PMutex(PmutexDataControler);
+	char verbose;
+	setVerbose(&verbose,argc,argv[1],1);
 
 	char myIP[64];
-	getIP(myIP);
+	getIP(myIP,verbose);
 
-	DataController * dataControl =(DataController *) malloc(sizeof(DataController));
-	if (dataControl == NULL) {
-		perror("MALLOC FAIL : dataControl\n");
+	args_SERVER * argServ;
+	if(initArgServ(&argServ,verbose)){
 		return EXIT_FAILURE;
 	}
 
-	dataControl->pmutex=PmutexDataControler;
-	dataControl->flag=2;
-
-	args_SERVER * argServ =(args_SERVER *) malloc(sizeof(args_SERVER));
-	if (argServ == NULL) {
-		perror("MALLOC FAIL : argServ\n");
-		return EXIT_FAILURE;
-	}
-	argServ->pmutexRemoteConnect = PmutexRemoteConnect;
-	argServ->dataController = dataControl;
-	argServ->verbose=verbose;
-
-	MotorsAll * motorsAll =(MotorsAll *) malloc(sizeof(MotorsAll));
-	if (motorsAll == NULL) {
-		perror("MALLOC FAIL : motorsAll\n");
-		return EXIT_FAILURE;
-	}
-	motorsAll->bool_arret_moteur =(volatile int *) malloc(sizeof(int));
-
-	if (motorsAll->bool_arret_moteur == NULL) {
-		perror("MALLOC FAIL : motorsAll->bool_arret_moteur\n");
-		return EXIT_FAILURE;
-	}
-	volatile int arret=0;
-	*(motorsAll->bool_arret_moteur)= arret;
-
-	if(init_Value_motors(motorsAll)==0){
+	MotorsAll * motorsAll;
+	if (initMotorAll(&motorsAll)) {
 		return EXIT_FAILURE;
 	}
 
-	args_CONTROLDEVOL * argCONTROLVOL =(args_CONTROLDEVOL *) malloc(sizeof(args_CONTROLDEVOL));
-	if (argCONTROLVOL == NULL) {
-		perror("MALLOC FAIL : argCONTROLVOL\n");
+	args_CONTROLDEVOL * argCONTROLVOL;
+	if (initArgsCONTROLDEVOL(&argCONTROLVOL,argServ->dataController,motorsAll,verbose)) {
 		return EXIT_FAILURE;
 	}
-	argCONTROLVOL->dataController=dataControl;
-	argCONTROLVOL->motorsAll=motorsAll;
-	argCONTROLVOL->verbose=verbose;
-
 
 	#ifdef __arm__
 	RTIMU *imu;
@@ -95,16 +44,16 @@ int main (int argc, char *argv[]){
 	pthread_t threadPID;
 
 
-	pthread_mutex_lock(&PmutexRemoteConnect->mutex);
+	pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
 
 	if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)!=0) {
 		perror("THREAD MAIN : pthread_create SERVER\n");
 		return EXIT_FAILURE;
 	}
 
-	pthread_cond_wait(&PmutexRemoteConnect->condition, &PmutexRemoteConnect->mutex);
+	pthread_cond_wait(&argServ->pmutexRemoteConnect->condition, &argServ->pmutexRemoteConnect->mutex);
 
-	pthread_mutex_unlock(&PmutexRemoteConnect->mutex);
+	pthread_mutex_unlock(&argServ->pmutexRemoteConnect->mutex);
 
 	if(init_thread_PID(&threadPID,argCONTROLVOL)!=0){
 		//TODO demander fermeture reseaux

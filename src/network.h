@@ -1,17 +1,17 @@
 #ifndef NETWORK_H_
 #define NETWORK_H_
-
+/*
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+*/
 
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
 
 #include <ifaddrs.h>
 #include <netdb.h>
-
+#include <netinet/in.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <stddef.h>
@@ -67,10 +67,11 @@ int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message);
 
 int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message);
 
-void getIP(char*  myIP);
+void getIP(char*  myIP,char verbose);
 
+/*
 #ifdef __cplusplus
 }
 #endif
-
+*/
 #endif /* NETWORK_H_ */

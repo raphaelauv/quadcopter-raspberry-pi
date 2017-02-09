@@ -26,11 +26,12 @@ char get_IP_Port(char *message,struct sockaddr_in * sa){
 
 	char port[5];
 
-	while(*message!='\0'){
+	while(*message!='\0' && *message!=' ' && cmp2<5){
 		port[cmp2]=*message;
 		message++;
 		cmp2++;
 	}
+	port[4]='\0';
 
 	int nbPort = atoi(port);
 	if(nbPort>0 && nbPort<9999){
@@ -108,7 +109,7 @@ int bindUDPSock(int * sock, struct sockaddr_in * adr_svr) {
  * Fill message with the receved message , message size should be at least SIZE_SOCKET_MESSAGE
  * Fill adr_svr with the receved Info
  *
- * Return 0 in case of Error else 1
+ * Return -1 in case of Error else 0
  */
 int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message) {
 	int sizeReveceTotal = 0;
@@ -126,9 +127,9 @@ int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message) {
 		}
 	}
 	if (nbfail == 10) {
-		return 0;
+		return -1;
 	} else {
-		return 1;
+		return 0;
 	}
 
 }
@@ -136,7 +137,7 @@ int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message) {
 /**
  * Send message to adr_svr , message size should be at least SIZE_SOCKET_MESSAGE
  *
- * Return 0 in case of Error else 1
+ * Return -1 in case of Error else 0
  */
 int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message) {
 	int sended=0;
@@ -155,9 +156,9 @@ int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message) {
 		}
 	}
 	if(nbfail==10){
-		return 0;
+		return -1;
 	}else{
-		return 1;
+		return 0;
 	}
 }
 
@@ -166,7 +167,7 @@ int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message) {
  * myIP need to be malloc of a size of 64 char
  *
  */
-void getIP(char*  myIP) {
+void getIP(char*  myIP,char verbose) {
 	if(myIP==NULL){
 		return;
 	}
@@ -208,7 +209,7 @@ void getIP(char*  myIP) {
 
 				ret = strcmp(str1, str2);
 
-				if (ret != 0) {
+				if (ret != 0 && verbose) {
 					printf("Adresse IP :%s\n", myIP);
 				}
 				//strcpy(myIP,ip);
