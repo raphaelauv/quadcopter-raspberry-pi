@@ -19,10 +19,10 @@ int initMotorAll(MotorsAll ** motorsAll){
 		perror("MALLOC FAIL : motorsAll->bool_arret_moteur\n");
 		return -1;
 	}
-	volatile int arret=0;
+	volatile int arret=0;//TODO
 	(*(*motorsAll)->bool_arret_moteur)= arret;
 
-	if(init_Value_motors(*motorsAll)==0){
+	if(init_Value_motors(*motorsAll)){
 		return -1;
 	}
 	return 0;
@@ -35,10 +35,17 @@ void clean_motorsAll(MotorsAll * arg) {
 			free((void *)arg->bool_arret_moteur);
 			arg->bool_arret_moteur=NULL;
 		}
+		for(int i=0;i<4;i++){
+			clean_motor_info(arg->arrayOfMotors[i]);
+		}
+
+		free(arg->arrayOfMotors);
+		/*
 		clean_motor_info(arg->motor0);
 		clean_motor_info(arg->motor1);
 		clean_motor_info(arg->motor2);
 		clean_motor_info(arg->motor3);
+		*/
 		free(arg);
 		arg = NULL;
 	}
@@ -119,16 +126,19 @@ void * thread_startMoteur(void * args){
     return NULL;
 }
 
-char init_motor_info(motor_info *info,int broche,volatile int * stop){
+/*
+ * Return -1 is FAIL else return 0 in SUCCES
+ */
+int init_motor_info(motor_info *info,int broche,volatile int * stop){
 
     if(periode<=0){//Si la periode n'est pas Initialisé
         perror("Fatal erreur:Periode don't initialize\n");
-        return 0;
+        return -1;
     }
 
     if(info==NULL){
     	perror("info is NULL");
-    	return 0;
+    	return -1;
     }
 
 
@@ -140,17 +150,19 @@ char init_motor_info(motor_info *info,int broche,volatile int * stop){
     PMutex * MutexSetPower=(PMutex *)malloc(sizeof(PMutex));
     if(MutexSetPower ==NULL){
     	perror("MALLOC FAIL : init_motor_info - MutexSetPower\n");
-    	return 0;
+    	return -1;
     }
     init_PMutex(MutexSetPower);
     info->MutexSetPower=MutexSetPower;
-    return 1;
+    return 0;
 
 }
 
 int set_power(motor_info * info,float power){
     int powerVerified=(int)power;
 
+
+	printf("\n\n BROCHE : %d  | POWER : %f  \n\n",info->broche,power);
     if( (powerVerified>0 && powerVerified<5) || powerVerified>10){
         return 1;
     }
@@ -175,19 +187,39 @@ int set_power(motor_info * info,float power){
 }
 
 
-char init_Value_motors(MotorsAll * motorsAll){
+/**
+ * Return -1 if FAIL else return 0 in SUCCES
+ */
+int init_Value_motors(MotorsAll * motorsAll){
 
     //init 0% de puissance des moteur en fonction de la frequence
     periode=(1.0/frequence)*1000000;
 
 
-	int m0,m1,m2,m3;
+    int mValues[4] = {5, 28, 2, 24};
+	//int m0,m1,m2,m3;
 	//init broche du signal du controle des moteur
+    /*
 	m0=5;
 	m1=28;
 	m2=2;
 	m3=24;
+	*/
+	motor_info** tab =(motor_info**) malloc(4 * sizeof(motor_info*));
+	if(tab==NULL){
+		perror("MALLOC FAIL : init_Value_motors - motor_info\n");
+		return -1;
+	}
+	for(int i=0;i<4;i++){
+		tab[i]=(motor_info *) malloc(sizeof(motor_info));
+		if(tab[i]==NULL){
+			perror("MALLOC FAIL : init_Value_motors - motor_info\n");
+			return -1;
+		}
+	}
 
+	motorsAll->arrayOfMotors=tab;
+	/*
 	motor_info * info_m0 =(motor_info *) malloc(sizeof(motor_info));
 	motor_info * info_m1 =(motor_info *) malloc(sizeof(motor_info));
 	motor_info * info_m2 =(motor_info *) malloc(sizeof(motor_info));
@@ -197,23 +229,33 @@ char init_Value_motors(MotorsAll * motorsAll){
 		perror("MALLOC FAIL : init_Value_motors - motor_info\n");
 		return 0;
 	}
+	*/
 
+	/*
 	motorsAll->motor0 = info_m0;
 	motorsAll->motor1 = info_m1;
 	motorsAll->motor2 = info_m2;
 	motorsAll->motor3 = info_m3;
-
+	*/
 	int returnofINITS=0;
 
+
+	for(int i=0;i<4;i++){
+		if(init_motor_info(motorsAll->arrayOfMotors[i],mValues[i],motorsAll->bool_arret_moteur)){
+			return -1;
+		}
+	}
+	/*
 	returnofINITS+=init_motor_info(motorsAll->motor0,m0,motorsAll->bool_arret_moteur);
 	returnofINITS+=init_motor_info(motorsAll->motor1,m1,motorsAll->bool_arret_moteur);
 	returnofINITS+=init_motor_info(motorsAll->motor2,m2,motorsAll->bool_arret_moteur);
 	returnofINITS+=init_motor_info(motorsAll->motor3,m3,motorsAll->bool_arret_moteur);
 
-	if(returnofINITS!=4){
-		return 0;
+	if(returnofINITS!=0){
+		return -1;
 	}
-    return 1;
+	*/
+    return 0;
 
 }
 
@@ -223,46 +265,62 @@ char init_Value_motors(MotorsAll * motorsAll){
  */
 int init_threads_motors(MotorsAll * motorsAll,char verbose){
 
+	pthread_t tab[4];
+
+	/*
     pthread_t thr0;
     pthread_t thr1;
     pthread_t thr2;
     pthread_t thr3;
+    */
     pthread_attr_t attributs;
 
-
-    int result;
-    result=init_Attr_Pthread(&attributs,99,0);
-    if(result==0){
+    if(init_Attr_Pthread(&attributs,99,0)){
+    	perror("THREAD MAIN : ERROR pthread_attributs MOTORS\n");
     	return -1;
     }
 
-    int do1time=1;
     int error=0;
     int resultPthread=0;
+    /*
+    int do1time=1;
     while(do1time){
+	*/
+
+    	for (int i = 0; i < 4; i++) {
+			if ((resultPthread = pthread_create(&tab[i], &attributs,thread_startMoteur, motorsAll->arrayOfMotors[i])) != 0) {
+				//printf("pthread0_create -> %d\n",resultPthread);
+				perror("pthread0_create : ");
+				error = -1;
+				break;
+			}
+
+		}
+
+    	/*
 		if ((resultPthread=pthread_create(&thr0, &attributs, thread_startMoteur, motorsAll->motor0))!=0) {
-			printf("pthread0_create -> %d\n",resultPthread);
+			//printf("pthread0_create -> %d\n",resultPthread);
 			perror("pthread0_create : ");
 			error=-1;
 			break;
 		}
 
 		if ((resultPthread=pthread_create(&thr1, &attributs, thread_startMoteur, motorsAll->motor1)!=0)) {
-			printf("pthread1_create -> %d\n",resultPthread);
+			//printf("pthread1_create -> %d\n",resultPthread);
 			perror("pthread1_create : ");
 			error=-1;
 			break;
 		}
 
 		if ((resultPthread=pthread_create(&thr2, &attributs, thread_startMoteur, motorsAll->motor2))!=0) {
-			printf("pthread2_create -> %d\n",resultPthread);
+			//printf("pthread2_create -> %d\n",resultPthread);
 			perror("pthread2_create : ");
 			error=-1;
 			break;
 		}
 
 		if ((resultPthread=pthread_create(&thr3, &attributs, thread_startMoteur, motorsAll->motor3))!=0) {
-			printf("pthread3_create -> %d\n",resultPthread);
+			//printf("pthread3_create -> %d\n",resultPthread);
 			perror("pthread3_create : ");
 			error=-1;
 			break;
@@ -270,6 +328,8 @@ int init_threads_motors(MotorsAll * motorsAll,char verbose){
 		do1time=0;
 		break;
     }
+    */
+
 
     if(error==-1){
     	*(motorsAll->bool_arret_moteur)=1;
@@ -277,6 +337,14 @@ int init_threads_motors(MotorsAll * motorsAll,char verbose){
 
 	pthread_attr_destroy(&attributs);//Libere les resource.
 
+	for (int i = 0; i < 4; i++) {
+		if ((resultPthread = pthread_join(tab[i], NULL)) != 0) {
+			printf("pthread0_join -> %d\n", resultPthread);
+			perror("pthread0_join : ");
+		}
+	}
+
+	/*
 	if ((resultPthread = pthread_join(thr0, NULL)) != 0) {
 		printf("pthread0_join -> %d\n", resultPthread);
 		perror("pthread0_join : ");
@@ -293,7 +361,7 @@ int init_threads_motors(MotorsAll * motorsAll,char verbose){
 		printf("pthread3_join -> %d\n", resultPthread);
 		perror("pthread3_join : ");
 	}
-
+	*/
 
 	if(verbose){printf("THREADS 4 MOTORS : END\n");}
 

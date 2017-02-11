@@ -5,13 +5,12 @@ int main (int argc, char *argv[]){
 		perror("Indiquer l'adresse IP du drone en argument");
 		return EXIT_FAILURE;
 	}
+	char * adresse=argv[1];
 	char verbose=0;
 	setVerbose(&verbose,argc,argv[2],2);
 	if(verbose){
 		printf("adresse choisit : %s\n",argv[1]);
 	}
-
-	char * adresse=argv[1];
 
 	args_CONTROLER * argControler;
 	if(init_args_CONTROLER(&argControler,verbose)){

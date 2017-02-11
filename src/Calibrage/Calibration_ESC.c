@@ -24,10 +24,15 @@ void calibrate(MotorsAll * motors,char verbose){
     }
 
     //PUT 100% of power.
+    for(int i =0;i<4;i++){
+    	set_power(motors->arrayOfMotors[i],10.0);
+    }
+    /*
     set_power(motors->motor0,10.0);
     set_power(motors->motor1,10.0);
     set_power(motors->motor2,10.0);
     set_power(motors->motor3,10.0);
+    */
     char a;
     if(verbose){
     	scanf("%c", &a);
@@ -37,11 +42,15 @@ void calibrate(MotorsAll * motors,char verbose){
     }
 
     //PUT 0% of power.
+    for(int i =0;i<4;i++){
+        	set_power(motors->arrayOfMotors[i],5.0);
+    }
+    /*
     set_power(motors->motor0,5.0);
     set_power(motors->motor1,5.0);
     set_power(motors->motor2,5.0);
     set_power(motors->motor3,5.0);
-
+	*/
 
     if(verbose){
     	printf("Appuyer sur o quand le calibrage est fini. Merci. \n");

@@ -23,7 +23,6 @@ extern "C" {
 
 #include <unistd.h>
 
-#include <pthread.h>
 
 #define SIZE_SOCKET_MESSAGE 100
 

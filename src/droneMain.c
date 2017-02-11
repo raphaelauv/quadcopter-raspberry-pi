@@ -61,7 +61,7 @@ int main (int argc, char *argv[]){
 	}
 
 	//start the 4 threads et ne rends pas la main si succes
-	if(init_threads_motors(motorsAll,verbose)==-1){
+	if(init_threads_motors(motorsAll,verbose)){
 		//TODO demander fermeture reseaux
 		return EXIT_FAILURE;
 	}

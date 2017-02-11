@@ -45,17 +45,14 @@ void UsleepDuration(int sleepTime) {
 }
 
 /**
- * if Fail return -1 , else return 1
+ * if Fail return -1 , else return 0
  */
 int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu){
-	int result;
-	result=pthread_attr_init( attributs);
 
-	/*
-	if(result){
+	if(pthread_attr_init( attributs)){
 		return -1;
 	}
-	*/
+
 	#ifdef __arm__
 	cpu_set_t cpuset;
 
@@ -76,7 +73,7 @@ int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu){
 
 	#endif
 
-	return 1;
+	return 0;
 }
 
 void setVerbose(char * verbose, int argc, char * argv,int min) {

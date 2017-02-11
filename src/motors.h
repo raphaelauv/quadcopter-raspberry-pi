@@ -62,10 +62,11 @@ typedef struct motor_info {
 
 typedef struct motorsAll {
 	volatile int * bool_arret_moteur; // TODO volatile
-	motor_info * motor0;
-	motor_info * motor1;
-	motor_info * motor2;
-	motor_info * motor3;
+	motor_info ** arrayOfMotors;
+	//motor_info * motor0;
+	//motor_info * motor1;
+	//motor_info * motor2;
+	//motor_info * motor3;
 } MotorsAll;
 
 
@@ -83,6 +84,6 @@ int init_threads_motors(MotorsAll * motorsAll,char verbose);
 
 void * thread_startMoteur(void * args);
 
-char init_Value_motors(MotorsAll * motorsAll);
+int init_Value_motors(MotorsAll * motorsAll);
 
 #endif

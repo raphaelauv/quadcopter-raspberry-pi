@@ -40,11 +40,13 @@ void * startCONTROLVOL(void * args){
 	RTIMU *imu =(RTIMU *)controle_vol->imu;
 
 	char verbose = controle_vol->verbose;
+	float powerTab[4];
+	/*
 	float power0;
 	float power1;
 	float power2;
 	float power3;
-
+	*/
 
 
 	int sampleCount = 0;
@@ -74,6 +76,7 @@ void * startCONTROLVOL(void * args){
 	int continuThread=1;
 	while (continuThread) {
 
+		sleep(5);
 		#ifdef __arm__
 		if(imu->IMURead()){
 			RTIMU_DATA imuData = imu->getIMUData();
@@ -107,15 +110,22 @@ void * startCONTROLVOL(void * args){
 		}
 		*/
 		mutexDataControler->var = 0;
-		power0 = data->axe_Rotation;
-		power1 = data->axe_UpDown;
-		power2 = data->axe_LeftRight;
-		power3 = data->axe_FrontBack;
+		powerTab[0] = data->axe_Rotation;
+		powerTab[1] = data->axe_UpDown;
+		powerTab[2] = data->axe_LeftRight;
+		powerTab[3] = data->axe_FrontBack;
+
+
 		pthread_mutex_unlock(&(mutexDataControler->mutex));
+		for(int i=0; i<4;i++){
+			set_power(controle_vol->motorsAll->arrayOfMotors[i], powerTab[i]);
+		}
+		/*
 		set_power(controle_vol->motorsAll->motor0, power0);
 		set_power(controle_vol->motorsAll->motor1, power1);
 		set_power(controle_vol->motorsAll->motor2, power2);
 		set_power(controle_vol->motorsAll->motor3, power3);
+		*/
 	}
 	if(verbose){printf("THREAD CONTROLVOL : END\n");}
 	return NULL;
@@ -128,7 +138,7 @@ void * startCONTROLVOL(void * args){
 int init_thread_PID(pthread_t * threadControlerVOL,args_CONTROLDEVOL * argCONTROLVOL){
 
 	pthread_attr_t attributs;
-	if(init_Attr_Pthread(&attributs,99,1)==0){
+	if(init_Attr_Pthread(&attributs,99,1)){
 		perror("THREAD MAIN : ERROR pthread_attributs PID\n");
 		return -1;
 	}
