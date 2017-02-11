@@ -1,7 +1,7 @@
 #include "controldeVol.hpp"
 
 
-int initArgsCONTROLDEVOL(args_CONTROLDEVOL ** argCONTROLVOL,DataController * dataControl,MotorsAll * motorsAll,char verbose){
+int init_args_CONTROLDEVOL(args_CONTROLDEVOL ** argCONTROLVOL,DataController * dataControl,MotorsAll * motorsAll,char verbose){
 
 	*argCONTROLVOL =(args_CONTROLDEVOL *) malloc(sizeof(args_CONTROLDEVOL));
 	if (*argCONTROLVOL == NULL) {
@@ -18,7 +18,7 @@ int initArgsCONTROLDEVOL(args_CONTROLDEVOL ** argCONTROLVOL,DataController * dat
 
 void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg) {
 	if (arg != NULL) {
-		clean_motorsAll(arg->motorsAll);
+		clean_MotorsAll(arg->motorsAll);
 		clean_DataController(arg->dataController);
 		if( arg->imu !=NULL){
 			delete(arg->imu);
@@ -40,13 +40,8 @@ void * startCONTROLVOL(void * args){
 	RTIMU *imu =(RTIMU *)controle_vol->imu;
 
 	char verbose = controle_vol->verbose;
-	float powerTab[4];
-	/*
-	float power0;
-	float power1;
-	float power2;
-	float power3;
-	*/
+	float powerTab[NUMBER_OF_MOTORS];
+
 
 
 	int sampleCount = 0;
@@ -117,15 +112,10 @@ void * startCONTROLVOL(void * args){
 
 
 		pthread_mutex_unlock(&(mutexDataControler->mutex));
-		for(int i=0; i<4;i++){
+		for(int i=0; i<NUMBER_OF_MOTORS;i++){
 			set_power(controle_vol->motorsAll->arrayOfMotors[i], powerTab[i]);
 		}
-		/*
-		set_power(controle_vol->motorsAll->motor0, power0);
-		set_power(controle_vol->motorsAll->motor1, power1);
-		set_power(controle_vol->motorsAll->motor2, power2);
-		set_power(controle_vol->motorsAll->motor3, power3);
-		*/
+
 	}
 	if(verbose){printf("THREAD CONTROLVOL : END\n");}
 	return NULL;
@@ -143,11 +133,10 @@ int init_thread_PID(pthread_t * threadControlerVOL,args_CONTROLDEVOL * argCONTRO
 		return -1;
 	}
 
-	int result;
-
-	if ((result=pthread_create(threadControlerVOL, &attributs, startCONTROLVOL, argCONTROLVOL))!=0) {
-			perror("THREAD MAIN : ERROR pthread_create PID\n");
-		}
+	int result=pthread_create(threadControlerVOL, &attributs, startCONTROLVOL, argCONTROLVOL);
+	if (result) {
+		perror("THREAD MAIN : ERROR pthread_create PID\n");
+	}
 
 	pthread_attr_destroy(&attributs);
 

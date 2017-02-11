@@ -52,32 +52,31 @@
 
 #include "concurrent.h"
 
-typedef struct motor_info {
+
+#define NUMBER_OF_MOTORS 4
+
+typedef struct Motor_info {
 	volatile int * bool_arret_moteur; // En cas d'arret d'urgenre =1
 	int broche; // nemero de la broche de sorti du signal.
 	double high_time; // temps haut du signal
 	double low_time; // temps bas du signal.
 	PMutex * MutexSetPower; // Mutex pour que set_power() ne modifie pas les valeurs au mauvais moment.
-} motor_info;
+} Motor_info;
 
-typedef struct motorsAll {
+typedef struct MotorsAll {
 	volatile int * bool_arret_moteur; // TODO volatile
-	motor_info ** arrayOfMotors;
-	//motor_info * motor0;
-	//motor_info * motor1;
-	//motor_info * motor2;
-	//motor_info * motor3;
+	Motor_info ** arrayOfMotors;
 } MotorsAll;
 
 
-int initMotorAll(MotorsAll ** motorsAll);
+int init_MotorsAll(MotorsAll ** motorsAll);
 
-void clean_motorsAll(MotorsAll * arg);
+void clean_MotorsAll(MotorsAll * arg);
 
-void clean_motor_info(motor_info * arg);
+void clean_Motor_info(Motor_info * arg);
 
 //Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
-int set_power(struct motor_info * info, float power);
+int set_power(struct Motor_info * info, float power);
 
 //Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
 int init_threads_motors(MotorsAll * motorsAll,char verbose);

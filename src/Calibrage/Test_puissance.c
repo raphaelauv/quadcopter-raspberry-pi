@@ -12,15 +12,9 @@ void  Test_puissance(MotorsAll  * motors){
 
     int high_time=1000;
     while (high_time<=2000) {
-    	for(int i =0;i<4;i++){
-    	    	set_power(motors->arrayOfMotors[i],high_time);
+    	for(int i =0;i<NUMBER_OF_MOTORS;i++){
+    	    set_power(motors->arrayOfMotors[i],high_time);
     	}
-    	/*
-        set_power(motors->motor0,high_time);
-        set_power(motors->motor1,high_time);
-        set_power(motors->motor2,high_time);
-        set_power(motors->motor3,high_time);
-        */
         high_time+=50;
         sleepDuration(5);
     }

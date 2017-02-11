@@ -18,12 +18,12 @@ int main (int argc, char *argv[]){
 	}
 
 	MotorsAll * motorsAll;
-	if (initMotorAll(&motorsAll)) {
+	if (init_MotorsAll(&motorsAll)) {
 		return EXIT_FAILURE;
 	}
 
 	args_CONTROLDEVOL * argCONTROLVOL;
-	if (initArgsCONTROLDEVOL(&argCONTROLVOL,argServ->dataController,motorsAll,verbose)) {
+	if (init_args_CONTROLDEVOL(&argCONTROLVOL,argServ->dataController,motorsAll,verbose)) {
 		return EXIT_FAILURE;
 	}
 
