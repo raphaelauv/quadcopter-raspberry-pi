@@ -13,12 +13,12 @@ int main (int argc, char *argv[]){
 	}
 
 	args_CONTROLER * argControler;
-	if(init_args_CONTROLER(&argControler,verbose)){
+	if(init_args_CONTROLER(&argControler)){
 		return EXIT_FAILURE;
 	}
 
 	args_CLIENT * argClient;
-	if(init_args_CLIENT(&argClient,adresse,argControler,verbose)){
+	if(init_args_CLIENT(&argClient,adresse,argControler)){
 		return EXIT_FAILURE;
 	}
 

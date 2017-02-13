@@ -1,6 +1,6 @@
 #include "controller.h"
 
-int init_args_CONTROLER(args_CONTROLER ** argControler,char verbose){
+int init_args_CONTROLER(args_CONTROLER ** argControler){
 
 	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
 	if (pmutexControllerPlug == NULL) {
@@ -31,7 +31,6 @@ int init_args_CONTROLER(args_CONTROLER ** argControler,char verbose){
 	}
 	(*argControler)->pmutexReadDataController=pmutexRead;
 	(*argControler)->pmutexControllerPlug=pmutexControllerPlug;
-	(*argControler)->verbose=verbose;
 
 	return 0;
 }
@@ -71,7 +70,7 @@ float diff_axes(int axe_down, int axe_up, int val_max) {
 
 void control(args_CONTROLER * argsControl) {
 	DataController * manette = argsControl->manette;
-	char verbose = argsControl->verbose;
+
 
 	manette->flag = 0;
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
@@ -112,8 +111,8 @@ void control(args_CONTROLER * argsControl) {
 
 	int quitter = (SDL_NumJoysticks() > 0) ? 0 : 1;
 
-	if (verbose && (SDL_NumJoysticks() <= 0)){
-		printf("THREAD XBOX : pas de controller\n");
+	if ((SDL_NumJoysticks() <= 0)){
+		logString("THREAD XBOX : pas de controller\n");
 	}
 	float tmpM0, tmpM1, tmpM2, tmpM3;
 	while (!quitter) {
@@ -145,9 +144,11 @@ void control(args_CONTROLER * argsControl) {
 			input.boutons[4] = input.boutons[5] = input.boutons[6] =
 					input.boutons[7] = input.boutons[9] = input.boutons[10] = 0;
 
-			if (verbose) {
-				printf("THREAD XBOX : bool_moteur_active= %d\n", manette->flag);
-			}
+
+			char array[400];
+			sprintf(array,"THREAD XBOX : bool_moteur_active= %d\n", manette->flag);
+			logString(array);
+
 
 			while (!modele
 					&& (input.axes[4] != -val_max || input.axes[5] != -val_max)) {
@@ -209,21 +210,20 @@ void control(args_CONTROLER * argsControl) {
 			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
 
 			/*
-			if (verbose) {
 				printf(
 						"Axe_rotation: %f, axe_Up_Down: %f     -       Axes_LeftRight: %f, axe_FrontBack: %f \n ",
 						manette->axe_Rotation, manette->axe_UpDown,
 						manette->axe_LeftRight, manette->axe_FrontBack);
-			}
 			*/
 
 		}
 
 		if (!is_connect()) {
 			manette->flag = 0;
-			if (verbose) {
-				printf("THREAD XBOX : Plus de manette %d.\n", manette->flag);
-			}
+			char array[400];
+			sprintf(array,"THREAD XBOX : Plus de manette %d.\n", manette->flag);
+			logString(array);
+
 			//TODO
 			break;
 		}

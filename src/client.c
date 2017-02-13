@@ -1,6 +1,6 @@
 #include "client.h"
 
-int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * argControler,char verbose){
+int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * argControler){
 
 
 	* argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
@@ -10,7 +10,7 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * ar
 	}
 
 	(*argClient)->adresse=adresse;
-	(*argClient)->verbose=verbose;
+
 
 	(*argClient)->argControler=argControler;
 
@@ -168,7 +168,7 @@ int testCloseDrone(int sock,struct sockaddr_in * adr_client , char * message) {
 void *thread_UDP_CLIENT(void *args) {
 
 	args_CLIENT * argClient = (args_CLIENT *) args;
-	char verbose=argClient->verbose;
+
 	logString("THREAD CLIENT : START\n");
 
 	int sock=argClient->sock;
@@ -258,13 +258,9 @@ void *thread_UDP_CLIENT(void *args) {
 		if(flag==0){
 
 			if(testCloseDrone(sock,adr_client,message)==0) {
-				if (verbose) {
 					logString("THREAD CLIENT :ERROR message STOP from DRONE NOT RECEVE\n");
-				}
 			} else {
-				if (verbose) {
 					logString("THREAD CLIENT STOP MSG RECEVE FROM DRONE\n");
-				}
 			}
 			continu=0;
 		}
@@ -281,9 +277,9 @@ void *thread_TCP_CLIENT(void *args) {
 
 
 	args_CLIENT * argClient =(args_CLIENT *) args;
-	char verbose=argClient->verbose;
+	//char verbose=argClient->verbose;
 
-	if(verbose){printf("CLIENT TCP\n");}
+	//if(verbose){printf("CLIENT TCP\n");}
 
 	struct sockaddr_in adress_sock;
 	adress_sock.sin_family = AF_INET;
@@ -301,7 +297,7 @@ void *thread_TCP_CLIENT(void *args) {
 		//TODO do a WHILE SUR le READ
 		buff[size_rec] = '\0';
 
-		if(verbose){printf("Message RECU : %s\n", buff);}
+		//if(verbose){printf("Message RECU : %s\n", buff);}
 
 		/*
 		struct termios oldt, newt;
@@ -330,7 +326,7 @@ void *thread_TCP_CLIENT(void *args) {
 
 			//printf("THREAD CLIENT DU nouveau ?\n");
 			int resultWait;
-			if(verbose){printf("valeur new ? %d \n",argClient->argControler->newThing);}
+			//if(verbose){printf("valeur new ? %d \n",argClient->argControler->newThing);}
 
 			/*
 			if(!argClient->argControler->new){
@@ -354,7 +350,7 @@ void *thread_TCP_CLIENT(void *args) {
 			pthread_mutex_unlock(&argClient->argControler->pmutexReadDataController->mutex);
 
 			sleep(1);
-			if(verbose){printf("THREAD CLIENT SENDING : %s\n", message);}
+			//if(verbose){printf("THREAD CLIENT SENDING : %s\n", message);}
 			/*
 
 
@@ -369,7 +365,7 @@ void *thread_TCP_CLIENT(void *args) {
 			cmp = strcmp(&str1, str2);
 			 */
 			if (*message=='X') {
-				if(verbose){printf("CLIENT EXIT ASK !! \n");}
+				//if(verbose){printf("CLIENT EXIT ASK !! \n");}
 				continu=0;
 			}else{
 				int result = write(descr, message, 100);//TODO

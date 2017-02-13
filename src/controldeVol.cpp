@@ -1,7 +1,7 @@
 #include "controldeVol.hpp"
 
 
-int init_args_CONTROLDEVOL(args_CONTROLDEVOL ** argCONTROLVOL,DataController * dataControl,MotorsAll * motorsAll,char verbose){
+int init_args_CONTROLDEVOL(args_CONTROLDEVOL ** argCONTROLVOL,DataController * dataControl,MotorsAll * motorsAll){
 
 	*argCONTROLVOL =(args_CONTROLDEVOL *) malloc(sizeof(args_CONTROLDEVOL));
 	if (*argCONTROLVOL == NULL) {
@@ -11,7 +11,6 @@ int init_args_CONTROLDEVOL(args_CONTROLDEVOL ** argCONTROLVOL,DataController * d
 
 	(*argCONTROLVOL)->dataController = dataControl;
 	(*argCONTROLVOL)->motorsAll = motorsAll;
-	(*argCONTROLVOL)->verbose = verbose;
 
 	return 0;
 }
@@ -39,7 +38,7 @@ void * startCONTROLVOL(void * args){
 	PMutex * mutexDataControler =controle_vol->dataController->pmutex;
 	RTIMU *imu =(RTIMU *)controle_vol->imu;
 
-	char verbose = controle_vol->verbose;
+
 	float powerTab[NUMBER_OF_MOTORS];
 
 
@@ -63,7 +62,7 @@ void * startCONTROLVOL(void * args){
 
 
 
-	if(verbose){printf("THREAD CONTROLVOL : START\n");}
+	logString("THREAD CONTROLVOL : START\n");
 
 
 	RTIMU_DATA imuData;
@@ -77,9 +76,8 @@ void * startCONTROLVOL(void * args){
 			RTIMU_DATA imuData = imu->getIMUData();
 			sampleCount++;
 			now = RTMath::currentUSecsSinceEpoch();
-			if(verbose){
+
 			//printf("*******************************\nTHREAD CONTROLVOL : CAPTEUR -> %s\n*******************************\n", RTMath::displayDegrees("", imuData.fusionPose));
-			}
 			//fflush(stdout);
 		}
 		#endif
@@ -97,7 +95,7 @@ void * startCONTROLVOL(void * args){
 
 		/*
 		if (mutexDataControler->var < 1) {
-			//if(verbose){printf("Controleur de vol attends des nouvel données de serv \n");}
+			logString("Controleur de vol attends des nouvel données de serv \n");
 
 			//TODO mettre un timer au wait
 			pthread_cond_wait(&mutexDataControler->condition,
@@ -117,7 +115,7 @@ void * startCONTROLVOL(void * args){
 		}
 
 	}
-	if(verbose){printf("THREAD CONTROLVOL : END\n");}
+	logString("THREAD CONTROLVOL : END\n");
 	return NULL;
 }
 

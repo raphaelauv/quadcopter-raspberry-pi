@@ -18,7 +18,7 @@ typedef struct args_SERVER {
 
 } args_SERVER;
 
-int initArgServ(args_SERVER ** argServ,char verbose);
+int initArgServ(args_SERVER ** argServ);
 
 void clean_args_SERVER(args_SERVER * arg);
 

@@ -14,7 +14,7 @@ typedef struct args_CLIENT {
 	args_CONTROLER * argControler;
 } args_CLIENT;
 
-int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * argControler,char verbose);
+int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * argControler);
 void clean_args_CLIENT(args_CLIENT * arg);
 
 void dataControllerToMessage(int sizeFloat,char * output,DataController * dataController);

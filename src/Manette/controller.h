@@ -24,7 +24,7 @@ typedef struct args_CONTROLER {
 
 void control( args_CONTROLER * argsControl);
 
-int init_args_CONTROLER(args_CONTROLER ** argControler,char verbose);
+int init_args_CONTROLER(args_CONTROLER ** argControler);
 void clean_args_CONTROLER(args_CONTROLER * arg);
 
 

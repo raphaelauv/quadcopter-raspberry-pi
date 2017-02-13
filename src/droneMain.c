@@ -10,7 +10,7 @@ int main (int argc, char *argv[]){
 	setVerbose(&verbose,argc,argv[1],1);
 
 	args_SERVER * argServ;
-	if(initArgServ(&argServ,verbose)){
+	if(initArgServ(&argServ)){
 		return EXIT_FAILURE;
 	}
 
@@ -20,7 +20,7 @@ int main (int argc, char *argv[]){
 	}
 
 	args_CONTROLDEVOL * argCONTROLVOL;
-	if (init_args_CONTROLDEVOL(&argCONTROLVOL,argServ->dataController,motorsAll,verbose)) {
+	if (init_args_CONTROLDEVOL(&argCONTROLVOL,argServ->dataController,motorsAll)) {
 		return EXIT_FAILURE;
 	}
 
