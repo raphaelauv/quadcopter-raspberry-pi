@@ -167,7 +167,7 @@ int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message) {
  * myIP need to be malloc of a size of 64 char
  *
  */
-void getIP(char*  myIP,char verbose) {
+void getIP(char*  myIP) {
 	if(myIP==NULL){
 		return;
 	}
@@ -209,8 +209,10 @@ void getIP(char*  myIP,char verbose) {
 
 				ret = strcmp(str1, str2);
 
-				if (ret != 0 && verbose) {
-					printf("Adresse IP :%s\n", myIP);
+				if (ret != 0) {
+					char array[400];
+					sprintf(array,"Adresse IP :%s\n", myIP);
+					logString(array);
 				}
 				//strcpy(myIP,ip);
 			}

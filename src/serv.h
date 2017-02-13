@@ -7,23 +7,8 @@ extern "C" {
 #endif
 */
 
-#include <string.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <ifaddrs.h>
-#include <net/if.h>
-#include <pthread.h>
-#include <sys/select.h>
-#include <fcntl.h>
 
 #include "network.h"
-#include "concurrent.h"
 
 typedef struct args_SERVER {
 	char verbose;

@@ -20,8 +20,10 @@ extern "C" {
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/select.h>
-
+#include <fcntl.h>
 #include <unistd.h>
+
+#include "concurrent.h"
 
 
 #define SIZE_SOCKET_MESSAGE 100
@@ -66,7 +68,7 @@ int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message);
 
 int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message);
 
-void getIP(char*  myIP,char verbose);
+void getIP(char*  myIP);
 
 /*
 #ifdef __cplusplus

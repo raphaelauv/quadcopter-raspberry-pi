@@ -10,13 +10,13 @@ double periode=0; // periode = 1/frequence. Initialisée plus tard.
 int init_MotorsAll(MotorsAll ** motorsAll){
 	*motorsAll =(MotorsAll *) malloc(sizeof(MotorsAll));
 	if (*motorsAll == NULL) {
-		perror("MALLOC FAIL : motorsAll\n");
+		logString("MALLOC FAIL : motorsAll\n");
 		return -1;
 	}
 	(*motorsAll)->bool_arret_moteur =(volatile int *) malloc(sizeof(int));
 
 	if ((*motorsAll)->bool_arret_moteur == NULL) {
-		perror("MALLOC FAIL : motorsAll->bool_arret_moteur\n");
+		logString("MALLOC FAIL : motorsAll->bool_arret_moteur\n");
 		return -1;
 	}
 	volatile int arret=0;//TODO
@@ -65,7 +65,7 @@ void clean_Motor_info(Motor_info * arg){
 void * thread_startMoteur(void * args){
 
 	if(args==NULL){
-		perror("args thread_startMoteur is NULL\n");
+		logString("args thread_startMoteur is NULL\n");
 	}
 
 	Motor_info * info=(Motor_info *)args;
@@ -127,12 +127,12 @@ void * thread_startMoteur(void * args){
 int init_Motor_info(Motor_info *info,int broche,volatile int * stop){
 
     if(periode<=0){//Si la periode n'est pas Initialisé
-        perror("Fatal erreur:Periode don't initialize\n");
+    	logString("FAIL : Periode not initialize\n");
         return -1;
     }
 
     if(info==NULL){
-    	perror("info is NULL");
+    	logString("FAIL : init_Motor_info-> info is NULL");
     	return -1;
     }
 
@@ -144,7 +144,7 @@ int init_Motor_info(Motor_info *info,int broche,volatile int * stop){
 
     PMutex * MutexSetPower=(PMutex *)malloc(sizeof(PMutex));
     if(MutexSetPower ==NULL){
-    	perror("MALLOC FAIL : init_Motor_info - MutexSetPower\n");
+    	logString("MALLOC FAIL : init_Motor_info - MutexSetPower\n");
     	return -1;
     }
     init_PMutex(MutexSetPower);
@@ -159,7 +159,7 @@ int set_power(Motor_info * info,float power){
 
 	//printf("\n BROCHE : %d  | POWER : %f  \n",info->broche,power);
     if( (powerVerified>0 && powerVerified<5) || powerVerified>10){
-        return 1;
+        return -1;
     }
 
     if(powerVerified>10){
@@ -195,13 +195,13 @@ int init_Value_motors(MotorsAll * motorsAll){
 
 	Motor_info** tab =(Motor_info**) malloc(NUMBER_OF_MOTORS * sizeof(Motor_info*));
 	if(tab==NULL){
-		perror("MALLOC FAIL : init_Value_motors - Motor_info\n");
+		logString("MALLOC FAIL : init_Value_motors - Motor_info\n");
 		return -1;
 	}
 	for(int i=0;i<NUMBER_OF_MOTORS;i++){
 		tab[i]=(Motor_info *) malloc(sizeof(Motor_info));
 		if(tab[i]==NULL){
-			perror("MALLOC FAIL : init_Value_motors - Motor_info\n");
+			logString("MALLOC FAIL : init_Value_motors - Motor_info\n");
 			return -1;
 		}
 	}
@@ -235,7 +235,7 @@ int init_threads_motors(MotorsAll * motorsAll,char verbose){
     pthread_attr_t attributs;
 
     if(init_Attr_Pthread(&attributs,99,0)){
-    	perror("THREAD MAIN : ERROR pthread_attributs MOTORS\n");
+    	logString("THREAD MAIN : ERROR pthread_attributs MOTORS\n");
     	return -1;
     }
 
@@ -245,7 +245,7 @@ int init_threads_motors(MotorsAll * motorsAll,char verbose){
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 		if ((resultPthread = pthread_create(&tab[i], &attributs,thread_startMoteur, motorsAll->arrayOfMotors[i])) != 0) {
 			//printf("pthread0_create -> %d\n",resultPthread);
-			perror("pthread0_create : ");
+			logString("FAIL pthread_create MOTORS");
 			error = -1;
 			break;
 		}
@@ -260,11 +260,14 @@ int init_threads_motors(MotorsAll * motorsAll,char verbose){
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 		if ((resultPthread = pthread_join(tab[i], NULL)) != 0) {
 			//printf("pthread0_join -> %d\n", resultPthread);
-			perror("pthread0_join : ");
+			logString("FAIL pthread_join MOTOR ");
 		}
 	}
 
-	if(verbose){printf("THREADS %d MOTORS : END\n",NUMBER_OF_MOTORS);}
+
+	char array[400];
+	sprintf(array,"THREADS %d MOTORS : END\n",NUMBER_OF_MOTORS);
+	logString(array);
 
 	return error;
 }

@@ -38,17 +38,9 @@
 #define _MOTORS_H_
 //#define _GNU_SOURCE
 
-#include <unistd.h>
-#include <stdio.h>
-
 #ifdef __arm__
 #include <wiringPi.h>
 #endif
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <sched.h>
-#include <sys/mman.h>
 
 #include "concurrent.h"
 

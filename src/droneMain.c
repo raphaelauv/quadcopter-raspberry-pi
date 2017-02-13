@@ -9,9 +9,6 @@ int main (int argc, char *argv[]){
 	char verbose;
 	setVerbose(&verbose,argc,argv[1],1);
 
-	char myIP[64];
-	getIP(myIP,verbose);
-
 	args_SERVER * argServ;
 	if(initArgServ(&argServ,verbose)){
 		return EXIT_FAILURE;
@@ -47,7 +44,7 @@ int main (int argc, char *argv[]){
 	pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
 
 	if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {
-		perror("THREAD MAIN : pthread_create SERVER\n");
+		logString("THREAD MAIN : pthread_create SERVER\n");
 		return EXIT_FAILURE;
 	}
 
@@ -69,17 +66,17 @@ int main (int argc, char *argv[]){
 	int * returnValue;
 
 	if (pthread_join(threadServer,(void**) &returnValue)){
-		perror("THREAD MAIN : pthread_join SERVER\n");
+		logString("THREAD MAIN : pthread_join SERVER\n");
 		return EXIT_FAILURE;
 	}
 	if (pthread_join(threadPID, (void**) &returnValue)){
-		perror("THREAD MAIN : pthread_join PID\n");
+		logString("THREAD MAIN : pthread_join PID\n");
 		return EXIT_FAILURE;
 	}
 
 	clean_args_SERVER(argServ);
 	clean_args_CONTROLDEVOL(argCONTROLVOL);
 
-	if(verbose){printf("THREAD MAIN : END\n");}
+	logString("THREAD MAIN : END\n");
 	return EXIT_SUCCESS;
 }
