@@ -57,6 +57,7 @@ void UsleepDuration(int sleepTime);
 int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu);
 
 void setVerbose(char * verbose, int argc, char * argv,int min);
+void setNoControl(char * NoControl, int argc, char * argv, int min);
 
 void logString(char * str);
 /*

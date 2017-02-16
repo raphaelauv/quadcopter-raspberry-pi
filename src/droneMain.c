@@ -6,8 +6,10 @@
 
 int main (int argc, char *argv[]){
 
-	char verbose;
+	char verbose=0;
+	char noControl=0;
 	setVerbose(&verbose,argc,argv[1],1);
+	setNoControl(&noControl,argc,argv[2],2);
 
 	args_SERVER * argServ;
 	if(init_args_SERVER(&argServ)){
@@ -41,16 +43,18 @@ int main (int argc, char *argv[]){
 	pthread_t threadPID;
 
 
-	pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
+	if(!noControl){
+		pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
 
-	if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {
-		logString("THREAD MAIN : pthread_create SERVER\n");
-		return EXIT_FAILURE;
+		if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {
+			logString("THREAD MAIN : pthread_create SERVER\n");
+			return EXIT_FAILURE;
+		}
+
+		pthread_cond_wait(&argServ->pmutexRemoteConnect->condition, &argServ->pmutexRemoteConnect->mutex);
+
+		pthread_mutex_unlock(&argServ->pmutexRemoteConnect->mutex);
 	}
-
-	pthread_cond_wait(&argServ->pmutexRemoteConnect->condition, &argServ->pmutexRemoteConnect->mutex);
-
-	pthread_mutex_unlock(&argServ->pmutexRemoteConnect->mutex);
 
 	if(init_thread_PID(&threadPID,argCONTROLVOL)){
 		//TODO demander fermeture reseaux

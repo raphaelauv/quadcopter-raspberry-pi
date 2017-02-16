@@ -30,7 +30,7 @@ void clean_DataController(DataController * arg){
 
 void sleepDuration(int sleepTime) {
 	int result = -1;
-	while (result != 0) {
+	while (result > 0) {
 		result = sleep(sleepTime);
 		sleepTime -= result;
 	}
@@ -38,7 +38,7 @@ void sleepDuration(int sleepTime) {
 
 void UsleepDuration(int sleepTime) {
 	int result = -1;
-	while (result != 0) {
+	while (result > 0) {
 		result = usleep(sleepTime);
 		sleepTime -= result;
 	}
@@ -87,6 +87,17 @@ void setVerbose(char * verbose, int argc, char * argv,int min) {
 		}
 	} else {
 		printf("add    --verbose   for verbose mode\n");
+	}
+}
+
+void setNoControl(char * NoControl, int argc, char * argv, int min) {
+	if (argc > min) {
+		if (strcmp(argv, "--noControl") == 0) {
+			printf("No controller MODE select\n");
+			*NoControl = 1;
+		}
+	} else {
+		printf("add    --noControl  for noController mode\n");
 	}
 }
 
