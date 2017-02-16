@@ -9,15 +9,16 @@ extern "C" {
 
 #include <errno.h>
 #include <pthread.h>
-#include <sys/time.h>
+
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <sched.h>
+#include <sys/time.h>
+#include <sys/mman.h>
 #include <time.h>
 #include <unistd.h>
-#include <sched.h>
-#include <sys/mman.h>
-#include <string.h>
 
 
 #define VAL_LOG_FILE 1

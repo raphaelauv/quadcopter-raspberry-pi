@@ -41,8 +41,5 @@ void detruireInput(inputt *input); // libère la mémoire allouée
 
 void updateEvent(inputt *input); // récupère les évènements
 
-int test1();
-
-int test2();
 
 #endif /* MANETTE_H */

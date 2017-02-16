@@ -10,7 +10,7 @@ int main (int argc, char *argv[]){
 	setVerbose(&verbose,argc,argv[1],1);
 
 	args_SERVER * argServ;
-	if(initArgServ(&argServ)){
+	if(init_args_SERVER(&argServ)){
 		return EXIT_FAILURE;
 	}
 

@@ -18,11 +18,9 @@ typedef struct args_SERVER {
 
 } args_SERVER;
 
-int initArgServ(args_SERVER ** argServ);
-
+int init_args_SERVER(args_SERVER ** argServ);
 void clean_args_SERVER(args_SERVER * arg);
 
-void *thread_TCP_SERVER(void *args);
 void *thread_UDP_SERVER(void *args);
 
 /*
