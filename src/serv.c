@@ -43,7 +43,7 @@ int init_args_SERVER(args_SERVER ** argServ){
 		logString("MALLOC FAIL : argServ->boolStopServ");
 		return -1;
 	}
-	//*(*argServ)->boolStopServ=0;
+	*(*argServ)->boolStopServ=0;
 
 
 

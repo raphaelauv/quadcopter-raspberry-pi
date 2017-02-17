@@ -31,10 +31,10 @@ int main (int argc, char *argv[]){
 	imu = capteurInit();
 
 	if(imu==NULL){
-		perror("NEW FAIL : RTIMU ->imu\n");
+		logString("NEW FAIL : RTIMU ->imu");
 		return EXIT_FAILURE;
 	}else{
-		if(verbose){printf("THREAD MAIN : CAPTEUR INIT SUCCES\n");}
+		logString("THREAD MAIN : CAPTEUR INIT SUCCES\n");
 		argCONTROLVOL->imu=imu;
 	}
 	#endif
@@ -83,7 +83,6 @@ int main (int argc, char *argv[]){
 
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 		if ((pthread_join(threadMotors[i], NULL)) != 0) {
-			//printf("pthread0_join -> %d\n", resultPthread);
 			logString("FAIL pthread_join MOTOR ");
 			return EXIT_FAILURE;
 		}

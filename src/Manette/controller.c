@@ -4,7 +4,7 @@ int init_args_CONTROLER(args_CONTROLER ** argControler){
 
 	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
 	if (pmutexControllerPlug == NULL) {
-		perror("MALLOC FAIL : pmutexControllerPlug\n");
+		logString("MALLOC FAIL : pmutexControllerPlug");
 		return EXIT_FAILURE;
 	}
 	init_PMutex(pmutexControllerPlug);
@@ -12,21 +12,21 @@ int init_args_CONTROLER(args_CONTROLER ** argControler){
 
 	PMutex * pmutexRead =(PMutex *) malloc(sizeof(PMutex));
 	if (pmutexRead == NULL) {
-		perror("MALLOC FAIL : pmutexRead\n");
+		logString("MALLOC FAIL : pmutexRead");
 		return EXIT_FAILURE;
 	}
 	init_PMutex(pmutexRead);
 
 	*argControler =(args_CONTROLER *) malloc(sizeof(args_CONTROLER));
 	if (*argControler == NULL) {
-		perror("MALLOC FAIL : argControler\n");
+		logString("MALLOC FAIL : argControler");
 		return EXIT_FAILURE;
 	}
 	(*argControler)->newThing=0;
 	(*argControler)->endController=0;
 	(*argControler)->manette=(DataController *) malloc(sizeof( DataController));
 	if ((*argControler)->manette == NULL) {
-		perror("MALLOC FAIL : argControler->manette\n");
+		logString("MALLOC FAIL : argControler->manette");
 		return EXIT_FAILURE;
 	}
 	(*argControler)->pmutexReadDataController=pmutexRead;
@@ -112,7 +112,7 @@ void control(args_CONTROLER * argsControl) {
 	int quitter = (SDL_NumJoysticks() > 0) ? 0 : 1;
 
 	if ((SDL_NumJoysticks() <= 0)){
-		logString("THREAD XBOX : pas de controller\n");
+		logString("THREAD XBOX : pas de controller");
 	}
 	float tmpM0, tmpM1, tmpM2, tmpM3;
 	while (!quitter) {
@@ -146,7 +146,7 @@ void control(args_CONTROLER * argsControl) {
 
 
 			char array[400];
-			sprintf(array,"THREAD XBOX : bool_moteur_active= %d\n", manette->flag);
+			sprintf(array,"THREAD XBOX : bool_moteur_active= %d", manette->flag);
 			logString(array);
 
 
@@ -221,7 +221,7 @@ void control(args_CONTROLER * argsControl) {
 		if (!is_connect()) {
 			manette->flag = 0;
 			char array[400];
-			sprintf(array,"THREAD XBOX : Plus de manette %d.\n", manette->flag);
+			sprintf(array,"THREAD XBOX : NO MORE REMOTTE %d", manette->flag);
 			logString(array);
 
 			//TODO

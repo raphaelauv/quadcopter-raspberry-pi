@@ -78,13 +78,7 @@ void clean_MotorsAll(MotorsAll * arg) {
 
 void * thread_startMoteur(void * args){
 
-	if(args==NULL){
-		logString("args thread_startMoteur is NULL");
-	}
-
 	Motor_info * info=(Motor_info *)args;
-
-    //logString("THREAD MOTOR INIT-> %d",info->broche);
 
     int low,hight;
 
@@ -97,6 +91,10 @@ void * thread_startMoteur(void * args){
 	#endif
 
 	char array[400];
+	sprintf(array,"THREAD MOTOR %d : INIT DONE",info->broche);
+    logString(array);
+
+
 	sprintf(array,"THREAD MOTOR %d : BARRIER PASS",info->broche);
 	barriereWait(info->Barrier,NUMBER_OF_MOTORS);
 	logString(array);

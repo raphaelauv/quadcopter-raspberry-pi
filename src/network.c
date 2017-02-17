@@ -93,12 +93,12 @@ int bindUDPSock(int * sock, struct sockaddr_in * adr_svr) {
 	int enable = 0;
 
 	if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
-		perror("setsockopt(SO_REUSEADDR) failed");
+		logString("bindUDPSock : setsockopt(SO_REUSEADDR) failed");
 		return -1;
 	}
 
 	if (bind(*sock, (struct sockaddr *) adr_svr, sizeof(*adr_svr))) {
-		perror("bind error");
+		logString("bindUDPSock : bind error");
 		return -1;
 	}
 	return 0;
@@ -182,8 +182,8 @@ void getIP(char*  myIP) {
 	*/
 	status = getifaddrs(&myaddrs);
 	if (status != 0) {
-		perror("Probleme de recuperation d'adresse IP");
-		exit(1);
+		logString("Probleme de recuperation d'adresse IP");
+		//TODO
 	}
 	for (addrsTMP = myaddrs; addrsTMP != NULL; addrsTMP = addrsTMP->ifa_next) {
 		if (addrsTMP->ifa_addr == NULL) {
@@ -211,7 +211,7 @@ void getIP(char*  myIP) {
 
 				if (ret != 0) {
 					char array[400];
-					sprintf(array,"Adresse IP :%s\n", myIP);
+					sprintf(array,"Adresse IP :%s", myIP);
 					logString(array);
 				}
 				//strcpy(myIP,ip);

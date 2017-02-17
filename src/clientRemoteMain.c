@@ -8,9 +8,11 @@ int main (int argc, char *argv[]){
 	char * adresse=argv[1];
 	char verbose=0;
 	setVerbose(&verbose,argc,argv[2],2);
-	if(verbose){
-		printf("adresse choisit : %s\n",argv[1]);
-	}
+
+
+	char array[400];
+	sprintf(array, "THREAD MAIN : adresse choisit : %s\n",argv[1]);
+	logString(array);
 
 	args_CONTROLER * argControler;
 	if(init_args_CONTROLER(&argControler)){
@@ -25,12 +27,12 @@ int main (int argc, char *argv[]){
 	pthread_t threadClient;
 	pthread_t threadControler;
 
-	if(verbose){printf("TEST MANETTE\n");}
+	logString("THREAD MAIN : TEST MANETTE\n");
 
 	pthread_mutex_lock(&argControler->pmutexControllerPlug->mutex);
 
 	if (pthread_create(&threadControler, NULL, thread_XBOX_CONTROLER,argControler)) {
-		perror("pthread_create");
+		logString("THREAD MAIN : pthread_create");
 		return EXIT_FAILURE;
 	}
 
@@ -43,26 +45,26 @@ int main (int argc, char *argv[]){
 
 	//XBOX CONTROLER IS ON , we can start the client socket thread
 	if (pthread_create(&threadClient, NULL, thread_UDP_CLIENT, argClient)) {
-		perror("pthread_create");
+		logString("pthread_create");
 		return EXIT_FAILURE;
 	}
 
 	if (pthread_join(threadClient, NULL)) {
-		perror("pthread_join SERV");
+		logString("pthread_join SERV");
 		return EXIT_FAILURE;
 	}
 
 	argControler->endController=1;
 
 	if (pthread_join(threadControler, NULL)) {
-		perror("pthread_join CONTROLER");
+		logString("pthread_join CONTROLER");
 		return EXIT_FAILURE;
 	}
 
 
 	clean_args_CLIENT(argClient);
 	clean_args_CONTROLER(argControler);
-	if(verbose){printf("THREAD MAIN : END\n");}
+	logString("THREAD MAIN : END\n");
 
 	return EXIT_SUCCESS;
 }
