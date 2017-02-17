@@ -53,6 +53,7 @@ typedef struct Motor_info {
 	double high_time; // temps haut du signal
 	double low_time; // temps bas du signal.
 	PMutex * MutexSetPower; // Mutex pour que set_power() ne modifie pas les valeurs au mauvais moment.
+	PMutex * Barrier;
 } Motor_info;
 
 typedef struct MotorsAll {
@@ -65,7 +66,7 @@ int init_MotorsAll(MotorsAll ** motorsAll);
 
 void clean_MotorsAll(MotorsAll * arg);
 
-void clean_Motor_info(Motor_info * arg);
+//void clean_Motor_info(Motor_info * arg);
 
 //Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
 int set_power(struct Motor_info * info, float power);

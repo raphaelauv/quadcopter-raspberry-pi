@@ -13,6 +13,7 @@ extern "C" {
 typedef struct args_SERVER {
 	char verbose;
 	int sock;
+	volatile int * boolStopServ;
 	PMutex * pmutexRemoteConnect;
 	DataController * dataController;
 

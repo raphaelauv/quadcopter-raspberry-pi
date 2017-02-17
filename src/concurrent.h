@@ -22,12 +22,13 @@ extern "C" {
 #include "log.h"
 
 typedef struct PMutex {
+	//volatile int * var;
 	int var;
 	pthread_mutex_t mutex;
 	pthread_cond_t condition;
 } PMutex;
 
-void init_PMutex(PMutex * arg);
+int init_PMutex(PMutex * arg);
 void clean_PMutex(PMutex * arg);
 
 

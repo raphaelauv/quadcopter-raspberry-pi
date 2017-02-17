@@ -5,7 +5,7 @@ int init_args_CONTROLDEVOL(args_CONTROLDEVOL ** argCONTROLVOL,DataController * d
 
 	*argCONTROLVOL =(args_CONTROLDEVOL *) malloc(sizeof(args_CONTROLDEVOL));
 	if (*argCONTROLVOL == NULL) {
-		perror("MALLOC FAIL : argCONTROLVOL\n");
+		logString("MALLOC FAIL : init_args_CONTROLDEVOL");
 		return EXIT_FAILURE;
 	}
 
@@ -30,6 +30,9 @@ void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg) {
 
 
 void * startCONTROLVOL(void * args){
+
+	logString("THREAD CONTROLVOL : START");
+
 
 	//test();
 	//calibrate(args);
@@ -59,11 +62,6 @@ void * startCONTROLVOL(void * args){
 	//double power1=5.0;
 	//double power2=5.0;
 	double pitch=0.0;
-
-
-
-	logString("THREAD CONTROLVOL : START\n");
-
 
 	RTIMU_DATA imuData;
 
@@ -115,7 +113,7 @@ void * startCONTROLVOL(void * args){
 		}
 
 	}
-	logString("THREAD CONTROLVOL : END\n");
+	logString("THREAD CONTROLVOL : END");
 	return NULL;
 }
 
@@ -127,13 +125,13 @@ int init_thread_PID(pthread_t * threadControlerVOL,args_CONTROLDEVOL * argCONTRO
 
 	pthread_attr_t attributs;
 	if(init_Attr_Pthread(&attributs,99,1)){
-		perror("THREAD MAIN : ERROR pthread_attributs PID\n");
+		logString("THREAD MAIN : ERROR pthread_attributs PID");
 		return -1;
 	}
 
 	int result=pthread_create(threadControlerVOL, &attributs, startCONTROLVOL, argCONTROLVOL);
 	if (result) {
-		perror("THREAD MAIN : ERROR pthread_create PID\n");
+		logString("THREAD MAIN : ERROR pthread_create PID");
 	}
 
 	pthread_attr_destroy(&attributs);

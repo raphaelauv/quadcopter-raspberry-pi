@@ -7,7 +7,7 @@ int init_args_SERVER(args_SERVER ** argServ){
 
 	PMutex * PmutexDataControler = (PMutex *) malloc(sizeof(PMutex));
 	if (PmutexDataControler == NULL) {
-		logString("MALLOC FAIL : PmutexDataControler\n");
+		logString("MALLOC FAIL : PmutexDataControler");
 		return EXIT_FAILURE;
 	}
 	init_PMutex(PmutexDataControler);
@@ -15,7 +15,7 @@ int init_args_SERVER(args_SERVER ** argServ){
 
 	DataController * dataControl =(DataController *) malloc(sizeof(DataController));
 	if (dataControl == NULL) {
-		logString("MALLOC FAIL : dataControl\n");
+		logString("MALLOC FAIL : dataControl");
 		return EXIT_FAILURE;
 	}
 	dataControl->pmutex=PmutexDataControler;
@@ -24,7 +24,7 @@ int init_args_SERVER(args_SERVER ** argServ){
 
 	PMutex * PmutexRemoteConnect = (PMutex *) malloc(sizeof(PMutex));
 	if(PmutexRemoteConnect==NULL){
-		logString("MALLOC FAIL : PmutexRemoteConnect\n");
+		logString("MALLOC FAIL : PmutexRemoteConnect");
 		return EXIT_FAILURE;
 	}
 	init_PMutex(PmutexRemoteConnect);
@@ -32,11 +32,19 @@ int init_args_SERVER(args_SERVER ** argServ){
 
 	*argServ =(args_SERVER *) malloc(sizeof(args_SERVER));
 	if (*argServ == NULL) {
-		logString("MALLOC FAIL : argServ\n");
+		logString("MALLOC FAIL : argServ");
 		return EXIT_FAILURE;
 	}
 	(*argServ)->pmutexRemoteConnect = PmutexRemoteConnect;
 	(*argServ)->dataController = dataControl;
+
+	(*argServ)->boolStopServ =(volatile int *) malloc(sizeof(int));
+	if ((*argServ)->boolStopServ == NULL) {
+		logString("MALLOC FAIL : argServ->boolStopServ");
+		return -1;
+	}
+	//*(*argServ)->boolStopServ=0;
+
 
 
 	int sock;
@@ -47,7 +55,7 @@ int init_args_SERVER(args_SERVER ** argServ){
 	adr_svr.sin_port 		= htons(UDP_PORT_DRONE);
 
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
-		logString("THREAD SERV : Socket error\n");
+		logString("THREAD SERV : Socket error");
 		return EXIT_FAILURE;
 	}
 
@@ -118,7 +126,7 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 
 	if (receveNetwork(sock, NULL, buff) == -1) {
 		//TODO prendre decision sur controleur de vol , demander atterissage
-		logString("THREAD SERV : RECEVE NETWORK ERROR\n");
+		logString("THREAD SERV : RECEVE NETWORK ERROR");
 		//fini=0;
 		return 0;
 	}
@@ -127,7 +135,7 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 	buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 
 	char array[400];
-	sprintf(array, "THREAD SERV : messag recu : %s\n", buff);
+	sprintf(array, "THREAD SERV : messag recu : %s", buff);
 	logString(array);
 
 	(*cmpNumberMessage)++;
@@ -149,7 +157,7 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 
 
 	if(dataTmp->flag==1){
-		logString("THREAD SERV : PAUSE MESSAGE\n");
+		logString("THREAD SERV : PAUSE MESSAGE");
 		return 1;
 	}
 
@@ -178,7 +186,7 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 
 		if (dataTmp->flag == 0) {
 
-			logString("THREAD SERV : FLAG 0 MESSAGE\n");
+			logString("THREAD SERV : FLAG 0 MESSAGE");
 
 			//fini = 0;
 			return 0;
@@ -199,7 +207,7 @@ void *thread_UDP_SERVER(void *args) {
 
 	args_SERVER *argSERV = (args_SERVER*) args;
 
-	logString("THREAD SERV : SERVEUR UDP\n");
+	logString("THREAD SERV : SERVEUR UDP");
 	int sock=argSERV->sock;
 
 	struct sockaddr_in adr_send;
@@ -215,8 +223,8 @@ void *thread_UDP_SERVER(void *args) {
 
 	int notConnected=1;
 	while(notConnected){
-		if (receveNetwork(sock, NULL, buff) == -1) {
-				logString("THREAD SERV :FAIL RECEVE NETWORK ERROR\n");
+		if (receveNetwork(sock, NULL, buff) == -1) {//TODO attente borné
+				logString("THREAD SERV :FAIL RECEVE NETWORK ERROR");
 				runServ=0;//TODO
 				notConnected=0;
 			}
@@ -224,7 +232,7 @@ void *thread_UDP_SERVER(void *args) {
 		buff[SIZE_SOCKET_MESSAGE - 1] = '\0';
 
 		char array[400];
-		sprintf("THREAD SERV : messag recu : %s\n", buff);
+		sprintf("THREAD SERV : messag recu : %s", buff);
 		logString(array);
 
 
@@ -232,10 +240,9 @@ void *thread_UDP_SERVER(void *args) {
 		adr_send.sin_family = AF_INET;
 
 		if (get_IP_Port(buff, &adr_send) != 1) {
-			logString("ERROR IP RECEVE\n");
-			runServ=0;//TODO
+			logString("ERROR IP RECEVE");
 		} else {
-			logString("THREAD SERV : GOOD IP AND PORT RECEVE\n");
+			logString("THREAD SERV : GOOD IP AND PORT RECEVE");
 			socketConnectionMade = 1;
 			notConnected=0;
 		}
@@ -254,7 +261,7 @@ void *thread_UDP_SERVER(void *args) {
 	struct timeval tv;
 	fd_set rdfs;
 
-	while(runServ){
+	while(runServ && !(*argSERV->boolStopServ)){
 
 		FD_ZERO(&rdfs);
 		FD_SET(sock, &rdfs);
@@ -262,7 +269,7 @@ void *thread_UDP_SERVER(void *args) {
 		tv.tv_usec = UDP_TIME_USEC_TIMER;
 		int ret = select(fd_max, &rdfs, NULL, NULL, &tv);
 		if (ret == 0) {
-			logString("THREAD SERV : Timed out\n");
+			logString("THREAD SERV : Timed out");
 			//TODO
 			//fini = 0;
 		} else if (FD_ISSET(sock, &rdfs)) {
@@ -277,7 +284,7 @@ void *thread_UDP_SERVER(void *args) {
 			}
 
 		} else {
-			logString("THREAD SERV : SELECT WITHOUT GOOD VALUE\n");
+			logString("THREAD SERV : SELECT WITHOUT GOOD VALUE");
 		}
 	}
 
@@ -294,7 +301,7 @@ void *thread_UDP_SERVER(void *args) {
 		char stop[5] = "STOP";
 		for (int i = 0; i < 10; i++) {
 			if (sendNetwork(sock, &adr_send, stop) == -1) {
-				logString("THREAD SERV : SEND STOP , NETWORK ERROR\n");
+				logString("THREAD SERV : SEND STOP , NETWORK ERROR");
 				break;
 			}
 		}
@@ -306,7 +313,7 @@ void *thread_UDP_SERVER(void *args) {
 	//Pour debloquer attente dans main si
 	unlockWaitMain(argSERV);
 
-	logString("THREAD SERV : END\n");
+	logString("THREAD SERV : END");
 
 	return NULL;
 }

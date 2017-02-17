@@ -28,6 +28,24 @@ int init_MotorsAll(MotorsAll ** motorsAll){
 	return 0;
 }
 
+void clean_Motor_info(Motor_info * arg){
+	if (arg != NULL) {
+		clean_PMutex(arg->MutexSetPower);
+
+		if(arg->Barrier!=NULL){
+			free(arg->Barrier);
+			arg->Barrier=NULL;
+		}
+		/*
+		if(arg->bool_arret_moteur!=NULL){
+			free((int*)arg->bool_arret_moteur);
+			arg->bool_arret_moteur=NULL;
+		}
+		*/
+		free(arg);
+		arg=NULL;
+	}
+}
 
 void clean_MotorsAll(MotorsAll * arg) {
 	if (arg != NULL) {
@@ -46,31 +64,31 @@ void clean_MotorsAll(MotorsAll * arg) {
 	}
 }
 
-void clean_Motor_info(Motor_info * arg){
-	if (arg != NULL) {
-		clean_PMutex(arg->MutexSetPower);
-		/*
-		if(arg->bool_arret_moteur!=NULL){
-			free((int*)arg->bool_arret_moteur);
-			arg->bool_arret_moteur=NULL;
-		}
-		*/
-		free(arg);
-		arg=NULL;
+
+void barriereWait(Motor_info * info){
+
+	pthread_mutex_lock(&info->Barrier->mutex);
+
+	(info->Barrier->var)++;
+
+	while(info->Barrier->var!=4){
+		pthread_cond_wait(&info->Barrier->condition,
+							&info->Barrier->mutex);
 	}
+	pthread_cond_signal(&info->Barrier->condition);
+
+	pthread_mutex_unlock(&info->Barrier->mutex);
 }
-
-
 
 void * thread_startMoteur(void * args){
 
 	if(args==NULL){
-		logString("args thread_startMoteur is NULL\n");
+		logString("args thread_startMoteur is NULL");
 	}
 
 	Motor_info * info=(Motor_info *)args;
 
-    //printf("THREAD MOTOR INIT-> %d \n",info->broche);
+    //logString("THREAD MOTOR INIT-> %d",info->broche);
 
     int low,hight;
 
@@ -82,6 +100,10 @@ void * thread_startMoteur(void * args){
 	pinMode (info->broche, OUTPUT); //On defini la sorti du signal
 	#endif
 
+	char array[400];
+	sprintf(array,"THREAD MOTOR %d : BARRIER PASS",info->broche);
+	barriereWait(info);
+	logString(array);
 
     int runMotor=1;
     while(runMotor){
@@ -124,7 +146,7 @@ void * thread_startMoteur(void * args){
 /*
  * Return -1 is FAIL else return 0 in SUCCES
  */
-int init_Motor_info(Motor_info *info,int broche,volatile int * stop){
+int init_Motor_info(Motor_info *info,int broche,volatile int * stop,PMutex * barrier){
 
     if(periode<=0){//Si la periode n'est pas Initialisé
     	logString("FAIL : Periode not initialize\n");
@@ -149,6 +171,7 @@ int init_Motor_info(Motor_info *info,int broche,volatile int * stop){
     }
     init_PMutex(MutexSetPower);
     info->MutexSetPower=MutexSetPower;
+    info->Barrier=barrier;
     return 0;
 
 }
@@ -208,8 +231,17 @@ int init_Value_motors(MotorsAll * motorsAll){
 
 	motorsAll->arrayOfMotors=tab;
 
+
+	PMutex * barrier = (PMutex *) malloc(sizeof(PMutex));
+	if (barrier == NULL) {
+		logString("MALLOC FAIL : barrier");
+		return -1;
+	}
+	init_PMutex(barrier);
+
+
 	for(int i=0;i<NUMBER_OF_MOTORS;i++){
-		if(init_Motor_info(motorsAll->arrayOfMotors[i],mValues[i],motorsAll->bool_arret_moteur)){
+		if(init_Motor_info(motorsAll->arrayOfMotors[i],mValues[i],motorsAll->bool_arret_moteur,barrier)){
 			return -1;
 		}
 	}

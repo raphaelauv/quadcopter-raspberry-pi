@@ -56,14 +56,18 @@ int main (int argc, char *argv[]){
 		pthread_mutex_unlock(&argServ->pmutexRemoteConnect->mutex);
 	}
 
+
 	if(init_thread_PID(&threadPID,argCONTROLVOL)){
-		//TODO demander fermeture reseaux
+		*argServ->boolStopServ=1;
 		return EXIT_FAILURE;
 	}
 
+
+
 	//start the 4 threads et ne rends pas la main si succes
 	if(init_threads_motors(motorsAll,verbose)){
-		//TODO demander fermeture reseaux
+		*argServ->boolStopServ=1;
+		//todo ask for PID close
 		return EXIT_FAILURE;
 	}
 

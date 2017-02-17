@@ -116,7 +116,7 @@ void logString(char * str){
 		timespec_get(&ts, TIME_UTC);
 		char buff[100];
 		strftime(buff, sizeof buff, "%D %T", gmtime(&ts.tv_sec));
-		printf("[%s.%09ld] : %s", buff, ts.tv_nsec,str);
+		printf("[%s.%09ld] : %s ;\n", buff, ts.tv_nsec,str);
 
 	}else if(verbose_or_log==VAL_LOG_VERBOSE){
 		printf("%s",str);
