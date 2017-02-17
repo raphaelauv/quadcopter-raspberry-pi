@@ -22,20 +22,26 @@ int init_MotorsAll(MotorsAll ** motorsAll){
 	volatile int arret=0;//TODO
 	(*(*motorsAll)->bool_arret_moteur)= arret;
 
+
+	PMutex * barrier = (PMutex *) malloc(sizeof(PMutex));
+	if (barrier == NULL) {
+		logString("MALLOC FAIL : barrier");
+		return -1;
+	}
+	init_PMutex(barrier);
+
+	(*motorsAll)->Barrier=barrier;
+
 	if(init_Value_motors(*motorsAll)){
 		return -1;
 	}
+
 	return 0;
 }
 
 void clean_Motor_info(Motor_info * arg){
 	if (arg != NULL) {
 		clean_PMutex(arg->MutexSetPower);
-
-		if(arg->Barrier!=NULL){
-			free(arg->Barrier);
-			arg->Barrier=NULL;
-		}
 		/*
 		if(arg->bool_arret_moteur!=NULL){
 			free((int*)arg->bool_arret_moteur);
@@ -49,6 +55,11 @@ void clean_Motor_info(Motor_info * arg){
 
 void clean_MotorsAll(MotorsAll * arg) {
 	if (arg != NULL) {
+		if (arg->Barrier != NULL) {
+			free(arg->Barrier);
+			arg->Barrier = NULL;
+		}
+
 		if (arg->bool_arret_moteur != NULL) {
 			free((void *)arg->bool_arret_moteur);
 			arg->bool_arret_moteur=NULL;
@@ -58,27 +69,12 @@ void clean_MotorsAll(MotorsAll * arg) {
 		}
 
 		free(arg->arrayOfMotors);
-
 		free(arg);
 		arg = NULL;
 	}
 }
 
 
-void barriereWait(Motor_info * info){
-
-	pthread_mutex_lock(&info->Barrier->mutex);
-
-	(info->Barrier->var)++;
-
-	while(info->Barrier->var!=4){
-		pthread_cond_wait(&info->Barrier->condition,
-							&info->Barrier->mutex);
-	}
-	pthread_cond_signal(&info->Barrier->condition);
-
-	pthread_mutex_unlock(&info->Barrier->mutex);
-}
 
 void * thread_startMoteur(void * args){
 
@@ -102,7 +98,7 @@ void * thread_startMoteur(void * args){
 
 	char array[400];
 	sprintf(array,"THREAD MOTOR %d : BARRIER PASS",info->broche);
-	barriereWait(info);
+	barriereWait(info->Barrier,NUMBER_OF_MOTORS);
 	logString(array);
 
     int runMotor=1;
@@ -139,6 +135,8 @@ void * thread_startMoteur(void * args){
         }
     }
 
+    sprintf(array,"THREAD MOTOR %d : END",info->broche);
+    logString(array);
 
     return NULL;
 }
@@ -232,20 +230,11 @@ int init_Value_motors(MotorsAll * motorsAll){
 	motorsAll->arrayOfMotors=tab;
 
 
-	PMutex * barrier = (PMutex *) malloc(sizeof(PMutex));
-	if (barrier == NULL) {
-		logString("MALLOC FAIL : barrier");
-		return -1;
-	}
-	init_PMutex(barrier);
-
-
 	for(int i=0;i<NUMBER_OF_MOTORS;i++){
-		if(init_Motor_info(motorsAll->arrayOfMotors[i],mValues[i],motorsAll->bool_arret_moteur,barrier)){
+		if(init_Motor_info(motorsAll->arrayOfMotors[i],mValues[i],motorsAll->bool_arret_moteur,motorsAll->Barrier)){
 			return -1;
 		}
 	}
-
     return 0;
 
 }
@@ -254,16 +243,10 @@ int init_Value_motors(MotorsAll * motorsAll){
 /**
  * Return -1 if fail to open threads , else 0
  */
-int init_threads_motors(MotorsAll * motorsAll,char verbose){
+int init_threads_motors(pthread_t * tab,MotorsAll * motorsAll){
 
-	pthread_t tab[NUMBER_OF_MOTORS];
+	//pthread_t tab[NUMBER_OF_MOTORS];
 
-	/*
-    pthread_t thr0;
-    pthread_t thr1;
-    pthread_t thr2;
-    pthread_t thr3;
-    */
     pthread_attr_t attributs;
 
     if(init_Attr_Pthread(&attributs,99,0)){
@@ -288,18 +271,6 @@ int init_threads_motors(MotorsAll * motorsAll,char verbose){
     }
 
 	pthread_attr_destroy(&attributs);//Libere les resource.
-
-	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
-		if ((resultPthread = pthread_join(tab[i], NULL)) != 0) {
-			//printf("pthread0_join -> %d\n", resultPthread);
-			logString("FAIL pthread_join MOTOR ");
-		}
-	}
-
-
-	char array[400];
-	sprintf(array,"THREADS %d MOTORS : END\n",NUMBER_OF_MOTORS);
-	logString(array);
 
 	return error;
 }

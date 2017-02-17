@@ -30,7 +30,7 @@ typedef struct PMutex {
 
 int init_PMutex(PMutex * arg);
 void clean_PMutex(PMutex * arg);
-
+void barriereWait(PMutex * Barrier,int size);
 
 typedef struct DataController{
 

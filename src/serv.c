@@ -230,12 +230,9 @@ void *thread_UDP_SERVER(void *args) {
 			}
 
 		buff[SIZE_SOCKET_MESSAGE - 1] = '\0';
-
 		char array[400];
-		sprintf("THREAD SERV : messag recu : %s", buff);
+		//sprintf("THREAD SERV : messag recu : %s", buff);
 		logString(array);
-
-
 		memset(&adr_send, 0, sizeof(adr_send));
 		adr_send.sin_family = AF_INET;
 
@@ -261,7 +258,8 @@ void *thread_UDP_SERVER(void *args) {
 	struct timeval tv;
 	fd_set rdfs;
 
-	while(runServ && !(*argSERV->boolStopServ)){
+	//&& !(*argSERV->boolStopServ) TODO
+	while(runServ ){
 
 		FD_ZERO(&rdfs);
 		FD_SET(sock, &rdfs);

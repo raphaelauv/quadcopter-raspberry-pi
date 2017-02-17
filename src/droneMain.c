@@ -41,7 +41,7 @@ int main (int argc, char *argv[]){
 
 	pthread_t threadServer;
 	pthread_t threadPID;
-
+	pthread_t threadMotors[NUMBER_OF_MOTORS];
 
 	if(!noControl){
 		pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
@@ -62,10 +62,7 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-
-
-	//start the 4 threads et ne rends pas la main si succes
-	if(init_threads_motors(motorsAll,verbose)){
+	if(init_threads_motors(threadMotors,motorsAll)){
 		*argServ->boolStopServ=1;
 		//todo ask for PID close
 		return EXIT_FAILURE;
@@ -73,14 +70,25 @@ int main (int argc, char *argv[]){
 
 	int * returnValue;
 
+	if (pthread_join(threadPID, (void**) &returnValue)){
+			logString("THREAD MAIN : pthread_join PID\n");
+			return EXIT_FAILURE;
+	}
+
 	if (pthread_join(threadServer,(void**) &returnValue)){
 		logString("THREAD MAIN : pthread_join SERVER\n");
 		return EXIT_FAILURE;
 	}
-	if (pthread_join(threadPID, (void**) &returnValue)){
-		logString("THREAD MAIN : pthread_join PID\n");
-		return EXIT_FAILURE;
+
+
+	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+		if ((pthread_join(threadMotors[i], NULL)) != 0) {
+			//printf("pthread0_join -> %d\n", resultPthread);
+			logString("FAIL pthread_join MOTOR ");
+			return EXIT_FAILURE;
+		}
 	}
+
 
 	clean_args_SERVER(argServ);
 	clean_args_CONTROLDEVOL(argCONTROLVOL);

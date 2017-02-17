@@ -58,6 +58,7 @@ typedef struct Motor_info {
 
 typedef struct MotorsAll {
 	volatile int * bool_arret_moteur; // TODO volatile
+	PMutex * Barrier;
 	Motor_info ** arrayOfMotors;
 } MotorsAll;
 
@@ -72,7 +73,7 @@ void clean_MotorsAll(MotorsAll * arg);
 int set_power(struct Motor_info * info, float power);
 
 //Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
-int init_threads_motors(MotorsAll * motorsAll,char verbose);
+int init_threads_motors(pthread_t * tab,MotorsAll * motorsAll);
 
 void * thread_startMoteur(void * args);
 

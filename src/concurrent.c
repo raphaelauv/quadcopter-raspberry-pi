@@ -32,6 +32,21 @@ void clean_PMutex(PMutex * arg) {
 	}
 }
 
+void barriereWait(PMutex * Barrier,int size){
+
+	pthread_mutex_lock(&Barrier->mutex);
+
+	(Barrier->var)++;
+
+	while(Barrier->var!=size){
+		pthread_cond_wait(&Barrier->condition,
+							&Barrier->mutex);
+	}
+	pthread_cond_signal(&Barrier->condition);
+
+	pthread_mutex_unlock(&Barrier->mutex);
+}
+
 
 void clean_DataController(DataController * arg){
 	if (arg != NULL) {

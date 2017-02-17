@@ -66,6 +66,9 @@ void * startCONTROLVOL(void * args){
 	RTIMU_DATA imuData;
 
 	int continuThread=1;
+
+
+
 	while (continuThread) {
 
 		sleep(5);
