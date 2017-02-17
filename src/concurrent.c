@@ -76,37 +76,4 @@ int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu){
 	return 0;
 }
 
-int verbose_or_log=0;
 
-void setVerbose(char * verbose, int argc, char * argv,int min) {
-	if (argc > min) {
-		if (strcmp(argv, "--verbose") == 0) {
-			printf("verbose MODE select\n");
-			*verbose = 1;
-			verbose_or_log=VAL_LOG_VERBOSE;
-		}
-	} else {
-		printf("add    --verbose   for verbose mode\n");
-	}
-}
-
-void setNoControl(char * NoControl, int argc, char * argv, int min) {
-	if (argc > min) {
-		if (strcmp(argv, "--noControl") == 0) {
-			printf("No controller MODE select\n");
-			*NoControl = 1;
-		}
-	} else {
-		printf("add    --noControl  for noController mode\n");
-	}
-}
-
-
-void logString(char * str){
-	
-	if(verbose_or_log==VAL_LOG_FILE){
-
-	}else if(verbose_or_log==VAL_LOG_VERBOSE){
-		printf("%s",str);
-	}
-}

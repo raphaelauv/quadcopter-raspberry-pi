@@ -10,20 +10,16 @@ extern "C" {
 #include <errno.h>
 #include <pthread.h>
 
-#include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <sched.h>
 #include <sys/time.h>
 #include <sys/mman.h>
-#include <time.h>
+
 #include <unistd.h>
 
-
-#define VAL_LOG_FILE 1
-#define VAL_LOG_VERBOSE 2
-
+#include "log.h"
 
 typedef struct PMutex {
 	int var;
@@ -56,10 +52,7 @@ void UsleepDuration(int sleepTime);
 
 int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu);
 
-void setVerbose(char * verbose, int argc, char * argv,int min);
-void setNoControl(char * NoControl, int argc, char * argv, int min);
 
-void logString(char * str);
 /*
 #ifdef __cplusplus
 }
