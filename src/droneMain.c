@@ -71,12 +71,12 @@ int main (int argc, char *argv[]){
 	int * returnValue;
 
 	if (pthread_join(threadPID, (void**) &returnValue)){
-			logString("THREAD MAIN : pthread_join PID\n");
+			logString("THREAD MAIN : pthread_join PID");
 			return EXIT_FAILURE;
 	}
 
 	if (pthread_join(threadServer,(void**) &returnValue)){
-		logString("THREAD MAIN : pthread_join SERVER\n");
+		logString("THREAD MAIN : pthread_join SERVER");
 		return EXIT_FAILURE;
 	}
 
@@ -92,6 +92,6 @@ int main (int argc, char *argv[]){
 	clean_args_SERVER(argServ);
 	clean_args_CONTROLDEVOL(argCONTROLVOL);
 
-	logString("THREAD MAIN : END\n");
+	logString("THREAD MAIN : END");
 	return EXIT_SUCCESS;
 }

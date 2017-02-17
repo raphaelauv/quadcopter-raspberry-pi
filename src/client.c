@@ -44,7 +44,7 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * ar
 
 	(*argClient)->sock=sock;
 
-	struct sockaddr_in * adr_client=calloc(1,sizeof(struct sockaddr_in));
+	struct sockaddr_in * adr_client=(struct sockaddr_in *) calloc(1,sizeof(struct sockaddr_in));
 	if (adr_client == NULL) {
 		logString("MALLOC FAIL : argClient->adr_client\n");
 		close(sock);

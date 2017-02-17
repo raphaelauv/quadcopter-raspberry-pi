@@ -15,7 +15,7 @@ LDFLAGS_Raspberry= $(LDFLAGS)
 
 LDFLAGS_ClientRemote= $(LDFLAGS) -lSDL -lSDLmain
 
-SRC=src/concurrent.c src/network.c
+SRC=src/concurrent.c src/network.c src/log.c
 
 SRC_RTIMULib = $(wildcard src/RTIMULib/*.cpp) $(wildcard src/RTIMULib/IMUDrivers/*.cpp)
 
