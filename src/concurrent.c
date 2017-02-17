@@ -29,7 +29,7 @@ void clean_DataController(DataController * arg){
 }
 
 void sleepDuration(int sleepTime) {
-	int result = -1;
+	int result = 1;
 	while (result > 0) {
 		result = sleep(sleepTime);
 		sleepTime -= result;
@@ -37,7 +37,7 @@ void sleepDuration(int sleepTime) {
 }
 
 void UsleepDuration(int sleepTime) {
-	int result = -1;
+	int result = 1;
 	while (result > 0) {
 		result = usleep(sleepTime);
 		sleepTime -= result;
@@ -65,7 +65,7 @@ int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu){
 	//fixer l'affinity
 	pthread_attr_setaffinity_np( attributs, sizeof(cpu_set_t), & cpuset);
 
-	parametres.sched_priority=priority; //choisir le prioroté (de 0 a 99)
+	parametres.sched_priority=priority; //choisir la priorité (de 0 a 99)
 	pthread_attr_setschedpolicy(attributs,SCHED_FIFO);//Inscrire le type d ordonnancement voulu dans les attribue.
 	pthread_attr_setschedparam(attributs,&parametres); //incrire la priorite dans les attributs.
 	pthread_attr_setinheritsched(attributs,PTHREAD_EXPLICIT_SCHED); //chaque aura sa propre priorité.
