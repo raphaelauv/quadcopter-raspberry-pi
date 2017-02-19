@@ -7,8 +7,8 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 	char * adresse=argv[1];
-	char verbose=0;
-	if (setVerboseOrLog(&verbose, argc, argv[2], 2)) {
+
+	if (setVerboseOrLog(argc, argv[2], 2)) {
 		return EXIT_FAILURE;
 	}
 

@@ -1,6 +1,5 @@
 #include "log.h"
 
-
 int verbose_or_log=0;
 int idFile=-1;
 
@@ -31,16 +30,14 @@ void setLogFileName(char * str){
 /*
  * Return -1 if fail , 0 if Succes
  */
-int setVerboseOrLog(char * verbose, int argc, char * argv,int min) {
+int setVerboseOrLog(int argc, char * argv,int min) {
 	if (argc > min) {
 		if (strcmp(argv, "--verbose") == 0) {
 			printf("verbose MODE select\n");
-			*verbose = 1;
 			verbose_or_log=VAL_LOG_VERBOSE;
 		}
 		else if (strcmp(argv, "--log") == 0) {
 			printf("log MODE select\n");
-			*verbose = 1;
 			verbose_or_log = VAL_LOG_FILE;
 
 			char array[100];

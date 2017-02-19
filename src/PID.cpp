@@ -1,21 +1,21 @@
-#include "controldeVol.hpp"
+#include "PID.hpp"
 
 
-int init_args_CONTROLDEVOL(args_CONTROLDEVOL ** argCONTROLVOL,DataController * dataControl,MotorsAll * motorsAll){
+int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * motorsAll){
 
-	*argCONTROLVOL =(args_CONTROLDEVOL *) malloc(sizeof(args_CONTROLDEVOL));
-	if (*argCONTROLVOL == NULL) {
-		logString("MALLOC FAIL : init_args_CONTROLDEVOL");
+	*argPID =(args_PID *) malloc(sizeof(args_PID));
+	if (*argPID == NULL) {
+		logString("MALLOC FAIL : init_args_PID");
 		return EXIT_FAILURE;
 	}
 
-	(*argCONTROLVOL)->dataController = dataControl;
-	(*argCONTROLVOL)->motorsAll = motorsAll;
+	(*argPID)->dataController = dataControl;
+	(*argPID)->motorsAll = motorsAll;
 
 	return 0;
 }
 
-void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg) {
+void clean_args_PID(args_PID * arg) {
 	if (arg != NULL) {
 		clean_MotorsAll(arg->motorsAll);
 		clean_DataController(arg->dataController);
@@ -29,14 +29,37 @@ void clean_args_CONTROLDEVOL(args_CONTROLDEVOL * arg) {
 }
 
 
-void * startCONTROLVOL(void * args){
+void * thread_PID(void * args);
+/**
+ * return 0 if Succes
+ */
+int init_thread_PID(pthread_t * threadPID,args_PID * argPID){
 
-	logString("THREAD CONTROLVOL : START");
+	pthread_attr_t attributs;
+	if(init_Attr_Pthread(&attributs,99,1)){
+		logString("THREAD MAIN : ERROR pthread_attributs PID");
+		return -1;
+	}
+
+	int result=pthread_create(threadPID, &attributs, thread_PID, argPID);
+	if (result) {
+		logString("THREAD MAIN : ERROR pthread_create PID");
+	}
+
+	pthread_attr_destroy(&attributs);
+
+	return result;
+}
+
+
+void * thread_PID(void * args){
+
+	logString("THREAD PID : START");
 
 
 	//test();
 	//calibrate(args);
-	args_CONTROLDEVOL  * controle_vol =(args_CONTROLDEVOL  *)args;
+	args_PID  * controle_vol =(args_PID  *)args;
 	DataController * data = controle_vol->dataController;
 	PMutex * mutexDataControler =controle_vol->dataController->pmutex;
 	RTIMU *imu =(RTIMU *)controle_vol->imu;
@@ -78,7 +101,7 @@ void * startCONTROLVOL(void * args){
 			sampleCount++;
 			now = RTMath::currentUSecsSinceEpoch();
 
-			//printf("*******************************\nTHREAD CONTROLVOL : CAPTEUR -> %s\n*******************************\n", RTMath::displayDegrees("", imuData.fusionPose));
+			//printf("*******************************\nTHREAD PID : CAPTEUR -> %s\n*******************************\n", RTMath::displayDegrees("", imuData.fusionPose));
 			//fflush(stdout);
 		}
 		#endif
@@ -116,28 +139,6 @@ void * startCONTROLVOL(void * args){
 		}
 
 	}
-	logString("THREAD CONTROLVOL : END");
+	logString("THREAD PID : END");
 	return NULL;
-}
-
-
-/**
- * return 0 if Succes
- */
-int init_thread_PID(pthread_t * threadControlerVOL,args_CONTROLDEVOL * argCONTROLVOL){
-
-	pthread_attr_t attributs;
-	if(init_Attr_Pthread(&attributs,99,1)){
-		logString("THREAD MAIN : ERROR pthread_attributs PID");
-		return -1;
-	}
-
-	int result=pthread_create(threadControlerVOL, &attributs, startCONTROLVOL, argCONTROLVOL);
-	if (result) {
-		logString("THREAD MAIN : ERROR pthread_create PID");
-	}
-
-	pthread_attr_destroy(&attributs);
-
-	return result;
 }

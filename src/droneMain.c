@@ -1,16 +1,15 @@
 #include "serv.h"
 #include "motors.h"
-#include "controldeVol.hpp"
+#include "PID.hpp"
 #include "capteur.hpp"
-
 
 int main (int argc, char *argv[]){
 
-	char verbose=0;
 	char noControl=0;
-	if(setVerboseOrLog(&verbose,argc,argv[1],1)){
+	if(setVerboseOrLog(argc,argv[1],1)){
 		return EXIT_FAILURE;
 	}
+
 	setNoControl(&noControl,argc,argv[2],2);
 
 	args_SERVER * argServ;
@@ -23,8 +22,8 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	args_CONTROLDEVOL * argCONTROLVOL;
-	if (init_args_CONTROLDEVOL(&argCONTROLVOL,argServ->dataController,motorsAll)) {
+	args_PID * argPID;
+	if (init_args_PID(&argPID,argServ->dataController,motorsAll)) {
 		return EXIT_FAILURE;
 	}
 
@@ -33,10 +32,10 @@ int main (int argc, char *argv[]){
 	imu = capteurInit();
 
 	if(imu==NULL){
-		logString("NEW FAIL : RTIMU ->imu");
+		logString("THREAD MAIN : ERROR NEW FAIL RTIMU ->imu");
 		return EXIT_FAILURE;
 	}else{
-		logString("THREAD MAIN : CAPTEUR INIT SUCCES\n");
+		logString("THREAD MAIN : CAPTEUR INIT SUCCES");
 		argCONTROLVOL->imu=imu;
 	}
 	#endif
@@ -59,7 +58,7 @@ int main (int argc, char *argv[]){
 	}
 
 
-	if(init_thread_PID(&threadPID,argCONTROLVOL)){
+	if(init_thread_PID(&threadPID,argPID)){
 		*argServ->boolStopServ=1;
 		return EXIT_FAILURE;
 	}
@@ -73,26 +72,26 @@ int main (int argc, char *argv[]){
 	int * returnValue;
 
 	if (pthread_join(threadPID, (void**) &returnValue)){
-			logString("THREAD MAIN : pthread_join PID");
-			return EXIT_FAILURE;
+		logString("THREAD MAIN : ERROR pthread_join PID");
+		return EXIT_FAILURE;
 	}
 
 	if (pthread_join(threadServer,(void**) &returnValue)){
-		logString("THREAD MAIN : pthread_join SERVER");
+		logString("THREAD MAIN : ERROR pthread_join SERVER");
 		return EXIT_FAILURE;
 	}
 
 
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 		if ((pthread_join(threadMotors[i], NULL)) != 0) {
-			logString("FAIL pthread_join MOTOR ");
+			logString("THREAD MAIN : ERROR pthread_join MOTOR");
 			return EXIT_FAILURE;
 		}
 	}
 
 
 	clean_args_SERVER(argServ);
-	clean_args_CONTROLDEVOL(argCONTROLVOL);
+	clean_args_PID(argPID);
 
 	logString("THREAD MAIN : END");
 	closeLogFile();
