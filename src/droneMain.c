@@ -8,7 +8,9 @@ int main (int argc, char *argv[]){
 
 	char verbose=0;
 	char noControl=0;
-	setVerbose(&verbose,argc,argv[1],1);
+	if(setVerboseOrLog(&verbose,argc,argv[1],1)){
+		return EXIT_FAILURE;
+	}
 	setNoControl(&noControl,argc,argv[2],2);
 
 	args_SERVER * argServ;
@@ -93,5 +95,6 @@ int main (int argc, char *argv[]){
 	clean_args_CONTROLDEVOL(argCONTROLVOL);
 
 	logString("THREAD MAIN : END");
+	closeLogFile();
 	return EXIT_SUCCESS;
 }

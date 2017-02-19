@@ -40,6 +40,10 @@ pour executer le code du client/controlleur :
 --------------
 A faire
 
-- Passer en UDP -> 99 %
+- choisir une action quand il n'y a plus de manette
 
-- choisir une action quand il n'y a plus de manette 
+- Corriger probleme avec la version actuel du kernel sur raspberry , ET PREEMP
+
+- Filtrer valeur accelerometre verticale et altimetre pour le PID d'altitude
+
+- Catcher Signaux System UNIX

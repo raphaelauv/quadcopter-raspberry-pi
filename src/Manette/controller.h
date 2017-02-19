@@ -17,10 +17,13 @@ typedef struct args_CONTROLER {
 } args_CONTROLER;
 
 
-void control( args_CONTROLER * argsControl);
+void *thread_CONTROLER(void *args);
 
+void control( args_CONTROLER * argsControl);
 int init_args_CONTROLER(args_CONTROLER ** argControler);
 void clean_args_CONTROLER(args_CONTROLER * arg);
+
+
 
 
 #endif /* CONTROLLER_H_ */

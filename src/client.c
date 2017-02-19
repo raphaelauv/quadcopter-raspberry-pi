@@ -5,7 +5,7 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * ar
 
 	* argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
 	if (*argClient == NULL) {
-		logString("MALLOC FAIL : argClient\n");
+		logString("MALLOC FAIL : argClient");
 		return EXIT_FAILURE;
 	}
 
@@ -16,7 +16,7 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * ar
 
 	int sock;
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
-		logString("args_CLIENT CLIENT : Socket error\n");
+		logString("args_CLIENT CLIENT : Socket error");
 		return EXIT_FAILURE;
 	}
 
@@ -30,14 +30,14 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * ar
 
 
 	if(bindUDPSock(&sock,&adr_my)==-1){
-		logString("THREAD CLIENT : Socket BIND error\n");
+		logString("THREAD CLIENT : Socket BIND error");
 		close(sock);
 		return EXIT_FAILURE;
 	}
 
 
 	if(fcntl(sock, F_SETFL, O_NONBLOCK) < 0) {
-		logString("THREAD CLIENT : Socket NONBLOCK error\n");
+		logString("THREAD CLIENT : Socket NONBLOCK error");
 		close(sock);
 		return EXIT_FAILURE;
 	}
@@ -46,7 +46,7 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * ar
 
 	struct sockaddr_in * adr_client=(struct sockaddr_in *) calloc(1,sizeof(struct sockaddr_in));
 	if (adr_client == NULL) {
-		logString("MALLOC FAIL : argClient->adr_client\n");
+		logString("MALLOC FAIL : argClient->adr_client");
 		close(sock);
 		return EXIT_FAILURE;
 	}
@@ -55,7 +55,7 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * ar
 	adr_client->sin_port	= htons(UDP_PORT_DRONE);
 
 	if(inet_aton(adresse, &adr_client->sin_addr)==0){
-		logString("FAIL INET_ATON IP ADRESS\n");
+		logString("FAIL INET_ATON IP ADRESS");
 		close(sock);
 		return EXIT_FAILURE;
 	}
@@ -169,7 +169,7 @@ void *thread_UDP_CLIENT(void *args) {
 
 	args_CLIENT * argClient = (args_CLIENT *) args;
 
-	logString("THREAD CLIENT : START\n");
+	logString("THREAD CLIENT : START");
 
 	int sock=argClient->sock;
 
@@ -190,14 +190,14 @@ void *thread_UDP_CLIENT(void *args) {
 		messageWithInfo[SIZE_SOCKET_MESSAGE-1]='\0';
 
 		if(sendNetwork(sock,adr_client,messageWithInfo)==-1){
-			logString("THREAD CLIENT : SEND NETWORK error\n");
+			logString("THREAD CLIENT : SEND NETWORK error");
 			//TODO
 			return (void*)EXIT_FAILURE;
 		}
 
 		//sendto(sock, messageWithInfo,SIZE_SOCKET_MESSAGE, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
 		char array[400];
-		sprintf(array,"THREAD CLIENT SENDED : %s\n", messageWithInfo);
+		sprintf(array,"THREAD CLIENT SENDED : %s", messageWithInfo);
 		logString(array);
 
 	}else{
@@ -233,7 +233,7 @@ void *thread_UDP_CLIENT(void *args) {
 					&argClient->argControler->pmutexReadDataController->mutex,&timeToWait);
 
 			if(resultWait==ETIMEDOUT){
-				logString("THREAD CLIENT : TIMER LIMIT\n");
+				logString("THREAD CLIENT : TIMER LIMIT");
 
 			}
 		}
@@ -247,7 +247,7 @@ void *thread_UDP_CLIENT(void *args) {
 
 		message[SIZE_SOCKET_MESSAGE-1]='\0';
 		char array[400];
-		sprintf(array,"THREAD CLIENT SENDING : %s\n", message);
+		sprintf(array,"THREAD CLIENT SENDING : %s", message);
 		logString(array);
 
 		if(sendNetwork(sock,adr_client,message)==-1){
@@ -258,28 +258,16 @@ void *thread_UDP_CLIENT(void *args) {
 		if(flag==0){
 
 			if(testCloseDrone(sock,adr_client,message)==0) {
-					logString("THREAD CLIENT :ERROR message STOP from DRONE NOT RECEVE\n");
+				logString("THREAD CLIENT :ERROR message STOP from DRONE NOT RECEVE");
 			} else {
-					logString("THREAD CLIENT STOP MSG RECEVE FROM DRONE\n");
+				logString("THREAD CLIENT STOP MSG RECEVE FROM DRONE");
 			}
 			continu=0;
 		}
 	}
 
 	close(sock);
-	logString("THREAD CLIENT : END\n");
-	return NULL;
-}
-
-
-void *thread_XBOX_CONTROLER(void *args) {
-
-	args_CONTROLER *argClient =(args_CONTROLER *) args;
-
-	control( argClient);
-
-	logString("THREAD XBOX : END\n");
-
+	logString("THREAD CLIENT : END");
 	return NULL;
 }
 

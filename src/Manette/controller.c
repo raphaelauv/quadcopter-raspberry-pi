@@ -1,5 +1,16 @@
 #include "controller.h"
 
+void *thread_CONTROLER(void *args) {
+
+	args_CONTROLER *argClient =(args_CONTROLER *) args;
+
+	control( argClient);
+
+	logString("THREAD XBOX : END");
+
+	return NULL;
+}
+
 int init_args_CONTROLER(args_CONTROLER ** argControler){
 
 	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));

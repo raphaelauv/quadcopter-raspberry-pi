@@ -21,6 +21,5 @@ void dataControllerToMessage(int sizeFloat,char * output,DataController * dataCo
 void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWithInfo);
 
 void *thread_UDP_CLIENT(void *args);
-void *thread_XBOX_CONTROLER(void *args) ;
 
 #endif /* CLIENT_H_ */
