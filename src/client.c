@@ -1,6 +1,6 @@
 #include "client.h"
 
-int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * argControler){
+int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController){
 
 
 	* argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
@@ -12,7 +12,7 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * ar
 	(*argClient)->adresse=adresse;
 
 
-	(*argClient)->argControler=argControler;
+	(*argClient)->argController=argController;
 
 	int sock;
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
@@ -225,12 +225,12 @@ void *thread_UDP_CLIENT(void *args) {
 		timeToWait.tv_nsec = (now.tv_usec + 1000UL * timeInMs) * 1000UL;
 
 
-		pthread_mutex_lock(&argClient->argControler->pmutexReadDataController->mutex);
+		pthread_mutex_lock(&argClient->argController->pmutexReadDataController->mutex);
 
-		if(argClient->argControler->newThing==0){
+		if(argClient->argController->newThing==0){
 
-			resultWait=pthread_cond_timedwait(&argClient->argControler->pmutexReadDataController->condition,
-					&argClient->argControler->pmutexReadDataController->mutex,&timeToWait);
+			resultWait=pthread_cond_timedwait(&argClient->argController->pmutexReadDataController->condition,
+					&argClient->argController->pmutexReadDataController->mutex,&timeToWait);
 
 			if(resultWait==ETIMEDOUT){
 				logString("THREAD CLIENT : TIMER LIMIT");
@@ -238,10 +238,10 @@ void *thread_UDP_CLIENT(void *args) {
 			}
 		}
 
-		argClient->argControler->newThing = 0;
-		dataControllerToMessage(sizeFLOAT,message ,argClient->argControler->manette);
-		flag=argClient->argControler->manette->flag;
-		pthread_mutex_unlock(&argClient->argControler->pmutexReadDataController->mutex);
+		argClient->argController->newThing = 0;
+		dataControllerToMessage(sizeFLOAT,message ,argClient->argController->manette);
+		flag=argClient->argController->manette->flag;
+		pthread_mutex_unlock(&argClient->argController->pmutexReadDataController->mutex);
 
 
 

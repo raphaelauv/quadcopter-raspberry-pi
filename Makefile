@@ -21,7 +21,7 @@ SRC_RTIMULib = $(wildcard src/RTIMULib/*.cpp) $(wildcard src/RTIMULib/IMUDrivers
 
 SRC_drone = $(SRC) src/PID.c src/serv.c src/capteur.cpp
 
-SRC_client = $(SRC)  src/client.c src/Manette/controller.c src/Manette/manette.c 
+SRC_client = $(SRC)  src/client.c src/Controller/controller.c src/Controller/manette.c 
 
 OBJdroneMain= $(SRC_drone:.c=.o)
 
@@ -70,3 +70,4 @@ clean:
 
 mrproper: clean
 	rm -rf $(EXEC)
+	rm LOG_*

@@ -3,7 +3,7 @@
 
 #include "concurrent.h"
 #include "network.h"
-#include "Manette/controller.h"
+#include "Controller/controller.h"
 
 typedef struct args_CLIENT {
 	char verbose;
@@ -11,10 +11,10 @@ typedef struct args_CLIENT {
 	char * adresse;
 	PMutex * pmutex;
 	struct sockaddr_in * adr_client;
-	args_CONTROLER * argControler;
+	args_CONTROLLER * argController;
 } args_CLIENT;
 
-int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLER * argControler);
+int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController);
 void clean_args_CLIENT(args_CLIENT * arg);
 
 void dataControllerToMessage(int sizeFloat,char * output,DataController * dataController);

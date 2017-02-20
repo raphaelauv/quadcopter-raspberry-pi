@@ -1,17 +1,17 @@
 #include "controller.h"
 
-void *thread_CONTROLER(void *args) {
+void *thread_CONTROLLER(void *args) {
 
-	args_CONTROLER *argClient =(args_CONTROLER *) args;
+	args_CONTROLLER *argController =(args_CONTROLLER *) args;
 
-	control( argClient);
+	control( argController);
 
-	logString("THREAD XBOX : END");
+	logString("THREAD CONTROLLER : END");
 
 	return NULL;
 }
 
-int init_args_CONTROLER(args_CONTROLER ** argControler){
+int init_args_CONTROLLER(args_CONTROLLER ** argController){
 
 	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
 	if (pmutexControllerPlug == NULL) {
@@ -28,26 +28,26 @@ int init_args_CONTROLER(args_CONTROLER ** argControler){
 	}
 	init_PMutex(pmutexRead);
 
-	*argControler =(args_CONTROLER *) malloc(sizeof(args_CONTROLER));
-	if (*argControler == NULL) {
-		logString("MALLOC FAIL : argControler");
+	*argController =(args_CONTROLLER *) malloc(sizeof(args_CONTROLLER));
+	if (*argController == NULL) {
+		logString("MALLOC FAIL : argController");
 		return EXIT_FAILURE;
 	}
-	(*argControler)->newThing=0;
-	(*argControler)->endController=0;
-	(*argControler)->manette=(DataController *) malloc(sizeof( DataController));
-	if ((*argControler)->manette == NULL) {
-		logString("MALLOC FAIL : argControler->manette");
+	(*argController)->newThing=0;
+	(*argController)->endController=0;
+	(*argController)->manette=(DataController *) malloc(sizeof( DataController));
+	if ((*argController)->manette == NULL) {
+		logString("MALLOC FAIL : argController->manette");
 		return EXIT_FAILURE;
 	}
-	(*argControler)->pmutexReadDataController=pmutexRead;
-	(*argControler)->pmutexControllerPlug=pmutexControllerPlug;
+	(*argController)->pmutexReadDataController=pmutexRead;
+	(*argController)->pmutexControllerPlug=pmutexControllerPlug;
 
 	return 0;
 }
 
 
-void clean_args_CONTROLER(args_CONTROLER * arg) {
+void clean_args_CONTROLLER(args_CONTROLLER * arg) {
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutexControllerPlug);
 		clean_PMutex(arg->pmutexReadDataController);
@@ -79,7 +79,7 @@ float diff_axes(int axe_down, int axe_up, int val_max) {
 	return pourcent(val_general, val_max * 2);
 }
 
-void control(args_CONTROLER * argsControl) {
+void control(args_CONTROLLER * argsControl) {
 	DataController * manette = argsControl->manette;
 
 
@@ -123,7 +123,7 @@ void control(args_CONTROLER * argsControl) {
 	int quitter = (SDL_NumJoysticks() > 0) ? 0 : 1;
 
 	if ((SDL_NumJoysticks() <= 0)){
-		logString("THREAD XBOX : pas de controller");
+		logString("THREAD CONTROLLER : ERROR no Controller plug");
 	}
 	float tmpM0, tmpM1, tmpM2, tmpM3;
 	while (!quitter) {
@@ -157,7 +157,7 @@ void control(args_CONTROLER * argsControl) {
 
 
 			char array[400];
-			sprintf(array,"THREAD XBOX : bool_moteur_active= %d", manette->flag);
+			sprintf(array,"THREAD CONTROLLER : bool_moteur_active= %d", manette->flag);
 			logString(array);
 
 
@@ -232,7 +232,7 @@ void control(args_CONTROLER * argsControl) {
 		if (!is_connect()) {
 			manette->flag = 0;
 			char array[400];
-			sprintf(array,"THREAD XBOX : NO MORE REMOTTE %d", manette->flag);
+			sprintf(array,"THREAD CONTROLLER : ERROR NO MORE Controller %d", manette->flag);
 			logString(array);
 
 			//TODO

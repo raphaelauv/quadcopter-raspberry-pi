@@ -7,21 +7,21 @@
 
 #define Update_Frequence 100000
 
-typedef struct args_CONTROLER {
+typedef struct args_CONTROLLER {
 	char verbose;
 	volatile int endController;
 	volatile int newThing;
 	DataController * manette;
 	PMutex * pmutexReadDataController;
 	PMutex * pmutexControllerPlug;
-} args_CONTROLER;
+} args_CONTROLLER;
 
 
-void *thread_CONTROLER(void *args);
+void *thread_CONTROLLER(void *args);
 
-void control( args_CONTROLER * argsControl);
-int init_args_CONTROLER(args_CONTROLER ** argControler);
-void clean_args_CONTROLER(args_CONTROLER * arg);
+void control( args_CONTROLLER * argsControl);
+int init_args_CONTROLLER(args_CONTROLLER ** argControler);
+void clean_args_CONTROLLER(args_CONTROLLER * arg);
 
 
 
