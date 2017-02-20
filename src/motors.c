@@ -134,6 +134,7 @@ void * thread_startMotor(void * args){
         else{//ARRET des moteurs d'urgence demandé.
         	//printf("THREAD MOTOR : ARRET %d\n",info->broche);
         	//printf("valeur %d de bool arret %d\n",info->broche,*info->bool_arret_moteur);
+        	pthread_mutex_unlock(&info->MutexSetPower->mutex);
         	runMotor=0;
         }
     }
@@ -375,6 +376,7 @@ void * thread_startMotorAll(void * args){
 			usleep(period-sleepedTotalTime);
 
 		} else {
+			pthread_mutex_unlock(&motors->MutexSetValues->mutex);
 			runMotor = 0;
 		}
 
@@ -387,7 +389,7 @@ void * thread_startMotorAll(void * args){
 /**
  * Return -1 if FAIL to open the thread , else 0 in SUCCES
  */
-int init_thread_startMotorAll(pthread_t * pthread,MotorsAll2 * motorsAll2){
+int init_thread_startMotorAll2(pthread_t * pthread,MotorsAll2 * motorsAll2){
 
     pthread_attr_t attributs;
     int error=0;
@@ -406,7 +408,7 @@ int init_thread_startMotorAll(pthread_t * pthread,MotorsAll2 * motorsAll2){
     	*(motorsAll2->bool_arret_moteur)=1;
     }
 
-    pthread_attr_destroy(&attributs);//Libere les resource.
+    pthread_attr_destroy(&attributs);
 
 	return error;
 }
