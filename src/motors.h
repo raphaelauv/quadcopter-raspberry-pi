@@ -69,17 +69,13 @@ typedef struct MotorsAll {
 int init_Value_motors(MotorsAll * motorsAll);
 int init_MotorsAll(MotorsAll ** motorsAll);
 
+//Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
 int init_threads_motors(pthread_t * tab,MotorsAll * motorsAll);
 
 void clean_MotorsAll(MotorsAll * arg);
 
 //Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
-int set_power(struct Motor_info * info, float power);
-
-//Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
-void * thread_startMoteur(void * args);
-
-/**********************************************************************/
+int set_power(Motor_info * info, float power);
 
 
 
@@ -94,6 +90,9 @@ typedef struct MotorsAll2 {
 	int high_time[NUMBER_OF_MOTORS];
 } MotorsAll2;
 
-int init_thread_startMotorAll(pthread_t * pthread,MotorsAll2 * motorsAll);
+int init_MotorsAll2(MotorsAll2 ** motorsAll2);
+void clean_MotorsAll2(MotorsAll2 * arg);
+int init_thread_startMotorAll(pthread_t * pthread,MotorsAll2 * MotorsAll2);
+int set_power2(MotorsAll2 * MotorsAll2, float * powers);
 
 #endif

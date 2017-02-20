@@ -4,8 +4,9 @@
 //double frequence=50.0; //frequence du signal d'entré des ESCs
 double periode=0; // periode = 1/frequence. Initialisée plus tard.
 
-// Pointeur de fonction qui controle chaque ESC
 
+/**********************************************************************/
+/* MULTI THREADING SOLUTION */
 
 int init_MotorsAll(MotorsAll ** motorsAll){
 
@@ -81,66 +82,7 @@ void clean_MotorsAll(MotorsAll * arg) {
 	}
 }
 
-
-
-void * thread_startMotorAll(void * args){
-	MotorsAll2 * motors =(MotorsAll2*) args;
-
-	int valuesBrocheMotor[NUMBER_OF_MOTORS] = {5, 28, 2, 24};
-
-	int period=(1.0/FREQUENCY)*1000000;
-
-	for(int i =0;i<NUMBER_OF_MOTORS;i++){
-		motors->broche[i]=valuesBrocheMotor[i];
-	}
-
-	#ifdef __arm__
-	for(int i=0;i<NUMBER_OF_MOTORS;i++){
-		pinMode (motors->broche[i], OUTPUT);
-	}
-	#endif
-
-	logString("THREAD MOTORS : INIT DONE");
-
-	int runMotor=1;
-
-	while (runMotor) {
-		pthread_mutex_lock(&motors->MutexSetValues->mutex);
-		if ((*(motors->bool_arret_moteur)) != 1) {
-
-			//fill sortAray
-
-			pthread_mutex_unlock(&motors->MutexSetValues->mutex);
-
-			//sort the sortArray
-
-			for(int i=0;i<NUMBER_OF_MOTORS;i++){
-				#ifdef __arm__
-				digitalWrite(motors->arrayOfMotors[i]->broche,1);
-				#endif
-			}
-
-			int sleepedTotalTime=0;
-			for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
-				//sleepedTotalTime+=sortArray[i]->time;
-				//usleep(sortArray[i]->time);
-				#ifdef __arm__
-				digitalWrite(sortArray[i]->broche,0);
-				#endif
-			}
-
-			usleep(period-sleepedTotalTime);
-
-		} else {
-			runMotor = 0;
-		}
-
-	}
-	logString("THREAD MOTORS : END");
-	return NULL;
-}
-
-void * thread_startMoteur(void * args){
+void * thread_startMotor(void * args){
 
 	Motor_info * info=(Motor_info *)args;
 
@@ -309,7 +251,7 @@ int init_threads_motors(pthread_t * tab,MotorsAll * motorsAll){
     int resultPthread=0;
 
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
-		if ((resultPthread = pthread_create(&tab[i], &attributs,thread_startMoteur, motorsAll->arrayOfMotors[i])) != 0) {
+		if ((resultPthread = pthread_create(&tab[i], &attributs,thread_startMotor, motorsAll->arrayOfMotors[i])) != 0) {
 			//printf("pthread0_create -> %d\n",resultPthread);
 			logString("FAIL pthread_create MOTORS");
 			error = -1;
@@ -327,10 +269,125 @@ int init_threads_motors(pthread_t * tab,MotorsAll * motorsAll){
 }
 
 
+
+/**********************************************************************/
+/* ONE THREAD SOLUTION */
+
+
+int init_MotorsAll2(MotorsAll2 ** motorsAll2){
+	#ifdef __arm__
+	if (wiringPiSetup () == -1){
+		return -1;
+	}
+	#endif
+
+	*motorsAll2 =(MotorsAll2 *) malloc(sizeof(MotorsAll2));
+	if (*motorsAll2 == NULL) {
+		logString("MALLOC FAIL : motorsAll\n");
+		return -1;
+	}
+	(*motorsAll2)->bool_arret_moteur =(volatile int *) malloc(sizeof(int));
+
+	if ((*motorsAll2)->bool_arret_moteur == NULL) {
+		logString("MALLOC FAIL : motorsAll->bool_arret_moteur\n");
+		return -1;
+	}
+	volatile int arret=0;//TODO
+	(*(*motorsAll2)->bool_arret_moteur)= arret;
+
+
+	PMutex * barrier = (PMutex *) malloc(sizeof(PMutex));
+	if (barrier == NULL) {
+		logString("MALLOC FAIL : barrier");
+		return -1;
+	}
+	init_PMutex(barrier);
+
+	(*motorsAll2)->MutexSetValues=barrier;
+
+	return 0;
+
+}
+
+void clean_MotorsAll2(MotorsAll2 * arg) {
+	if (arg != NULL) {
+		if (arg->MutexSetValues != NULL) {
+			free(arg->MutexSetValues);
+			arg->MutexSetValues = NULL;
+		}
+
+		if (arg->bool_arret_moteur != NULL) {
+			free((void *)arg->bool_arret_moteur);
+			arg->bool_arret_moteur=NULL;
+		}
+		free(arg);
+		arg = NULL;
+	}
+}
+
+
+void * thread_startMotorAll(void * args){
+	MotorsAll2 * motors =(MotorsAll2*) args;
+
+	int valuesBrocheMotor[NUMBER_OF_MOTORS] = {5, 28, 2, 24};
+
+	int period=(1.0/FREQUENCY)*1000000;
+
+	for(int i =0;i<NUMBER_OF_MOTORS;i++){
+		motors->broche[i]=valuesBrocheMotor[i];
+	}
+
+	#ifdef __arm__
+	for(int i=0;i<NUMBER_OF_MOTORS;i++){
+		pinMode (motors->broche[i], OUTPUT);
+	}
+	#endif
+
+	logString("THREAD MOTORS : INIT DONE");
+
+	int runMotor=1;
+
+	while (runMotor) {
+		pthread_mutex_lock(&motors->MutexSetValues->mutex);
+		if ((*(motors->bool_arret_moteur)) != 1) {
+
+			//fill sortAray
+
+			pthread_mutex_unlock(&motors->MutexSetValues->mutex);
+
+			//sort the sortArray
+
+			for(int i=0;i<NUMBER_OF_MOTORS;i++){
+				#ifdef __arm__
+				digitalWrite(motors->arrayOfMotors[i]->broche,1);
+				#endif
+			}
+
+			int sleepedTotalTime=0;
+			for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+				//sleepedTotalTime+=sortArray[i]->time;
+				//usleep(sortArray[i]->time);
+				#ifdef __arm__
+				digitalWrite(sortArray[i]->broche,0);
+				#endif
+			}
+
+			usleep(period-sleepedTotalTime);
+
+		} else {
+			runMotor = 0;
+		}
+
+	}
+	logString("THREAD MOTORS : END");
+	return NULL;
+}
+
+
 /**
  * Return -1 if FAIL to open the thread , else 0 in SUCCES
  */
-int init_thread_startMotorAll(pthread_t * pthread,MotorsAll2 * motorsAll){
+int init_thread_startMotorAll(pthread_t * pthread,MotorsAll2 * motorsAll2){
 
     pthread_attr_t attributs;
     int error=0;
@@ -340,16 +397,26 @@ int init_thread_startMotorAll(pthread_t * pthread,MotorsAll2 * motorsAll){
     	return -1;
     }
 
-	if (pthread_create(pthread, &attributs,thread_startMoteur,NULL)) {
+	if (pthread_create(pthread, &attributs,thread_startMotorAll,motorsAll2)) {
 		error=-1;
 		logString("FAIL pthread_create MOTORS");
 	}
 
     if(error==-1){
-    	*(motorsAll->bool_arret_moteur)=1;
+    	*(motorsAll2->bool_arret_moteur)=1;
     }
 
     pthread_attr_destroy(&attributs);//Libere les resource.
 
 	return error;
+}
+
+int set_power2(MotorsAll2 * MotorsAll2, float * powers){
+
+	pthread_mutex_lock(&MotorsAll2->MutexSetValues->mutex);
+
+	for(int i =0;i<NUMBER_OF_MOTORS;i++){
+		MotorsAll2->high_time[i]=powers[i];
+	}
+	pthread_mutex_unlock(&MotorsAll2->MutexSetValues->mutex);
 }
