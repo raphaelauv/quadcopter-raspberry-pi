@@ -70,4 +70,4 @@ clean:
 
 mrproper: clean
 	rm -rf $(EXEC)
-	rm LOG_*
+	rm -rf LOG_*

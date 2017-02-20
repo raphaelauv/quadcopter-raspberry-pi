@@ -1,5 +1,17 @@
 # PROJET DRONE M1 INFORMATIQUE
 
+
+#########################################################################
+#							PREPARATION Raspberry Pi 2 					#
+
+Install RASPBIAN JESSIE Kernel version:4.4 on the Raspberry Pi 2
+
+Patch the Raspberry witch the kernel_4.4.47_RT.tgz
+
+Active SSH , I2C , Disable Garde-fou
+
+
+
 #########################################################################
 #							Compilation									#
 

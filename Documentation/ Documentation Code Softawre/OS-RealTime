@@ -12,6 +12,8 @@ COUCHE VIRTUEL ->
 LINUX MODIFIER ->
 	Linux-rt -> PREEMPT_RT
 		https://rt.wiki.kernel.org/index.php/Main_Page
+		https://wiki.linuxfoundation.org/realtime/documentation/known_limitations
+		https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/application_base
 
 
 	Yoctoproject ->
