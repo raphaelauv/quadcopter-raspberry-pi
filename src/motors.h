@@ -44,8 +44,11 @@
 
 #include "concurrent.h"
 
-
 #define NUMBER_OF_MOTORS 4
+#define FREQUENCY 50.0
+
+/**********************************************************************/
+/* MULTI THREADING SOLUTION */
 
 typedef struct Motor_info {
 	volatile int * bool_arret_moteur; // En cas d'arret d'urgenre =1
@@ -63,20 +66,34 @@ typedef struct MotorsAll {
 } MotorsAll;
 
 
+int init_Value_motors(MotorsAll * motorsAll);
 int init_MotorsAll(MotorsAll ** motorsAll);
 
-void clean_MotorsAll(MotorsAll * arg);
+int init_threads_motors(pthread_t * tab,MotorsAll * motorsAll);
 
-//void clean_Motor_info(Motor_info * arg);
+void clean_MotorsAll(MotorsAll * arg);
 
 //Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
 int set_power(struct Motor_info * info, float power);
 
 //Initialise les 4 moteur a 0% de puissance(4 thread en RT et sur le coeur 1).
-int init_threads_motors(pthread_t * tab,MotorsAll * motorsAll);
-
 void * thread_startMoteur(void * args);
 
-int init_Value_motors(MotorsAll * motorsAll);
+/**********************************************************************/
+
+
+
+
+/**********************************************************************/
+/* ONE THREAD SOLUTION */
+
+typedef struct MotorsAll2 {
+	volatile int * bool_arret_moteur;
+	PMutex * MutexSetValues;
+	int broche[NUMBER_OF_MOTORS];
+	int high_time[NUMBER_OF_MOTORS];
+} MotorsAll2;
+
+int init_thread_startMotorAll(pthread_t * pthread,MotorsAll2 * motorsAll);
 
 #endif

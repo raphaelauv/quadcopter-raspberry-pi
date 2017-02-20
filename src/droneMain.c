@@ -36,7 +36,7 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}else{
 		logString("THREAD MAIN : CAPTEUR INIT SUCCES");
-		argCONTROLVOL->imu=imu;
+		argPID->imu=imu;
 	}
 	#endif
 
