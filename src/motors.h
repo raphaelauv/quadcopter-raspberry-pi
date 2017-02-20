@@ -75,7 +75,7 @@ int init_threads_motors(pthread_t * tab,MotorsAll * motorsAll);
 void clean_MotorsAll(MotorsAll * arg);
 
 //Change la puissance d'un moteur, power en % (de 0% a 10%),renvoi 1 si echec.
-int set_power(Motor_info * info, float power);
+int set_power(Motor_info * info,int high_time);
 
 
 

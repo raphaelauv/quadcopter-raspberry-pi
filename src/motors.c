@@ -177,21 +177,14 @@ int init_Motor_info(Motor_info *info,int broche,volatile int * stop,PMutex * bar
 
 }
 
-int set_power(Motor_info * info,float power){
-    int powerVerified=(int)power;
+int set_power(Motor_info * info,int high_time){
 
-    /*
-    if(powerVerified>10){
-    	powerVerified=10;
-    }else if(powerVerified<5){
-    	powerVerified=5;
-    }
-    */
+    int low=20000-high_time;
 
     pthread_mutex_lock(&info->MutexSetPower->mutex);
 
-    info->high_time=(periode*powerVerified/100.0); // On calcule le nouveaux rapport cyclique.
-    info->low_time=periode-info->high_time; //
+    info->high_time=high_time; // On calcule le nouveaux rapport cyclique.
+    info->low_time=low;
     pthread_mutex_unlock(&info->MutexSetPower->mutex);
 
 }

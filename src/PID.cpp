@@ -55,8 +55,6 @@ int init_thread_PID(pthread_t * threadPID,args_PID * argPID){
 void * thread_PID(void * args){
 
 	logString("THREAD PID : START");
-
-
 	//test();
 	//calibrate(args);
 	args_PID  * controle_vol =(args_PID  *)args;
@@ -67,44 +65,89 @@ void * thread_PID(void * args){
 
 	float powerTab[NUMBER_OF_MOTORS];
 
+	uint64_t time_debut;
+	uint64_t time_fin;
+	uint64_t time_to_sleep = 0;
 
+	//Consigne client
+	float client_gaz = 1050;
+	float client_pitch = 0;
 
-	int sampleCount = 0;
-	int sampleRate = 0;
-	uint64_t rateTimer;
-	uint64_t displayTimer;
-	uint64_t now;
+	//PID
+	float output_pid_pitch = 0;
+	//erreur des PID
+	float pid_erreur_tmp_pitch = 0;
 
+	//erreur accu
+	float pid_accu_erreur_pitch = 0;
 
+	//last erreur
+	float pid_last_pitch = 0;
 
-	//  set up for rate timer
+	// puissance des 4 moteur. (en microseconde)
+	int puissance_motor0 = 1000;
+	int puissance_motor1 = 1000;
 
-	rateTimer = displayTimer = RTMath::currentUSecsSinceEpoch();
-
-	//  now just process data
-	//double power1=5.0;
-	//double power2=5.0;
-	double pitch=0.0;
 
 	RTIMU_DATA imuData;
 
 	int continuThread=1;
 
-
-
 	while (continuThread) {
 
-		sleep(5);
-		#ifdef __arm__
-		if(imu->IMURead()){
-			RTIMU_DATA imuData = imu->getIMUData();
-			sampleCount++;
-			now = RTMath::currentUSecsSinceEpoch();
 
-			//printf("*******************************\nTHREAD PID : CAPTEUR -> %s\n*******************************\n", RTMath::displayDegrees("", imuData.fusionPose));
-			//fflush(stdout);
+		#ifdef __arm__
+		time_debut=RTMath::currentUSecsSinceEpoch();
+
+
+		while(imu->IMURead()){
+			imuData = imu->getIMUData();
+
+			//calcule pitch PID
+			pid_erreur_tmp_pitch=(imuData.fusionPose.y()*RTMATH_RAD_TO_DEGREE)-client_pitch;
+			pid_accu_erreur_pitch+=PID_GAIN_I_PITCH*pid_erreur_tmp_pitch;
+			if (pid_accu_erreur_pitch>PID_MAX_PITCH) {
+				pid_accu_erreur_pitch=PID_MAX_PITCH;
+			}
+			else if (pid_accu_erreur_pitch < -PID_MAX_PITCH){
+				pid_accu_erreur_pitch=-PID_MAX_PITCH;
+			}
+
+			output_pid_pitch=PID_GAIN_P_PITCH*pid_erreur_tmp_pitch+pid_accu_erreur_pitch+PID_GAIN_D_PITCH*(pid_erreur_tmp_pitch-pid_last_pitch);
+
+			if (output_pid_pitch>PID_MAX_PITCH) {
+				output_pid_pitch=PID_MAX_PITCH;
+			}
+			else if (output_pid_pitch < -PID_MAX_PITCH){
+				output_pid_pitch=-PID_MAX_PITCH;
+			}
+			pid_last_pitch=pid_erreur_tmp_pitch;
+
+
+			puissance_motor0=client_gaz + output_pid_pitch;
+			puissance_motor1=client_gaz - output_pid_pitch;
+
+			//Pour jamais mettre a l'arret les moteur.
+			if(puissance_motor0<1100) puissance_motor0=1100;
+			if(puissance_motor1<1100) puissance_motor1=1100;
+
+			//puissance max=2000 donc il faut pas depasser.
+			if(puissance_motor0>2000) puissance_motor0=2000;
+			if(puissance_motor1>2000) puissance_motor1=2000;
+
+
+			//set la puissance au moteur.
+			set_power(controle_vol->motorsAll->arrayOfMotors[0], puissance_motor0);
+			set_power(controle_vol->motorsAll->arrayOfMotors[1], puissance_motor1);
+
+			break;
 		}
+
 		#endif
+
+		/*********************************************************/
+		/*					CODE FOR GET REMOTE					*/
+
 
 		pthread_mutex_lock(&(mutexDataControler->mutex));
 
@@ -117,26 +160,33 @@ void * thread_PID(void * args){
 			continue;
 		}
 
-		/*
-		if (mutexDataControler->var < 1) {
-			logString("Controleur de vol attends des nouvel données de serv \n");
-
-			//TODO mettre un timer au wait
-			pthread_cond_wait(&mutexDataControler->condition,
-					&mutexDataControler->mutex);
-		}
-		*/
 		mutexDataControler->var = 0;
 		powerTab[0] = data->axe_Rotation;
 		powerTab[1] = data->axe_UpDown;
 		powerTab[2] = data->axe_LeftRight;
 		powerTab[3] = data->axe_FrontBack;
 
-
 		pthread_mutex_unlock(&(mutexDataControler->mutex));
+
+		/*
 		for(int i=0; i<NUMBER_OF_MOTORS;i++){
 			set_power(controle_vol->motorsAll->arrayOfMotors[i], powerTab[i]);
 		}
+
+		*/
+
+		/*********************************************************/
+		/*			CODE FOR SLEEP PID FREQUENCY				*/
+
+		#ifdef __arm__
+		time_fin=RTMath::currentUSecsSinceEpoch();
+		time_to_sleep=(time_fin -time_debut);
+		if(time_fin-time_debut>4000){
+			printf("temps sleep : %lld\n",4000-time_to_sleep);
+		}
+		usleep(4000-time_to_sleep);
+		#endif
+
 
 	}
 	logString("THREAD PID : END");
