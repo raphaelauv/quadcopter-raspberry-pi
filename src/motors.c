@@ -360,7 +360,7 @@ void * thread_startMotorAll(void * args){
 
 			for(int i=0;i<NUMBER_OF_MOTORS;i++){
 				#ifdef __arm__
-				digitalWrite(motors->arrayOfMotors[i]->broche,1);
+				//digitalWrite(motors->arrayOfMotors[i]->broche,1);
 				#endif
 			}
 
@@ -369,7 +369,7 @@ void * thread_startMotorAll(void * args){
 				//sleepedTotalTime+=sortArray[i]->time;
 				//usleep(sortArray[i]->time);
 				#ifdef __arm__
-				digitalWrite(sortArray[i]->broche,0);
+				//digitalWrite(sortArray[i]->broche,0);
 				#endif
 			}
 
