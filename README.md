@@ -6,20 +6,20 @@
 
 Install RASPBIAN JESSIE Kernel version:4.4 on the Raspberry Pi 2
 
-		pi@raspberry ~$ tar xzf kernel.tgz
-		pi@raspberry ~$ sudo rm -r /lib/firmware/
-		pi@raspberry ~$ sudo rm -r /boot/overlays/
-		pi@raspberry ~$ cd boot
-		pi@raspberry ~$ sudo cp -rd * /boot/
-		pi@raspberry ~$ cd ../lib
-		pi@raspberry ~$ sudo cp -dr * /lib/
-
-	add to  /boot/cmdline.txt
-	dwc_otg.fiq_enable=0
-	dwc_otg.fiq_fsm_enable=0
-
-
 Patch the Raspberry witch the kernel_4.4.47_RT.tgz
+
+	pi@raspberry ~$ tar xzf kernel.tgz
+	pi@raspberry ~$ sudo rm -r /lib/firmware/
+	pi@raspberry ~$ sudo rm -r /boot/overlays/
+	pi@raspberry ~$ cd boot
+	pi@raspberry ~$ sudo cp -rd * /boot/
+	pi@raspberry ~$ cd ../lib
+	pi@raspberry ~$ sudo cp -dr * /lib/
+
+add to  /boot/cmdline.txt
+dwc_otg.fiq_enable=0
+dwc_otg.fiq_fsm_enable=0
+
 
 Active SSH , I2C , Disable Garde-fou
 
