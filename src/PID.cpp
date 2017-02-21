@@ -168,6 +168,8 @@ void * thread_PID(void * args){
 
 		pthread_mutex_unlock(&(mutexDataControler->mutex));
 
+		//set_power2(controle_vol->motorsAll,powerTab);
+
 		/*
 		for(int i=0; i<NUMBER_OF_MOTORS;i++){
 			set_power(controle_vol->motorsAll->arrayOfMotors[i], powerTab[i]);

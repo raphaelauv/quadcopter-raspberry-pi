@@ -268,22 +268,27 @@ int init_threads_motors(pthread_t * tab,MotorsAll * motorsAll){
 /* ONE THREAD SOLUTION */
 
 
-int init_MotorsAll2(MotorsAll2 ** motorsAll2){
+int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...){
 	#ifdef __arm__
 	if (wiringPiSetup () == -1){
 		return -1;
 	}
 	#endif
 
+	if(NbMotors!=NUMBER_OF_MOTORS){
+		logString("init_MotorsAll2 FAIL : NbMotors arg different of MACRO NUMBER_OF_MOTORS");
+		return -1;
+	}
+
 	*motorsAll2 =(MotorsAll2 *) malloc(sizeof(MotorsAll2));
 	if (*motorsAll2 == NULL) {
-		logString("MALLOC FAIL : motorsAll\n");
+		logString("MALLOC FAIL : motorsAll");
 		return -1;
 	}
 	(*motorsAll2)->bool_arret_moteur =(volatile int *) malloc(sizeof(int));
 
 	if ((*motorsAll2)->bool_arret_moteur == NULL) {
-		logString("MALLOC FAIL : motorsAll->bool_arret_moteur\n");
+		logString("MALLOC FAIL : motorsAll->bool_arret_moteur");
 		return -1;
 	}
 	volatile int arret=0;//TODO
@@ -298,6 +303,19 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2){
 	init_PMutex(barrier);
 
 	(*motorsAll2)->MutexSetValues=barrier;
+
+	va_list va;
+	va_start (va, NbMotors);
+
+	char array[400];
+	sprintf(array, "NUMBER OF MOTORS :%d",NUMBER_OF_MOTORS);
+	logString(array);
+	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+		int c = va_arg(va, int);
+		(*motorsAll2)->broche[i]=c;
+		sprintf(array, "BROCHE %d VALUE : %d",i,(*motorsAll2)->broche[i]);
+		logString(array);
+	}
 
 	return 0;
 
@@ -320,16 +338,29 @@ void clean_MotorsAll2(MotorsAll2 * arg) {
 }
 
 
+int printArray2D(int array[NUMBER_OF_MOTORS][2]){
+	printf("-----------\n");
+	for(int i=0;i<NUMBER_OF_MOTORS;i++){
+		printf("BROCHE : %d -> val : %d\n",array[i][0],array[i][1]);
+	}
+	printf("-----------\n");
+}
+
+int comp (const void * elem1, const void * elem2)
+{
+    int f = ((int*)elem1)[1];
+    int s = ((int*)elem2)[1];
+    if (f > s) return  1;
+    if (f < s) return -1;
+    return 0;
+}
+
 void * thread_startMotorAll(void * args){
 	MotorsAll2 * motors =(MotorsAll2*) args;
 
-	int valuesBrocheMotor[NUMBER_OF_MOTORS] = {5, 28, 2, 24};
-
 	int period=(1.0/FREQUENCY)*1000000;
 
-	for(int i =0;i<NUMBER_OF_MOTORS;i++){
-		motors->broche[i]=valuesBrocheMotor[i];
-	}
+	int valuesBrocheMotor[NUMBER_OF_MOTORS][2];
 
 	#ifdef __arm__
 	for(int i=0;i<NUMBER_OF_MOTORS;i++){
@@ -341,31 +372,47 @@ void * thread_startMotorAll(void * args){
 
 	int runMotor=1;
 
+	srand(time(NULL));
 	while (runMotor) {
+		sleep(5);
+		for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+			valuesBrocheMotor[i][0] = motors->broche[i];
+		}
+
 		pthread_mutex_lock(&motors->MutexSetValues->mutex);
 		if ((*(motors->bool_arret_moteur)) != 1) {
+			for(int i =0;i<NUMBER_OF_MOTORS;i++){
 
-			//fill sortAray
+				int ale=(int) (((double)(15+1)/RAND_MAX) * rand() + 0);
+				//valuesBrocheMotor[i][1]=motors->high_time[i];
+				valuesBrocheMotor[i][1]=ale;
+			}
 
 			pthread_mutex_unlock(&motors->MutexSetValues->mutex);
 
-			//sort the sortArray
+			qsort(valuesBrocheMotor, NUMBER_OF_MOTORS, sizeof valuesBrocheMotor[0], comp);
+
+			//printArray2D(valuesBrocheMotor);
 
 			for(int i=0;i<NUMBER_OF_MOTORS;i++){
 				#ifdef __arm__
-				//digitalWrite(motors->arrayOfMotors[i]->broche,1);
+				//digitalWrite(valuesBrocheMotor[i][0],1);
 				#endif
 			}
 
 			int sleepedTotalTime=0;
+			int dif=0;
 			for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
-				//sleepedTotalTime+=sortArray[i]->time;
-				//usleep(sortArray[i]->time);
+
+				dif=valuesBrocheMotor[i][1]-sleepedTotalTime;
+				printf("SLEEP %d : %d\n",i,dif);
+				usleep(dif);
+				sleepedTotalTime+=dif;
 				#ifdef __arm__
-				//digitalWrite(sortArray[i]->broche,0);
+				//digitalWrite(valuesBrocheMotor[i][0],0);
 				#endif
 			}
-
+			printf("SLEEP FINAL : %d\n",20-sleepedTotalTime);
 			usleep(period-sleepedTotalTime);
 
 		} else {

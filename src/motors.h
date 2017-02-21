@@ -42,10 +42,24 @@
 #include <wiringPi.h>
 #endif
 
+#include <stdarg.h>
+
 #include "concurrent.h"
 
 #define NUMBER_OF_MOTORS 4
 #define FREQUENCY 50.0
+
+#define BROCHE_MOTOR_0 5
+#define BROCHE_MOTOR_1 28
+#define BROCHE_MOTOR_2 2
+#define BROCHE_MOTOR_3 24
+#define BROCHE_MOTOR_4 0
+#define BROCHE_MOTOR_5 0
+#define BROCHE_MOTOR_6 0
+#define BROCHE_MOTOR_7 0
+#define BROCHE_MOTOR_8 0
+/* ... */
+
 
 /**********************************************************************/
 /* MULTI THREADING SOLUTION */
@@ -90,7 +104,7 @@ typedef struct MotorsAll2 {
 	int high_time[NUMBER_OF_MOTORS];
 } MotorsAll2;
 
-int init_MotorsAll2(MotorsAll2 ** motorsAll2);
+int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...);
 void clean_MotorsAll2(MotorsAll2 * arg);
 int init_thread_startMotorAll2(pthread_t * pthread,MotorsAll2 * MotorsAll2);
 int set_power2(MotorsAll2 * MotorsAll2, float * powers);

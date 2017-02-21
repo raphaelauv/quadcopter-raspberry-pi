@@ -22,6 +22,15 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
+/*
+	MotorsAll2 * motorsAll2;
+	if (init_MotorsAll2(&motorsAll2,4,BROCHE_MOTOR_0,BROCHE_MOTOR_1,BROCHE_MOTOR_2,BROCHE_MOTOR_3)) {
+		return EXIT_FAILURE;
+	}
+
+	pthread_t threadMotor2;
+	init_thread_startMotorAll2(&threadMotor2,motorsAll2);
+*/
 	args_PID * argPID;
 	if (init_args_PID(&argPID,argServ->dataController,motorsAll)) {
 		return EXIT_FAILURE;

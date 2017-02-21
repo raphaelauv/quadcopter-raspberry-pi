@@ -20,6 +20,7 @@ extern "C" {
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/select.h>
+#include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
 
