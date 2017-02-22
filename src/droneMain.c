@@ -3,14 +3,14 @@
 #include "PID.hpp"
 #include "capteur.hpp"
 #include "signal.h"
+#include <sys/signal.h>
 
 #define ERROR(a,str) if (a<0) {perror(str); exit(1);}
-
 
 volatile int * boolStopServ=NULL;
 
 void stopNetwork(volatile int * boolStopServ){
-        logString("THREAD MAIN : SIGINT catched, process to stop\n");
+	logString("THREAD MAIN : SIGINT catched -> process to stop");
 	*boolStopServ=1;
 	sleep(3);
 	exit(EXIT_FAILURE);
@@ -43,8 +43,8 @@ void init_mask(){
 }
 
 int main (int argc, char *argv[]){
-
-        init_mask();
+	
+	init_mask();
   
 	char noControl=0;
 	if(setVerboseOrLog(argc,argv[1],1)){

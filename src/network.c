@@ -39,8 +39,7 @@ char get_IP_Port(char *message,struct sockaddr_in * sa){
 	}else{
 		return 0;
 	}
-
-	cmp++;
+	
 	ip[cmp]='\0';
 
 	//printf("ip get : %s\n",ip);

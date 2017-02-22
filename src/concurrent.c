@@ -104,4 +104,3 @@ int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu){
 	return 0;
 }
 
-

@@ -1,6 +1,12 @@
 #include "client.h"
 #include "Controller/controller.h"
 
+
+void handler(int i){
+	//boolStopServ==NULL ? exit(EXIT_FAILURE) : stopNetwork(boolStopServ);
+	//TODO
+}
+
 int main (int argc, char *argv[]){
 	if(argc<2){
 		perror("put IP adresse of drone in argument");
@@ -21,7 +27,7 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	args_CLIENT * argClient;
+	args_CLIENT * argClient;	
 	if(init_args_CLIENT(&argClient,adresse,argController)){
 		return EXIT_FAILURE;
 	}

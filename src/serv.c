@@ -258,8 +258,8 @@ void *thread_UDP_SERVER(void *args) {
 	struct timeval tv;
 	fd_set rdfs;
 
-	//&& !(*argSERV->boolStopServ) TODO
-	while(runServ ){
+	
+	while(runServ && !(*(argSERV->boolStopServ))){
 
 		FD_ZERO(&rdfs);
 		FD_SET(sock, &rdfs);

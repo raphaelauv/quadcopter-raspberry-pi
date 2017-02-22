@@ -47,7 +47,7 @@ extern "C" {
 
 #define UDP_PORT_DRONE 8898
 
-#define UDP_PORT_REMOTE 8899
+#define UDP_PORT_REMOTE 8893
 
 #define UDP_TIME_SEC_TIMER 1
 
