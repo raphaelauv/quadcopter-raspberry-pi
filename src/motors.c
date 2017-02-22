@@ -313,6 +313,7 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...){
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 		int c = va_arg(va, int);
 		(*motorsAll2)->broche[i]=c;
+		(*motorsAll2)->high_time[i]=1000;
 		sprintf(array, "BROCHE %d VALUE : %d",i,(*motorsAll2)->broche[i]);
 		logString(array);
 	}
@@ -390,11 +391,11 @@ void * thread_startMotorAll(void * args){
 
 			qsort(valuesBrocheMotor, NUMBER_OF_MOTORS, sizeof valuesBrocheMotor[0], comp);
 
-			//printArray2D(valuesBrocheMotor);
+			printArray2D(valuesBrocheMotor);
 
 			for(int i=0;i<NUMBER_OF_MOTORS;i++){
 				#ifdef __arm__
-				//digitalWrite(valuesBrocheMotor[i][0],1);
+				digitalWrite(valuesBrocheMotor[i][0],1);
 				#endif
 			}
 
@@ -404,14 +405,18 @@ void * thread_startMotorAll(void * args){
 
 				dif=valuesBrocheMotor[i][1]-sleepedTotalTime;
 				//printf("SLEEP %d : %d\n",i,dif);
-				usleep(dif);
-				sleepedTotalTime+=dif;
+				if(dif>0){
+					usleep(dif);
+					sleepedTotalTime+=dif;
+				}
 				#ifdef __arm__
-				//digitalWrite(valuesBrocheMotor[i][0],0);
+				digitalWrite(valuesBrocheMotor[i][0],0);
 				#endif
 			}
 			//printf("SLEEP FINAL : %d\n",period-sleepedTotalTime);
-			usleep(period-sleepedTotalTime);
+			if(period>sleepedTotalTime){
+				usleep(period-sleepedTotalTime);
+			}
 
 		} else {
 			pthread_mutex_unlock(&motors->MutexSetValues->mutex);

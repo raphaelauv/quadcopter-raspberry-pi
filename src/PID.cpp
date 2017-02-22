@@ -112,6 +112,11 @@ void * thread_PID(void * args){
 	while (continuThread) {
 
 
+		if(*(controle_vol->motorsAll2->bool_arret_moteur)==1){
+			continuThread = 0;
+			continue;
+		}
+
 		#ifdef __arm__
 		time_debut=RTMath::currentUSecsSinceEpoch();
 
@@ -176,9 +181,7 @@ void * thread_PID(void * args){
 
 		if (data->flag== 0) {
 			pthread_mutex_unlock(&(mutexDataControler->mutex));
-
 			*(controle_vol->motorsAll2->bool_arret_moteur)=1;
-
 			continuThread = 0;
 			continue;
 		}
