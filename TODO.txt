@@ -1,6 +1,6 @@
 #############################TODO#############################
 -Fair un schema des branchement du drone(Andres)
--Monter le drone
+-Monter le drone(ASAP).
 -makefile avec library dynamique(Andres)
 -Mode log avec graphe pour PID.
 -mode log pour les motor(valeurs de la puissance des 4 motors).
@@ -10,4 +10,4 @@
 -Voir qu’elle materiel on aura besoin de plus? (Tous le monde).
 -Filtre de Kalman (Barometre + accel) (Andres + ?)
 -Test de securité.
- 
+-Comprendre le code de Raph. (Adrian + Andres).
