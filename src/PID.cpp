@@ -161,7 +161,7 @@ void * thread_PID(void * args){
 			powerTab[1] = puissance_motor1;
 			powerTab[2] = puissance_motor2;
 			powerTab[3] = puissance_motor3;
-			set_power2(controle_vol->motorsAll2,powerTab);
+			//set_power2(controle_vol->motorsAll2,powerTab);
 
 			break;
 		}

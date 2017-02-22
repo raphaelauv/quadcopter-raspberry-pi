@@ -313,6 +313,7 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...){
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 		int c = va_arg(va, int);
 		(*motorsAll2)->broche[i]=c;
+		(*motorsAll2)->high_time[i]=1000;//TODO
 		sprintf(array, "BROCHE %d VALUE : %d",i,(*motorsAll2)->broche[i]);
 		logString(array);
 	}
@@ -369,7 +370,7 @@ void * thread_startMotorAll(void * args){
 	logString("THREAD MOTORS : INIT DONE");
 
 	int runMotor=1;
-
+	sleep(5);
 	//srand(time(NULL));
 	while (runMotor) {
 		//sleep(5);
@@ -394,7 +395,7 @@ void * thread_startMotorAll(void * args){
 
 			for(int i=0;i<NUMBER_OF_MOTORS;i++){
 				#ifdef __arm__
-				//digitalWrite(valuesBrocheMotor[i][0],1);
+				digitalWrite(valuesBrocheMotor[i][0],1);
 				#endif
 			}
 
@@ -407,7 +408,7 @@ void * thread_startMotorAll(void * args){
 				usleep(dif);
 				sleepedTotalTime+=dif;
 				#ifdef __arm__
-				//digitalWrite(valuesBrocheMotor[i][0],0);
+				digitalWrite(valuesBrocheMotor[i][0],0);
 				#endif
 			}
 			//printf("SLEEP FINAL : %d\n",period-sleepedTotalTime);
