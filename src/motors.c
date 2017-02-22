@@ -313,7 +313,7 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...){
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 		int c = va_arg(va, int);
 		(*motorsAll2)->broche[i]=c;
-		(*motorsAll2)->high_time[i]=1000;
+		(*motorsAll2)->high_time[i]=1000;//TODO
 		sprintf(array, "BROCHE %d VALUE : %d",i,(*motorsAll2)->broche[i]);
 		logString(array);
 	}
@@ -370,7 +370,7 @@ void * thread_startMotorAll(void * args){
 	logString("THREAD MOTORS : INIT DONE");
 
 	int runMotor=1;
-
+	sleep(5);
 	//srand(time(NULL));
 	while (runMotor) {
 		//sleep(5);
