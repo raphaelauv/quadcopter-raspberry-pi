@@ -60,6 +60,9 @@ int absValue(int val){
 	}
 	val*=10;
 	val+=1000;
+	if(val<1100){
+		val=1100;
+	}
 	return val;
 }
 

@@ -372,7 +372,7 @@ void * thread_startMotorAll(void * args){
 
 	//srand(time(NULL));
 	while (runMotor) {
-		sleep(5);
+		//sleep(5);
 		for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 			valuesBrocheMotor[i][0] = motors->broche[i];
 		}
@@ -403,14 +403,14 @@ void * thread_startMotorAll(void * args){
 			for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 
 				dif=valuesBrocheMotor[i][1]-sleepedTotalTime;
-				printf("SLEEP %d : %d\n",i,dif);
+				//printf("SLEEP %d : %d\n",i,dif);
 				usleep(dif);
 				sleepedTotalTime+=dif;
 				#ifdef __arm__
 				//digitalWrite(valuesBrocheMotor[i][0],0);
 				#endif
 			}
-			printf("SLEEP FINAL : %d\n",period-sleepedTotalTime);
+			//printf("SLEEP FINAL : %d\n",period-sleepedTotalTime);
 			usleep(period-sleepedTotalTime);
 
 		} else {
