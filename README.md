@@ -16,12 +16,20 @@ Patch the Raspberry witch the kernel_4.4.47_RT.tgz
 	pi@raspberry ~$ cd ../lib
 	pi@raspberry ~$ sudo cp -dr * /lib/
 
-add to  /boot/cmdline.txt
+add to /boot/cmdline.txt : 
 dwc_otg.fiq_enable=0
 dwc_otg.fiq_fsm_enable=0
 
 
-Active SSH , I2C , Disable Garde-fou
+Active SSH , I2C
+
+Disable Garde-fou
+add to .profile:
+sudo sysctl kernel.sched_rt_runtime_us=-1
+
+Frequence I2C:
+sudo nano /etc/modprobe.d/i2c.conf
+options i2c_bcm2708 baudrate=400000
 
 
 
