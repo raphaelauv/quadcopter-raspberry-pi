@@ -1,13 +1,13 @@
 CC=g++
 
-CFLAGS=-std=c++0x
+CFLAGS=-std=c++0x -Wno-write-strings 
 CFLAGS_Raspberry= $(CFLAGS) -lwiringPi
 
 LDFLAGS=-lpthread 
 
 ARCH := $(shell uname -m)
 
-ifeq ($(ARCH),arm)
+ifeq ($(ARCH),armv7l)
 	LDFLAGS_Raspberry= $(LDFLAGS) -lwiringPi 
 else
 	LDFLAGS_Raspberry= $(LDFLAGS)
