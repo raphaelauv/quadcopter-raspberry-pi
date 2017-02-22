@@ -298,9 +298,10 @@ void *thread_UDP_SERVER(void *args) {
 		 * NO CRITIC SECTION
 		 */
 		char stop[5] = "STOP";
+		logString("THREAD SERV : SEND STOP");
 		for (int i = 0; i < 10; i++) {
 			if (sendNetwork(sock, &adr_send, stop) == -1) {
-				logString("THREAD SERV : SEND STOP , NETWORK ERROR");
+				logString("THREAD SERV : NETWORK ERROR DURING -> SEND STOP");
 				break;
 			}
 		}

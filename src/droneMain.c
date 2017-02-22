@@ -11,11 +11,15 @@ volatile int * boolStopServ=NULL;
 volatile int * boolStopMotor=NULL;
 
 void stopMotor(){
-	*boolStopMotor=1;
+	if(boolStopMotor!=NULL){
+		*boolStopMotor=1;
+	}
 }
 
 void stopNetwork(){
-	*boolStopServ=1;
+	if(boolStopServ!=NULL){
+		*boolStopServ=1;
+	}
 }
 
 void stopAll(){
@@ -70,7 +74,6 @@ int main (int argc, char *argv[]){
 	boolStopServ = argServ->boolStopServ;
 
 	
-
 	/*
 	MotorsAll * motorsAll;
 	if (init_MotorsAll(&motorsAll)) {

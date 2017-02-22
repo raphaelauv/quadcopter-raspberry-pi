@@ -63,6 +63,9 @@ int absValue(int val){
 	if(val<1100){
 		val=1100;
 	}
+	else if(val>2000){
+		val=2000;
+	}
 	return val;
 }
 
@@ -77,7 +80,7 @@ void * thread_PID(void * args){
 	RTIMU *imu =(RTIMU *)controle_vol->imu;
 
 
-	float powerTab[NUMBER_OF_MOTORS];
+	int powerTab[NUMBER_OF_MOTORS];
 
 	uint64_t time_debut;
 	uint64_t time_fin;
@@ -108,7 +111,7 @@ void * thread_PID(void * args){
 	RTIMU_DATA imuData;
 
 	int continuThread=1;
-	sleep(5);
+	sleep(10);
 	while (continuThread) {
 
 

@@ -107,6 +107,6 @@ typedef struct MotorsAll2 {
 int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...);
 void clean_MotorsAll2(MotorsAll2 * arg);
 int init_thread_startMotorAll2(pthread_t * pthread,MotorsAll2 * MotorsAll2);
-int set_power2(MotorsAll2 * MotorsAll2, float * powers);
+int set_power2(MotorsAll2 * MotorsAll2, int * powers);
 
 #endif
