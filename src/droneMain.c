@@ -2,14 +2,50 @@
 #include "motors.h"
 #include "PID.hpp"
 #include "capteur.hpp"
+#include "signal.h"
+
+#define ERROR(a,str) if (a<0) {perror(str); exit(1);}
+
+
+volatile int * boolStopServ=NULL;
 
 void stopNetwork(volatile int * boolStopServ){
+  printf("ok man\n");
 	*boolStopServ=1;
 	sleep(3);
+	exit(EXIT_FAILURE);
+}
+
+void handler(int i){
+  boolStopServ==NULL ? exit(EXIT_FAILURE) : stopNetwork(boolStopServ);
+}
+
+void init_mask(){
+  int rc;
+  
+  struct sigaction sa;
+  memset(&sa,0,sizeof(sa));
+  sa.sa_flags = 0;
+
+  sa.sa_handler = handler;
+
+  sigset_t set;
+  rc = sigemptyset(&set);
+  ERROR(rc,"sigemptyset\n");
+  rc = sigaddset(&set,SIGQUIT);
+  ERROR(rc, "sigaddset\n");
+
+  sa.sa_mask = set;
+  
+  rc = sigaction(SIGINT, &sa, NULL);
+  ERROR(rc,"sigaction\n");
+
 }
 
 int main (int argc, char *argv[]){
 
+        init_mask();
+  
 	char noControl=0;
 	if(setVerboseOrLog(argc,argv[1],1)){
 		return EXIT_FAILURE;
@@ -20,6 +56,10 @@ int main (int argc, char *argv[]){
 	if(init_args_SERVER(&argServ)){
 		return EXIT_FAILURE;
 	}
+
+	boolStopServ = argServ->boolStopServ;
+
+	
 
 	/*
 	MotorsAll * motorsAll;
