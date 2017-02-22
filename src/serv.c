@@ -279,7 +279,6 @@ void *thread_UDP_SERVER(void *args) {
 
 			if(manageNewMessage(argSERV,sock,buff,&cmpNumberMessage,&dataTmp)==0){
 				runServ=0;
-				*(argSERV->boolStopServ)=1;
 			}
 
 		} else {

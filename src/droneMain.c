@@ -93,19 +93,6 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	#ifdef __arm__
-	RTIMU *imu;
-	imu = capteurInit();
-
-	if(imu==NULL){
-		logString("THREAD MAIN : ERROR NEW FAIL RTIMU ->imu");
-		return EXIT_FAILURE;
-	}else{
-		logString("THREAD MAIN : CAPTEUR INIT SUCCES");
-		argPID->imu=imu;
-	}
-	#endif
-
 	pthread_t threadServer;
 	pthread_t threadPID;
 	pthread_t threadMotor2;

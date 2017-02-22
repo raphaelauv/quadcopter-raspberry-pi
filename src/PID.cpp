@@ -12,6 +12,19 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll2 * m
 	(*argPID)->dataController = dataControl;
 	(*argPID)->motorsAll2 = motorsAll2;
 
+	#ifdef __arm__
+	RTIMU *imu;
+	imu = capteurInit();
+
+	if(imu==NULL){
+		logString("THREAD MAIN : ERROR NEW FAIL RTIMU ->imu");
+		return EXIT_FAILURE;
+	}else{
+		logString("THREAD MAIN : CAPTEUR INIT SUCCES");
+		(*argPID)->imu=imu;
+	}
+	#endif
+
 	return 0;
 }
 
@@ -38,7 +51,7 @@ void * thread_PID(void * args);
 int init_thread_PID(pthread_t * threadPID,args_PID * argPID){
 
 	pthread_attr_t attributs;
-	if(init_Attr_Pthread(&attributs,99,1)){
+	if(init_Attr_Pthread(&attributs,99,CPU_CORE_PID)){
 		logString("THREAD MAIN : ERROR pthread_attributs PID");
 		return -1;
 	}

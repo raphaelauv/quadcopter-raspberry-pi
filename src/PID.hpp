@@ -18,7 +18,6 @@
 /*2.5, 0.005 220*/
 
 typedef struct args_PID {
-	char verbose;
 	MotorsAll2 * motorsAll2;
 	DataController * dataController;
 	RTIMU * imu; //	RTIMU *

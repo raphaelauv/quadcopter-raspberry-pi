@@ -451,7 +451,7 @@ int init_thread_startMotorAll2(pthread_t * pthread,MotorsAll2 * motorsAll2){
     pthread_attr_t attributs;
     int error=0;
 
-    if(init_Attr_Pthread(&attributs,99,0)){
+    if(init_Attr_Pthread(&attributs,99,CPU_CORE_MOTOR)){
     	logString("THREAD MAIN : ERROR pthread_attributs MOTORS");
     	return -1;
     }

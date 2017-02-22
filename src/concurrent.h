@@ -9,17 +9,18 @@ extern "C" {
 
 #include <errno.h>
 #include <pthread.h>
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <sched.h>
 #include <sys/time.h>
 #include <sys/mman.h>
-
 #include <unistd.h>
 
 #include "log.h"
+
+#define CPU_CORE_PID 1
+#define CPU_CORE_MOTOR 0
 
 typedef struct PMutex {
 	//volatile int * var;
