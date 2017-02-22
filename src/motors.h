@@ -47,7 +47,7 @@
 #include "concurrent.h"
 
 #define NUMBER_OF_MOTORS 4
-#define FREQUENCY 50.0
+#define FREQUENCY_MOTOR 50.0
 
 #define MOTOR_HIGH_TIME 2000
 #define MOTOR_LOW_TIME 1000

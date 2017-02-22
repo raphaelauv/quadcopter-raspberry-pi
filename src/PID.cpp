@@ -96,6 +96,8 @@ void * thread_PID(void * args){
 	//logString(array);
 	int powerTab[NUMBER_OF_MOTORS];
 
+	int local_period=(1.0/FREQUENCY_PID)*USEC_TO_SEC;
+
 	uint64_t time_debut=0;
 	uint64_t time_fin=0;
 	uint64_t time_to_sleep = 0;
@@ -235,10 +237,10 @@ void * thread_PID(void * args){
 		
 		if(time_to_sleep<0){
 		}
-		else if(time_to_sleep>=4000){
-			printf("temps sleep : %lld\n",4000-time_to_sleep);
+		else if(time_to_sleep>=local_period){
+			printf("temps sleep : %lld\n",local_period-time_to_sleep);
 		}else{
-		  usleep(4000-time_to_sleep);
+		  usleep(local_period-time_to_sleep);
 		}
 		
 		#endif

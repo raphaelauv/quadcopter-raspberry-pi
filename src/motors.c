@@ -195,7 +195,7 @@ int set_power(Motor_info * info,int high_time){
 int init_Value_motors(MotorsAll * motorsAll){
 
     //init 0% de puissance des moteur en fonction de la frequence
-    periode=(1.0/FREQUENCY)*USEC_TO_SEC;
+    periode=(1.0/FREQUENCY_MOTOR)*USEC_TO_SEC;
 
     //init broche du signal du controle des moteur
     int mValues[NUMBER_OF_MOTORS] = {5, 28, 2, 24};
@@ -356,7 +356,7 @@ int comp (const void * elem1, const void * elem2)
 void * thread_startMotorAll(void * args){
 	MotorsAll2 * motors =(MotorsAll2*) args;
 
-	int local_period=(1.0/FREQUENCY)*USEC_TO_SEC;
+	int local_period=(1.0/FREQUENCY_MOTOR)*USEC_TO_SEC;
 
 	int valuesBrocheMotor[NUMBER_OF_MOTORS][2];
 
