@@ -10,7 +10,7 @@
 volatile int * boolStopServ=NULL;
 
 void stopNetwork(volatile int * boolStopServ){
-  printf("ok man\n");
+        logString("THREAD MAIN : SIGINT catched, process to stop\n");
 	*boolStopServ=1;
 	sleep(3);
 	exit(EXIT_FAILURE);
