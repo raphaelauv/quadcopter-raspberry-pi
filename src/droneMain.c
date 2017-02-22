@@ -2,22 +2,36 @@
 #include "motors.h"
 #include "PID.hpp"
 #include "capteur.hpp"
-#include "signal.h"
+//#include "signal.h"
+#include <sys/signal.h>
 
 #define ERROR(a,str) if (a<0) {perror(str); exit(1);}
 
-
 volatile int * boolStopServ=NULL;
+volatile int * boolStopMotor=NULL;
 
-void stopNetwork(volatile int * boolStopServ){
-        logString("THREAD MAIN : SIGINT catched, process to stop\n");
-	*boolStopServ=1;
+void stopMotor(){
+	if(boolStopMotor!=NULL){
+		*boolStopMotor=1;
+	}
+}
+
+void stopNetwork(){
+	if(boolStopServ!=NULL){
+		*boolStopServ=1;
+	}
+}
+
+void stopAll(){
+	logString("THREAD MAIN : SIGINT catched -> process to stop");
+	stopNetwork();
+	stopMotor();
 	sleep(3);
 	exit(EXIT_FAILURE);
 }
 
 void handler(int i){
-  boolStopServ==NULL ? exit(EXIT_FAILURE) : stopNetwork(boolStopServ);
+  boolStopServ==NULL ? exit(EXIT_FAILURE) : stopAll();
 }
 
 void init_mask(){
@@ -43,8 +57,8 @@ void init_mask(){
 }
 
 int main (int argc, char *argv[]){
-
-        init_mask();
+	
+	init_mask();
   
 	char noControl=0;
 	if(setVerboseOrLog(argc,argv[1],1)){
@@ -60,7 +74,6 @@ int main (int argc, char *argv[]){
 	boolStopServ = argServ->boolStopServ;
 
 	
-
 	/*
 	MotorsAll * motorsAll;
 	if (init_MotorsAll(&motorsAll)) {
@@ -72,6 +85,8 @@ int main (int argc, char *argv[]){
 	if (init_MotorsAll2(&motorsAll2,4,BROCHE_MOTOR_0,BROCHE_MOTOR_1,BROCHE_MOTOR_2,BROCHE_MOTOR_3)) {
 		return EXIT_FAILURE;
 	}
+
+	boolStopMotor=motorsAll2->bool_arret_moteur;
 
 	args_PID * argPID;
 	if (init_args_PID(&argPID,argServ->dataController,motorsAll2)) {
@@ -111,13 +126,13 @@ int main (int argc, char *argv[]){
 
 
 	if(init_thread_PID(&threadPID,argPID)){
-		stopNetwork(argServ->boolStopServ);
+		stopNetwork();
 		return EXIT_FAILURE;
 	}
 
 
 	if(init_thread_startMotorAll2(&threadMotor2,motorsAll2)){
-		stopNetwork(argServ->boolStopServ);
+		stopNetwork();
 		return EXIT_FAILURE;
 	}
 
@@ -133,13 +148,13 @@ int main (int argc, char *argv[]){
 
 	if (pthread_join(threadPID, (void**) &returnValue)){
 		logString("THREAD MAIN : ERROR pthread_join PID");
-		stopNetwork(argServ->boolStopServ);
+		stopNetwork();
 		return EXIT_FAILURE;
 	}
 
 	if (pthread_join(threadMotor2, (void**) &returnValue)) {
 		logString("THREAD MAIN : ERROR pthread_join MOTOR");
-		stopNetwork(argServ->boolStopServ);
+		stopNetwork();
 		return EXIT_FAILURE;
 	}
 

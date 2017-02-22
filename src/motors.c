@@ -1,7 +1,6 @@
 #include "motors.h"
 #include "concurrent.h"
 
-//double frequence=50.0; //frequence du signal d'entré des ESCs
 double periode=0; // periode = 1/frequence. Initialisée plus tard.
 
 
@@ -27,8 +26,8 @@ int init_MotorsAll(MotorsAll ** motorsAll){
 		logString("MALLOC FAIL : motorsAll->bool_arret_moteur\n");
 		return -1;
 	}
-	volatile int arret=0;//TODO
-	(*(*motorsAll)->bool_arret_moteur)= arret;
+
+	(*(*motorsAll)->bool_arret_moteur)= 0;
 
 
 	PMutex * barrier = (PMutex *) malloc(sizeof(PMutex));
@@ -179,7 +178,7 @@ int init_Motor_info(Motor_info *info,int broche,volatile int * stop,PMutex * bar
 
 int set_power(Motor_info * info,int high_time){
 
-    int low=20000-high_time;
+    int low=periode-high_time;
 
     pthread_mutex_lock(&info->MutexSetPower->mutex);
 
@@ -196,7 +195,7 @@ int set_power(Motor_info * info,int high_time){
 int init_Value_motors(MotorsAll * motorsAll){
 
     //init 0% de puissance des moteur en fonction de la frequence
-    periode=(1.0/FREQUENCY)*1000000;
+    periode=(1.0/FREQUENCY)*USEC_TO_SEC;
 
     //init broche du signal du controle des moteur
     int mValues[NUMBER_OF_MOTORS] = {5, 28, 2, 24};
@@ -291,8 +290,8 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...){
 		logString("MALLOC FAIL : motorsAll->bool_arret_moteur");
 		return -1;
 	}
-	volatile int arret=0;//TODO
-	(*(*motorsAll2)->bool_arret_moteur)= arret;
+
+	(*(*motorsAll2)->bool_arret_moteur)= 0;
 
 
 	PMutex * barrier = (PMutex *) malloc(sizeof(PMutex));
@@ -313,6 +312,7 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...){
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 		int c = va_arg(va, int);
 		(*motorsAll2)->broche[i]=c;
+		(*motorsAll2)->high_time[i]=MOTOR_LOW_TIME;
 		sprintf(array, "BROCHE %d VALUE : %d",i,(*motorsAll2)->broche[i]);
 		logString(array);
 	}
@@ -356,7 +356,7 @@ int comp (const void * elem1, const void * elem2)
 void * thread_startMotorAll(void * args){
 	MotorsAll2 * motors =(MotorsAll2*) args;
 
-	int period=(1.0/FREQUENCY)*1000000;
+	int local_period=(1.0/FREQUENCY)*USEC_TO_SEC;
 
 	int valuesBrocheMotor[NUMBER_OF_MOTORS][2];
 
@@ -369,10 +369,17 @@ void * thread_startMotorAll(void * args){
 	logString("THREAD MOTORS : INIT DONE");
 
 	int runMotor=1;
-
 	//srand(time(NULL));
+	int timeUsecStart=0;
+	int timeUsecEnd=0;
+	int timeBetween=0;
+	struct timeval tv;
 	while (runMotor) {
-		//sleep(5);
+		sleep(5);
+
+		gettimeofday(&tv, NULL);
+		timeUsecStart= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
+
 		for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 			valuesBrocheMotor[i][0] = motors->broche[i];
 		}
@@ -394,7 +401,7 @@ void * thread_startMotorAll(void * args){
 
 			for(int i=0;i<NUMBER_OF_MOTORS;i++){
 				#ifdef __arm__
-				//digitalWrite(valuesBrocheMotor[i][0],1);
+				digitalWrite(valuesBrocheMotor[i][0],1);
 				#endif
 			}
 
@@ -402,18 +409,30 @@ void * thread_startMotorAll(void * args){
 			int dif=0;
 			for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 
-				dif=valuesBrocheMotor[i][1]-sleepedTotalTime;
+				dif=(valuesBrocheMotor[i][1])-sleepedTotalTime;
 				//printf("SLEEP %d : %d\n",i,dif);
-				usleep(dif);
-				sleepedTotalTime+=dif;
+				if(dif>0 && sleepedTotalTime<MOTOR_HIGH_TIME){
+					usleep(dif);
+					sleepedTotalTime+=dif;
+				}
 				#ifdef __arm__
-				//digitalWrite(valuesBrocheMotor[i][0],0);
+				digitalWrite(valuesBrocheMotor[i][0],0);
 				#endif
 			}
 			//printf("SLEEP FINAL : %d\n",period-sleepedTotalTime);
-			usleep(period-sleepedTotalTime);
+
+			gettimeofday(&tv, NULL);
+			timeUsecEnd= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
+			timeBetween=timeUsecEnd-timeUsecStart;
+			if(timeBetween>local_period){
+				logString("THREAD MOTORS : ERROR PERIODE TOO SLOW !!!!");
+			}else{
+				printf("TEMPS BETWEEN : %d \n",timeBetween);
+				usleep(local_period - timeBetween);
+			}
 
 		} else {
+			logString("THREAD MOTORS : BOOL STOP MOTOR TRUE");
 			pthread_mutex_unlock(&motors->MutexSetValues->mutex);
 			runMotor = 0;
 		}
@@ -451,7 +470,7 @@ int init_thread_startMotorAll2(pthread_t * pthread,MotorsAll2 * motorsAll2){
 	return error;
 }
 
-int set_power2(MotorsAll2 * MotorsAll2, float * powers){
+int set_power2(MotorsAll2 * MotorsAll2, int * powers){
 
 	pthread_mutex_lock(&MotorsAll2->MutexSetValues->mutex);
 

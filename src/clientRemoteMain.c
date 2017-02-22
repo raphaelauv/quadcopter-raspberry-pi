@@ -1,6 +1,44 @@
 #include "client.h"
 #include "Controller/controller.h"
 
+#include <sys/signal.h>
+#define ERROR(a,str) if (a<0) {perror(str); exit(1);}
+
+volatile int * boolStopServ=NULL;
+
+void stopNetwork(volatile int * boolStopServ){
+	logString("THREAD MAIN : SIGINT catched -> process to stop");
+	*boolStopServ=1;
+	sleep(3);
+	exit(EXIT_FAILURE);
+}
+
+void handler(int i){
+  boolStopServ==NULL ? exit(EXIT_FAILURE) : stopNetwork(boolStopServ);
+}
+
+void init_mask(){
+  int rc;
+  
+  struct sigaction sa;
+  memset(&sa,0,sizeof(sa));
+  sa.sa_flags = 0;
+
+  sa.sa_handler = handler;
+
+  sigset_t set;
+  rc = sigemptyset(&set);
+  ERROR(rc,"sigemptyset\n");
+  rc = sigaddset(&set,SIGQUIT);
+  ERROR(rc, "sigaddset\n");
+
+  sa.sa_mask = set;
+  
+  rc = sigaction(SIGINT, &sa, NULL);
+  ERROR(rc,"sigaction\n");
+
+}
+
 int main (int argc, char *argv[]){
 	if(argc<2){
 		perror("put IP adresse of drone in argument");
@@ -21,10 +59,12 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	args_CLIENT * argClient;
+	args_CLIENT * argClient;	
 	if(init_args_CLIENT(&argClient,adresse,argController)){
 		return EXIT_FAILURE;
 	}
+
+	//boolStopServ = argClient->boolStopServ;
 
 	pthread_t threadClient;
 	pthread_t threadController;

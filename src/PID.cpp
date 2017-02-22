@@ -63,6 +63,9 @@ int absValue(int val){
 	if(val<1100){
 		val=1100;
 	}
+	else if(val>2000){
+		val=2000;
+	}
 	return val;
 }
 
@@ -77,14 +80,14 @@ void * thread_PID(void * args){
 	RTIMU *imu =(RTIMU *)controle_vol->imu;
 
 
-	float powerTab[NUMBER_OF_MOTORS];
+	int powerTab[NUMBER_OF_MOTORS];
 
 	uint64_t time_debut;
 	uint64_t time_fin;
 	uint64_t time_to_sleep = 0;
 
 	//Consigne client
-	float client_gaz = 1050;
+	float client_gaz = MOTOR_LOW_TIME + 50;
 	float client_pitch = 0;
 
 	//PID
@@ -99,18 +102,24 @@ void * thread_PID(void * args){
 	float pid_last_pitch = 0;
 
 	// puissance des 4 moteur. (en microseconde)
-	int puissance_motor0 = 1000;
-	int puissance_motor1 = 1000;
-	int puissance_motor2 = 1000;
-	int puissance_motor3 = 1000;
+	int puissance_motor0 = MOTOR_LOW_TIME;
+	int puissance_motor1 = MOTOR_LOW_TIME;
+	int puissance_motor2 = MOTOR_LOW_TIME;
+	int puissance_motor3 = MOTOR_LOW_TIME;
 
 
 	RTIMU_DATA imuData;
 
-	int continuThread=1;
+	sleep(PID_SLEEP_TIME_SECURITE);
 
+	int continuThread=1;
 	while (continuThread) {
 
+
+		if(*(controle_vol->motorsAll2->bool_arret_moteur)==1){
+			continuThread = 0;
+			continue;
+		}
 
 		#ifdef __arm__
 		time_debut=RTMath::currentUSecsSinceEpoch();
@@ -147,9 +156,9 @@ void * thread_PID(void * args){
 			if(puissance_motor0<1100) puissance_motor0=1100;
 			if(puissance_motor1<1100) puissance_motor1=1100;
 
-			//puissance max=2000 donc il faut pas depasser.
-			if(puissance_motor0>2000) puissance_motor0=2000;
-			if(puissance_motor1>2000) puissance_motor1=2000;
+			//puissance max=MOTOR_HIGH_TIME donc il faut pas depasser.
+			if(puissance_motor0>MOTOR_HIGH_TIME) puissance_motor0=MOTOR_HIGH_TIME;
+			if(puissance_motor1>MOTOR_HIGH_TIME) puissance_motor1=MOTOR_HIGH_TIME;
 
 
 			//set la puissance au moteur.
@@ -161,7 +170,7 @@ void * thread_PID(void * args){
 			powerTab[1] = puissance_motor1;
 			powerTab[2] = puissance_motor2;
 			powerTab[3] = puissance_motor3;
-			set_power2(controle_vol->motorsAll2,powerTab);
+			//set_power2(controle_vol->motorsAll2,powerTab);
 
 			break;
 		}
@@ -176,9 +185,7 @@ void * thread_PID(void * args){
 
 		if (data->flag== 0) {
 			pthread_mutex_unlock(&(mutexDataControler->mutex));
-
 			*(controle_vol->motorsAll2->bool_arret_moteur)=1;
-
 			continuThread = 0;
 			continue;
 		}

@@ -258,8 +258,8 @@ void *thread_UDP_SERVER(void *args) {
 	struct timeval tv;
 	fd_set rdfs;
 
-	//&& !(*argSERV->boolStopServ) TODO
-	while(runServ ){
+	
+	while(runServ && !(*(argSERV->boolStopServ))){
 
 		FD_ZERO(&rdfs);
 		FD_SET(sock, &rdfs);
@@ -279,6 +279,7 @@ void *thread_UDP_SERVER(void *args) {
 
 			if(manageNewMessage(argSERV,sock,buff,&cmpNumberMessage,&dataTmp)==0){
 				runServ=0;
+				*(argSERV->boolStopServ)=1;
 			}
 
 		} else {
@@ -297,9 +298,10 @@ void *thread_UDP_SERVER(void *args) {
 		 * NO CRITIC SECTION
 		 */
 		char stop[5] = "STOP";
+		logString("THREAD SERV : SEND STOP");
 		for (int i = 0; i < 10; i++) {
 			if (sendNetwork(sock, &adr_send, stop) == -1) {
-				logString("THREAD SERV : SEND STOP , NETWORK ERROR");
+				logString("THREAD SERV : NETWORK ERROR DURING -> SEND STOP");
 				break;
 			}
 		}

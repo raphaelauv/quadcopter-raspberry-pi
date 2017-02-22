@@ -54,6 +54,7 @@ void UsleepDuration(int sleepTime);
 int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu);
 
 
+
 /*
 #ifdef __cplusplus
 }
