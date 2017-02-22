@@ -58,7 +58,7 @@ int init_args_SERVER(args_SERVER ** argServ){
 		logString("THREAD SERV : Socket error");
 		return EXIT_FAILURE;
 	}
-
+    
 	if(bindUDPSock(&sock,&adr_svr) == -1){
 		return EXIT_FAILURE;
 	}
@@ -135,7 +135,7 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 	buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 
 	char array[400];
-	sprintf(array, "THREAD SERV : messag recu : %s", buff);
+	sprintf(array, "THREAD SERV : msg receve : %s", buff);
 	logString(array);
 
 	(*cmpNumberMessage)++;
@@ -231,7 +231,7 @@ void *thread_UDP_SERVER(void *args) {
 
 		buff[SIZE_SOCKET_MESSAGE - 1] = '\0';
 		char array[400];
-		//sprintf("THREAD SERV : messag recu : %s", buff);
+		sprintf(array,"THREAD SERV : mesg receve : %s", buff);
 		logString(array);
 		memset(&adr_send, 0, sizeof(adr_send));
 		adr_send.sin_family = AF_INET;

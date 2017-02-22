@@ -323,10 +323,8 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...){
 
 void clean_MotorsAll2(MotorsAll2 * arg) {
 	if (arg != NULL) {
-		if (arg->MutexSetValues != NULL) {
-			free(arg->MutexSetValues);
-			arg->MutexSetValues = NULL;
-		}
+
+		clean_PMutex(arg->MutexSetValues);
 
 		if (arg->bool_arret_moteur != NULL) {
 			free((void *)arg->bool_arret_moteur);
@@ -372,7 +370,7 @@ void * thread_startMotorAll(void * args){
 
 	int runMotor=1;
 
-	srand(time(NULL));
+	//srand(time(NULL));
 	while (runMotor) {
 		sleep(5);
 		for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
@@ -383,9 +381,9 @@ void * thread_startMotorAll(void * args){
 		if ((*(motors->bool_arret_moteur)) != 1) {
 			for(int i =0;i<NUMBER_OF_MOTORS;i++){
 
-				int ale=(int) (((double)(15+1)/RAND_MAX) * rand() + 0);
-				//valuesBrocheMotor[i][1]=motors->high_time[i];
-				valuesBrocheMotor[i][1]=ale;
+				valuesBrocheMotor[i][1]=motors->high_time[i];
+				//int ale=(int) (((double)(15+1)/RAND_MAX) * rand() + 0);
+				//valuesBrocheMotor[i][1]=ale;
 			}
 
 			pthread_mutex_unlock(&motors->MutexSetValues->mutex);
@@ -412,7 +410,7 @@ void * thread_startMotorAll(void * args){
 				//digitalWrite(valuesBrocheMotor[i][0],0);
 				#endif
 			}
-			printf("SLEEP FINAL : %d\n",20-sleepedTotalTime);
+			printf("SLEEP FINAL : %d\n",period-sleepedTotalTime);
 			usleep(period-sleepedTotalTime);
 
 		} else {

@@ -1,7 +1,7 @@
 #include "PID.hpp"
 
 
-int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * motorsAll){
+int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll2 * motorsAll2){
 
 	*argPID =(args_PID *) malloc(sizeof(args_PID));
 	if (*argPID == NULL) {
@@ -10,19 +10,21 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * mo
 	}
 
 	(*argPID)->dataController = dataControl;
-	(*argPID)->motorsAll = motorsAll;
+	(*argPID)->motorsAll2 = motorsAll2;
 
 	return 0;
 }
 
 void clean_args_PID(args_PID * arg) {
 	if (arg != NULL) {
-		clean_MotorsAll(arg->motorsAll);
+		clean_MotorsAll2(arg->motorsAll2);
 		clean_DataController(arg->dataController);
+		#ifdef __arm__
 		if( arg->imu !=NULL){
 			delete(arg->imu);
 			arg->imu=NULL;
 		}
+		#endif
 		free(arg);
 		arg = NULL;
 	}
@@ -51,6 +53,15 @@ int init_thread_PID(pthread_t * threadPID,args_PID * argPID){
 	return result;
 }
 
+
+int absValue(int val){
+	if(val<0){
+		val*=-1;
+	}
+	val*=10;
+	val+=1000;
+	return val;
+}
 
 void * thread_PID(void * args){
 
@@ -87,6 +98,8 @@ void * thread_PID(void * args){
 	// puissance des 4 moteur. (en microseconde)
 	int puissance_motor0 = 1000;
 	int puissance_motor1 = 1000;
+	int puissance_motor2 = 1000;
+	int puissance_motor3 = 1000;
 
 
 	RTIMU_DATA imuData;
@@ -137,8 +150,15 @@ void * thread_PID(void * args){
 
 
 			//set la puissance au moteur.
-			set_power(controle_vol->motorsAll->arrayOfMotors[0], puissance_motor0);
-			set_power(controle_vol->motorsAll->arrayOfMotors[1], puissance_motor1);
+			//set_power(controle_vol->motorsAll->arrayOfMotors[0], puissance_motor0);
+			//set_power(controle_vol->motorsAll->arrayOfMotors[1], puissance_motor1);
+
+
+			powerTab[0] = puissance_motor0;
+			powerTab[1] = puissance_motor1;
+			powerTab[2] = puissance_motor2;
+			powerTab[3] = puissance_motor3;
+			set_power2(controle_vol->motorsAll2,powerTab);
 
 			break;
 		}
@@ -154,7 +174,7 @@ void * thread_PID(void * args){
 		if (data->flag== 0) {
 			pthread_mutex_unlock(&(mutexDataControler->mutex));
 
-			*(controle_vol->motorsAll->bool_arret_moteur)=1;
+			*(controle_vol->motorsAll2->bool_arret_moteur)=1;
 
 			continuThread = 0;
 			continue;
@@ -165,10 +185,14 @@ void * thread_PID(void * args){
 		powerTab[1] = data->axe_UpDown;
 		powerTab[2] = data->axe_LeftRight;
 		powerTab[3] = data->axe_FrontBack;
-
 		pthread_mutex_unlock(&(mutexDataControler->mutex));
 
-		//set_power2(controle_vol->motorsAll,powerTab);
+		powerTab[0] =absValue(powerTab[0]);
+		powerTab[1] =absValue(powerTab[1]);
+		powerTab[2] =absValue(powerTab[2]);
+		powerTab[3] =absValue(powerTab[3]);
+
+		set_power2(controle_vol->motorsAll2,powerTab);
 
 		/*
 		for(int i=0; i<NUMBER_OF_MOTORS;i++){

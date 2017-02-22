@@ -45,7 +45,7 @@ extern "C" {
 
 #define STR_STOP "STOP"
 
-#define UDP_PORT_DRONE 8888
+#define UDP_PORT_DRONE 8898
 
 #define UDP_PORT_REMOTE 8899
 

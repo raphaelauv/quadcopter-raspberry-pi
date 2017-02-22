@@ -5,13 +5,14 @@ CFLAGS_Raspberry= $(CFLAGS) -lwiringPi
 
 LDFLAGS=-lpthread 
 
-#--------------------------SUR RASBPERRY---------------------------#
+ARCH := $(shell uname -m)
 
-#rajouté  -lwiringPi   a la suite de  LDFLAGS_Raspberry= $(LDFLAGS)
-LDFLAGS_Raspberry= $(LDFLAGS)
-#-lwiringPi 
+ifeq ($(ARCH),arm)
+	LDFLAGS_Raspberry= $(LDFLAGS) -lwiringPi 
+else
+	LDFLAGS_Raspberry= $(LDFLAGS)
+endif
 
-#------------------------------------------------------------------#
 
 LDFLAGS_ClientRemote= $(LDFLAGS) -lSDL -lSDLmain
 

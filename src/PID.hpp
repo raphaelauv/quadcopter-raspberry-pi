@@ -17,13 +17,13 @@
 
 typedef struct args_PID {
 	char verbose;
-	MotorsAll * motorsAll;
+	MotorsAll2 * motorsAll2;
 	DataController * dataController;
 	RTIMU * imu; //	RTIMU *
 
 } args_PID;
 
-int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * motorsAll);
+int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll2 * motorsAll);
 
 int init_thread_PID(pthread_t * threadControlerVOL,args_PID * argPID);
 
