@@ -49,6 +49,9 @@
 #define NUMBER_OF_MOTORS 4
 #define FREQUENCY 50.0
 
+#define MOTOR_HIGH_TIME 2000
+#define MOTOR_LOW_TIME 1000
+
 #define BROCHE_MOTOR_0 5
 #define BROCHE_MOTOR_1 28
 #define BROCHE_MOTOR_2 2
@@ -60,6 +63,7 @@
 #define BROCHE_MOTOR_8 0
 /* ... */
 
+#define USEC_TO_SEC 1000000
 
 /**********************************************************************/
 /* MULTI THREADING SOLUTION */

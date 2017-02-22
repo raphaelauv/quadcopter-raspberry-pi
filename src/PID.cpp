@@ -87,7 +87,7 @@ void * thread_PID(void * args){
 	uint64_t time_to_sleep = 0;
 
 	//Consigne client
-	float client_gaz = 1050;
+	float client_gaz = MOTOR_LOW_TIME + 50;
 	float client_pitch = 0;
 
 	//PID
@@ -102,16 +102,17 @@ void * thread_PID(void * args){
 	float pid_last_pitch = 0;
 
 	// puissance des 4 moteur. (en microseconde)
-	int puissance_motor0 = 1000;
-	int puissance_motor1 = 1000;
-	int puissance_motor2 = 1000;
-	int puissance_motor3 = 1000;
+	int puissance_motor0 = MOTOR_LOW_TIME;
+	int puissance_motor1 = MOTOR_LOW_TIME;
+	int puissance_motor2 = MOTOR_LOW_TIME;
+	int puissance_motor3 = MOTOR_LOW_TIME;
 
 
 	RTIMU_DATA imuData;
 
+	sleep(PID_SLEEP_TIME_SECURITE);
+
 	int continuThread=1;
-	sleep(10);
 	while (continuThread) {
 
 
@@ -155,9 +156,9 @@ void * thread_PID(void * args){
 			if(puissance_motor0<1100) puissance_motor0=1100;
 			if(puissance_motor1<1100) puissance_motor1=1100;
 
-			//puissance max=2000 donc il faut pas depasser.
-			if(puissance_motor0>2000) puissance_motor0=2000;
-			if(puissance_motor1>2000) puissance_motor1=2000;
+			//puissance max=MOTOR_HIGH_TIME donc il faut pas depasser.
+			if(puissance_motor0>MOTOR_HIGH_TIME) puissance_motor0=MOTOR_HIGH_TIME;
+			if(puissance_motor1>MOTOR_HIGH_TIME) puissance_motor1=MOTOR_HIGH_TIME;
 
 
 			//set la puissance au moteur.
