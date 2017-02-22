@@ -4,7 +4,7 @@
 #include "concurrent.h"
 #include "motors.h"
 #include "RTIMULib/RTIMULib.h"
-//#include "capteur.hpp"
+#include "capteur.hpp"
 //#include "Calibrage/Calibration_ESC.h"
 
 #define  PID_SLEEP_TIME_SECURITE 10

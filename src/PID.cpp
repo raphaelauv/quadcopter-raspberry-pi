@@ -91,12 +91,13 @@ void * thread_PID(void * args){
 	DataController * data = controle_vol->dataController;
 	PMutex * mutexDataControler =controle_vol->dataController->pmutex;
 	RTIMU *imu =(RTIMU *)controle_vol->imu;
-
-
+	//char array[400];
+	//sprintf(array, "VAL POINT BOOL ARRET IN PID   : %d\n",controle_vol->motorsAll2->bool_arret_moteur);
+	//logString(array);
 	int powerTab[NUMBER_OF_MOTORS];
 
-	uint64_t time_debut;
-	uint64_t time_fin;
+	uint64_t time_debut=0;
+	uint64_t time_fin=0;
 	uint64_t time_to_sleep = 0;
 
 	//Consigne client
@@ -137,8 +138,8 @@ void * thread_PID(void * args){
 		#ifdef __arm__
 		time_debut=RTMath::currentUSecsSinceEpoch();
 
-
-		while(imu->IMURead()){
+		
+		if(imu->IMURead()){
 			imuData = imu->getIMUData();
 
 			//calcule pitch PID
@@ -181,13 +182,13 @@ void * thread_PID(void * args){
 
 			powerTab[0] = puissance_motor0;
 			powerTab[1] = puissance_motor1;
-			powerTab[2] = puissance_motor2;
-			powerTab[3] = puissance_motor3;
+			//powerTab[2] = puissance_motor2;
+			//powerTab[3] = puissance_motor3;
 			//set_power2(controle_vol->motorsAll2,powerTab);
 
-			break;
+			
 		}
-
+		
 		#endif
 
 		/*********************************************************/
@@ -198,6 +199,7 @@ void * thread_PID(void * args){
 
 		if (data->flag== 0) {
 			pthread_mutex_unlock(&(mutexDataControler->mutex));
+			//printf("VAL POINT BOOL ARRET IN PID   : %d\n",controle_vol->motorsAll2->bool_arret_moteur);
 			*(controle_vol->motorsAll2->bool_arret_moteur)=1;
 			continuThread = 0;
 			continue;
@@ -229,11 +231,16 @@ void * thread_PID(void * args){
 
 		#ifdef __arm__
 		time_fin=RTMath::currentUSecsSinceEpoch();
-		time_to_sleep=(time_fin -time_debut);
-		if(time_fin-time_debut>4000){
-			printf("temps sleep : %lld\n",4000-time_to_sleep);
+		time_to_sleep=time_fin -time_debut;
+		
+		if(time_to_sleep<0){
 		}
-		usleep(4000-time_to_sleep);
+		else if(time_to_sleep>=4000){
+			printf("temps sleep : %lld\n",4000-time_to_sleep);
+		}else{
+		  usleep(4000-time_to_sleep);
+		}
+		
 		#endif
 
 

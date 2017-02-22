@@ -365,7 +365,12 @@ void * thread_startMotorAll(void * args){
 		pinMode (motors->broche[i], OUTPUT);
 	}
 	#endif
-
+	/*
+	char array[400];
+	sprintf(array, "VAL POINT BOOL ARRET IN MOTOR : %d\n",motors->bool_arret_moteur);
+	logString(array);
+	sleep(10);
+	*/
 	logString("THREAD MOTORS : INIT DONE");
 
 	int runMotor=1;
@@ -375,7 +380,7 @@ void * thread_startMotorAll(void * args){
 	int timeBetween=0;
 	struct timeval tv;
 	while (runMotor) {
-		sleep(5);
+		//usleep(5);
 
 		gettimeofday(&tv, NULL);
 		timeUsecStart= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
@@ -385,7 +390,9 @@ void * thread_startMotorAll(void * args){
 		}
 
 		pthread_mutex_lock(&motors->MutexSetValues->mutex);
+		
 		if ((*(motors->bool_arret_moteur)) != 1) {
+			
 			for(int i =0;i<NUMBER_OF_MOTORS;i++){
 
 				valuesBrocheMotor[i][1]=motors->high_time[i];
@@ -427,7 +434,7 @@ void * thread_startMotorAll(void * args){
 			if(timeBetween>local_period){
 				logString("THREAD MOTORS : ERROR PERIODE TOO SLOW !!!!");
 			}else{
-				printf("TEMPS BETWEEN : %d \n",timeBetween);
+				//printf("TEMPS BETWEEN : %d \n",timeBetween);
 				usleep(local_period - timeBetween);
 			}
 
