@@ -1,8 +1,8 @@
 # PROJET DRONE M1 INFORMATIQUE
 
 
-#########################################################################
-#							PREPARATION Raspberry Pi 2 					#
+
+## PREPARATION Raspberry Pi 2
 
 Install RASPBIAN JESSIE Kernel version:4.4 on the Raspberry Pi 2
 
@@ -15,6 +15,7 @@ Patch the Raspberry witch the kernel_4.4.47_RT.tgz
 	pi@raspberry ~$ sudo cp -rd * /boot/
 	pi@raspberry ~$ cd ../lib
 	pi@raspberry ~$ sudo cp -dr * /lib/
+
 
 add to /boot/cmdline.txt : 
 dwc_otg.fiq_enable=0
@@ -33,10 +34,10 @@ options i2c_bcm2708 baudrate=400000
 
 
 
-#########################################################################
-#							Compilation									#
 
-#------------------------------LE CLIENT--------------------------------#
+## Compilation
+
+### CLIENT/CONTROLLER
 
 necessite :SDL 2 - la lib pour utiliser la manette XBOX360 (libSDL)
 
@@ -50,28 +51,23 @@ I) activé bluetooth
 II) bouton playstation + share -> lumiere qui clignote
 III) taper "ds4drv --emulate-xboxdrv" dans le terminal
 
-
-#------------------------------LE DRONE--------------------------------#
+### DRONE
 
 	make drone
 
-#########################################################################
+## Execution
 
+for the Drone on the Raspberry Pi 2:
 
-#########################################################################
-#							Execution									#
+	sudo ./droneMain
 
-pour executer le code du drone :
-
-	./droneMain
-
-pour executer le code du client/controlleur :
+for the Client/Controller :
 
 	./client 127.0.0.1
 
 
 --------------
-A faire
+TODO
 
 - choisir une action quand il n'y a plus de manette
 
