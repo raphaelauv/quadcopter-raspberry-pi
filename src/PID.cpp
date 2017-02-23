@@ -135,6 +135,7 @@ void * thread_PID(void * args){
 		if(*(controle_vol->motorsAll2->bool_arret_moteur)==1){
 			continuThread = 0;
 			continue;
+			//TODO break ?
 		}
 
 		#ifdef __arm__

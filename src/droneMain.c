@@ -29,23 +29,23 @@ void stopAll(){
 	exit(EXIT_FAILURE);
 }
 
-void handler(int i){
+void handler_SIGINT(int i){
   boolStopServ==NULL ? exit(EXIT_FAILURE) : stopAll();
 }
 
 void init_mask(){
   int rc;
-  
+
+  /* for the moment sigaction for SIGINT signal only*/
   struct sigaction sa;
   memset(&sa,0,sizeof(sa));
   sa.sa_flags = 0;
 
-  sa.sa_handler = handler;
+  sa.sa_handler = handler_SIGINT;
 
+  /* mask all the other signal while SIGINT signal is catched */
   sigset_t set;
-  rc = sigemptyset(&set);
-  ERROR(rc,"sigemptyset\n");
-  rc = sigaddset(&set,SIGQUIT);
+  rc = sigfillset(&set);
   ERROR(rc, "sigaddset\n");
 
   sa.sa_mask = set;

@@ -245,6 +245,7 @@ int init_threads_motors(pthread_t * tab,MotorsAll * motorsAll){
 
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 		if ((resultPthread = pthread_create(&tab[i], &attributs,thread_startMotor, motorsAll->arrayOfMotors[i])) != 0) {
+		  //TODO resultPthread n'es plus utile ?
 			//printf("pthread0_create -> %d\n",resultPthread);
 			logString("FAIL pthread_create MOTORS");
 			error = -1;
