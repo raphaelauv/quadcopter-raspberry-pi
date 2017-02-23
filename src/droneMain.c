@@ -72,14 +72,6 @@ int main (int argc, char *argv[]){
 
 	boolStopServ = argServ->boolStopServ;
 
-	
-	/*
-	MotorsAll * motorsAll;
-	if (init_MotorsAll(&motorsAll)) {
-		return EXIT_FAILURE;
-	}
-	*/
-
 	MotorsAll2 * motorsAll2;
 	if (init_MotorsAll2(&motorsAll2,4,BROCHE_MOTOR_0,BROCHE_MOTOR_1,BROCHE_MOTOR_2,BROCHE_MOTOR_3)) {
 		return EXIT_FAILURE;
@@ -95,8 +87,7 @@ int main (int argc, char *argv[]){
 	pthread_t threadServer;
 	pthread_t threadPID;
 	pthread_t threadMotor2;
-	//pthread_t threadMotors[NUMBER_OF_MOTORS];
-
+	
 	if(!noControl){
 		pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
 
@@ -122,14 +113,6 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-
-	/*
-	if(init_threads_motors(threadMotors,motorsAll)){
-		*argServ->boolStopServ=1;
-		//todo ask for PID close
-		return EXIT_FAILURE;
-	}
-	*/
 	int * returnValue;
 
 	if (pthread_join(threadPID, (void**) &returnValue)){
@@ -148,16 +131,6 @@ int main (int argc, char *argv[]){
 		logString("THREAD MAIN : ERROR pthread_join SERVER");
 		return EXIT_FAILURE;
 	}
-
-
-	/*
-	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
-		if ((pthread_join(threadMotors[i], NULL)) != 0) {
-			logString("THREAD MAIN : ERROR pthread_join MOTOR");
-			return EXIT_FAILURE;
-		}
-	}
-	*/
 
 	clean_args_SERVER(argServ);
 	clean_args_PID(argPID);

@@ -9,6 +9,13 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 		return EXIT_FAILURE;
 	}
 
+	(*argClient)->boolStopClient =(volatile int *) malloc(sizeof(int));
+	if ((*argClient)->boolStopClient == NULL) {
+		logString("MALLOC FAIL : argClient->boolStopClient");
+		return -1;
+	}
+	*(*argClient)->boolStopClient=0;
+
 	(*argClient)->adresse=adresse;
 
 
@@ -204,14 +211,14 @@ void *thread_UDP_CLIENT(void *args) {
 		//TODO
 	}
 
-	int continu = 1;
+	int runClient = 1;
 	const int sizeFLOAT=10;
 	//int sizeMessage=5*sizeFLOAT;
 	char message[SIZE_SOCKET_MESSAGE];
 	int resultWait;
 
 	int flag;
-	while (continu) {
+	while (runClient) {
 
 
 		struct timespec timeToWait;
@@ -234,8 +241,11 @@ void *thread_UDP_CLIENT(void *args) {
 
 			if(resultWait==ETIMEDOUT){
 				logString("THREAD CLIENT : TIMER LIMIT");
-
 			}
+		}
+
+		if((*(argClient->boolStopClient))){
+			argClient->argController->manette->flag=0;
 		}
 
 		argClient->argController->newThing = 0;
@@ -262,7 +272,7 @@ void *thread_UDP_CLIENT(void *args) {
 			} else {
 				logString("THREAD CLIENT STOP MSG RECEVE FROM DRONE");
 			}
-			continu=0;
+			runClient=0;
 		}
 	}
 

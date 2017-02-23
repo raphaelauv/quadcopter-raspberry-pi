@@ -9,6 +9,7 @@ typedef struct args_CLIENT {
 	char verbose;
 	int sock;
 	char * adresse;
+	volatile int * boolStopClient;
 	PMutex * pmutex;
 	struct sockaddr_in * adr_client;
 	args_CONTROLLER * argController;

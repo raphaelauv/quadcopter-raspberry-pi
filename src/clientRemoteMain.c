@@ -4,17 +4,17 @@
 #include <sys/signal.h>
 #define ERROR(a,str) if (a<0) {perror(str); exit(1);}
 
-volatile int * boolStopServ=NULL;
+volatile int * boolStopClient=NULL;
 
-void stopNetwork(volatile int * boolStopServ){
+void stopNetwork(){
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
-	*boolStopServ=1;
+	*boolStopClient=1;
 	sleep(3);
 	exit(EXIT_FAILURE);
 }
 
 void handler(int i){
-  boolStopServ==NULL ? exit(EXIT_FAILURE) : stopNetwork(boolStopServ);
+  boolStopClient==NULL ? exit(EXIT_FAILURE) : stopNetwork();
 }
 
 void init_mask(){
@@ -40,6 +40,9 @@ void init_mask(){
 }
 
 int main (int argc, char *argv[]){
+
+	init_mask();
+
 	if(argc<2){
 		perror("put IP adresse of drone in argument");
 		return EXIT_FAILURE;
@@ -64,7 +67,7 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	//boolStopServ = argClient->boolStopServ;
+	boolStopClient = argClient->boolStopClient;
 
 	pthread_t threadClient;
 	pthread_t threadController;
