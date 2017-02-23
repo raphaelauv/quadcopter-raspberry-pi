@@ -4,12 +4,12 @@
 
 ### PREPARATION Raspberry Pi 2
 
-Install RASPBIAN JESSIE Kernel version:4.4 on the Raspberry Pi 2
+Install RASPBIAN JESSIE Kernel version : 4.4 on the Raspberry Pi 2
 
-Active SSH , I2C
+Active SSH and I2C , Install RTIMULib2 inside Lib folder ( follow Readme instructions )
 
 ```
-Patch the Raspberry witch the kernel_4.4.47_RT.tgz 
+Patch the Raspberry witch the kernel_4.4.47_RT.tgz :
 
 	pi@raspberry ~$ tar xzf kernel_4.4.47_RT.tgz
 	pi@raspberry ~$ sudo rm -r /lib/firmware/
@@ -22,17 +22,20 @@ Patch the Raspberry witch the kernel_4.4.47_RT.tgz
 
 ```
 Disable USB RT PREEMPT LIMITATION -> add to /boot/cmdline.txt : 
+
 	dwc_otg.fiq_enable=0
 	dwc_otg.fiq_fsm_enable=0
 ```
 
 ```
 Disable Garde-fou -> add to .profile:
+
 	sudo sysctl kernel.sched_rt_runtime_us=-1
 ```
 
 ```
-Frequence I2C -> sudo nano /etc/modprobe.d/i2c.conf
+Frequence I2C -> sudo nano /etc/modprobe.d/i2c.conf :
+
 	options i2c_bcm2708 baudrate=400000
 ```
 
@@ -40,27 +43,30 @@ Frequence I2C -> sudo nano /etc/modprobe.d/i2c.conf
 
 ### Compilation
 
-##### CLIENT/CONTROLLER
 
-dependencies : SDL - for XBOX360 Controller (libSDL)
+##### * CLIENT/CONTROLLER
+
+dependencies : SDL (for XBOX360 Controller) libsdl1.2-dev
 
 	make client
 
-Pour calibrer la manette XBOX360   ->   jstest-gtk
-https://apps.ubuntu.com/cat/applications/jstest-gtk/
+XBOX360 controller calibration ->   jstest-gtk
+	https://apps.ubuntu.com/cat/applications/jstest-gtk/
 
-Pour simuler manette XBOX360 from DualShocks
-	* activé bluetooth 
-	* bouton playstation + share -> lumiere qui clignote
-	* taper "ds4drv --emulate-xboxdrv" dans le terminal
+Emulate controller XBOX360 from DualShocks
+ * active bluetooth 
+	* bouton playstation + share -> Flashing light
+	* "ds4drv --emulate-xboxdrv"
 
-##### DRONE
+
+
+##### * DRONE
 
 	make drone
 
 ### Execution
 
-for the Drone on the Raspberry Pi 2:
+for the Drone on the Raspberry Pi 2 :
 
 	sudo ./droneMain
 
