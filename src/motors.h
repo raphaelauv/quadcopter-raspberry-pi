@@ -36,14 +36,12 @@
 
 #ifndef _MOTORS_H_
 #define _MOTORS_H_
-//#define _GNU_SOURCE
 
 #ifdef __arm__
 #include <wiringPi.h>
 #endif
 
 #include <stdarg.h>
-
 #include "concurrent.h"
 
 #define NUMBER_OF_MOTORS 4
