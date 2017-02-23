@@ -379,13 +379,17 @@ void * thread_startMotorAll(void * args){
 	int timeUsecEnd=0;
 	int timeBetween=0;
 	struct timeval tv;
+	
+	int i;
+	int sleepedTotalTime=0;
+	int dif=0;
 	while (runMotor) {
 		//usleep(5);
 
 		gettimeofday(&tv, NULL);
 		timeUsecStart= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
 
-		for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+		for (i = 0; i < NUMBER_OF_MOTORS; i++) {
 			valuesBrocheMotor[i][0] = motors->broche[i];
 		}
 
@@ -393,7 +397,7 @@ void * thread_startMotorAll(void * args){
 		
 		if ((*(motors->bool_arret_moteur)) != 1) {
 			
-			for(int i =0;i<NUMBER_OF_MOTORS;i++){
+			for(i =0;i<NUMBER_OF_MOTORS;i++){
 
 				valuesBrocheMotor[i][1]=motors->high_time[i];
 				//int ale=(int) (((double)(15+1)/RAND_MAX) * rand() + 0);
@@ -406,21 +410,26 @@ void * thread_startMotorAll(void * args){
 
 			//printArray2D(valuesBrocheMotor);
 
-			for(int i=0;i<NUMBER_OF_MOTORS;i++){
+			for(i=0;i<NUMBER_OF_MOTORS;i++){
 				#ifdef __arm__
 				digitalWrite(valuesBrocheMotor[i][0],1);
 				#endif
 			}
 
-			int sleepedTotalTime=0;
-			int dif=0;
-			for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+			sleepedTotalTime=0;
+			dif=0;
+			for (i = 0; i < NUMBER_OF_MOTORS; i++) {
 
 				dif=(valuesBrocheMotor[i][1])-sleepedTotalTime;
 				//printf("SLEEP %d : %d\n",i,dif);
-				if(dif>0 && sleepedTotalTime<MOTOR_HIGH_TIME){
-					usleep(dif);
-					sleepedTotalTime+=dif;
+				if(dif>0){
+					if(sleepedTotalTime+dif< MOTOR_HIGH_TIME - TIME_LATENCY){
+						usleep(dif);
+						sleepedTotalTime+=dif+TIME_LATENCY;
+					}else if(MOTOR_HIGH_TIME - sleepedTotalTime -TIME_LATENCY >0){
+						usleep(MOTOR_HIGH_TIME - sleepedTotalTime - TIME_LATENCY);
+						sleepedTotalTime=MOTOR_HIGH_TIME;
+					}
 				}
 				#ifdef __arm__
 				digitalWrite(valuesBrocheMotor[i][0],0);
@@ -429,12 +438,15 @@ void * thread_startMotorAll(void * args){
 			//printf("SLEEP FINAL : %d\n",period-sleepedTotalTime);
 
 			gettimeofday(&tv, NULL);
-			timeUsecEnd= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
-			timeBetween=timeUsecEnd-timeUsecStart;
-			if(timeBetween>local_period){
+			timeUsecEnd = (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
+			timeBetween = timeUsecEnd - timeUsecStart + TIME_LATENCY;
+			if(timeBetween > local_period){
 				logString("THREAD MOTORS : ERROR PERIODE TOO SLOW !!!!");
 			}else{
-				//printf("TEMPS BETWEEN : %d \n",timeBetween);
+				if(timeBetween > MOTOR_HIGH_TIME + TIME_LATENCY){
+				  //printf("TEMPS BETWEEN : %d \n",timeBetween);
+				}
+				
 				usleep(local_period - timeBetween);
 			}
 
