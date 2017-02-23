@@ -1,7 +1,7 @@
 #include "client.h"
 #include "Controller/controller.h"
-
 #include <sys/signal.h>
+
 #define ERROR(a,str) if (a<0) {perror(str); exit(1);}
 
 volatile int * boolStopClient=NULL;
@@ -94,6 +94,7 @@ int main (int argc, char *argv[]){
 
 	if (pthread_join(threadClient, NULL)) {
 		logString("THREAD MAIN : ERROR pthread_join thread_UDP_CLIENT");
+		stopNetwork();
 		return EXIT_FAILURE;
 	}
 

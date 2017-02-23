@@ -73,15 +73,3 @@ for the Drone on the Raspberry Pi 2 :
 for the Client/Controller :
 
 	./client 127.0.0.1
-
-
---------------
-TODO
-
-- choisir une action quand il n'y a plus de manette
-
-- Corriger probleme avec la version actuel du kernel sur raspberry , ET PREEMP
-
-- Filtrer valeur accelerometre verticale et altimetre pour le PID d'altitude
-
-- Catcher Signaux System UNIX

@@ -58,11 +58,12 @@ void init_mask(){
 int main (int argc, char *argv[]){
 	
 	init_mask();
-  
-	char noControl=0;
+	
 	if(setVerboseOrLog(argc,argv[1],1)){
 		return EXIT_FAILURE;
 	}
+
+	char noControl=0;
 	setNoControl(&noControl,argc,argv[2],2);
 
 	args_SERVER * argServ;
@@ -118,12 +119,14 @@ int main (int argc, char *argv[]){
 	if (pthread_join(threadPID, (void**) &returnValue)){
 		logString("THREAD MAIN : ERROR pthread_join PID");
 		stopNetwork();
+		stopMotor();
 		return EXIT_FAILURE;
 	}
 
 	if (pthread_join(threadMotor2, (void**) &returnValue)) {
 		logString("THREAD MAIN : ERROR pthread_join MOTOR");
 		stopNetwork();
+		stopMotor();
 		return EXIT_FAILURE;
 	}
 
