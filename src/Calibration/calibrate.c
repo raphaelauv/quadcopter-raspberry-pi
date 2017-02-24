@@ -35,6 +35,7 @@ void calibrate_ESC(MotorsAll2 * motors,char verbose){
 
 	int power2[4] = { 1000, 1000, 1000, 1000 };
 
+
     set_power2(motors,power);
 
     char a;

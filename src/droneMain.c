@@ -117,7 +117,7 @@ int main (int argc, char *argv[]){
 
 	int * returnValue;
 
-	calibrate_ESC(motorsAll2,1);
+	//calibrate_ESC(motorsAll2,1);
 
 
 	if (pthread_join(threadPID, (void**) &returnValue)){
