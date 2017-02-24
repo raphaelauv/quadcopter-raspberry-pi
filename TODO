@@ -1,9 +1,12 @@
 #############################TODO#############################
 -Fair un schema des branchement du drone(Andres)
--Monter le drone(ASAP).
+-Monter le drone(90%).
 -makefile avec library dynamique(Andres)
 -Meme Test d’equilibrage  mais avec la manette.(Andres) 
--Test controlVol complet deja (ecrit) (Andres)
+-Premier Test Vol.
 -Voir qu’elle materiel on aura besoin de plus? (Tous le monde).
+	-10~20 rondelle de retenue.
 -Filtre de Kalman (Barometre + accel) (Andres + ?)
 -Comprendre le code de Raph. (Adrian + Andres)
+-relencement auto exec.
+-Lancement du programme automatique au boot du Raspberry.
