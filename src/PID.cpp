@@ -98,9 +98,6 @@ void * thread_PID(void * args){
 
 	int local_period=(1.0/FREQUENCY_PID)*USEC_TO_SEC;
 
-	uint64_t time_debut=0;
-	uint64_t time_fin=0;
-	uint64_t time_to_sleep = 0;
 
 	//Consigne client
 	float client_gaz = MOTOR_LOW_TIME + 50;
@@ -126,11 +123,24 @@ void * thread_PID(void * args){
 
 	RTIMU_DATA imuData;
 
+	if(setDataFrequence(50)){
+			printf("ERROR\n");
+	}
 	sleep(PID_SLEEP_TIME_SECURITE);
 
+	int arrayLog[NUMBER_OF_MOTORS];
+	logDataFreq(arrayLog,NUMBER_OF_MOTORS);
+
+
+	struct timeval tv;
+	int timeUsecStart=0;
+	int timeUsecEnd=0;
+	int timeBetween=0;
 	int continuThread=1;
 	while (continuThread) {
 
+		gettimeofday(&tv, NULL);
+		timeUsecStart= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
 
 		if(*(controle_vol->motorsAll2->bool_arret_moteur)==1){
 			continuThread = 0;
@@ -139,9 +149,6 @@ void * thread_PID(void * args){
 		}
 
 		#ifdef __arm__
-		time_debut=RTMath::currentUSecsSinceEpoch();
-
-		
 		if(imu->IMURead()){
 			imuData = imu->getIMUData();
 
@@ -220,32 +227,23 @@ void * thread_PID(void * args){
 		powerTab[2] =absValue(powerTab[2]);
 		powerTab[3] =absValue(powerTab[3]);
 
+		logDataFreq(powerTab,NUMBER_OF_MOTORS);
 		set_power2(controle_vol->motorsAll2,powerTab);
-
-		/*
-		for(int i=0; i<NUMBER_OF_MOTORS;i++){
-			set_power(controle_vol->motorsAll->arrayOfMotors[i], powerTab[i]);
-		}
-
-		*/
 
 		/*********************************************************/
 		/*			CODE FOR SLEEP PID FREQUENCY				*/
 
-		#ifdef __arm__
-		time_fin=RTMath::currentUSecsSinceEpoch();
-		time_to_sleep=time_fin -time_debut;
-		
-		if(time_to_sleep<0){
-		}
-		else if(time_to_sleep>=local_period){
-			printf("temps sleep : %lld\n",local_period-time_to_sleep);
-		}else{
-		  usleep(local_period-time_to_sleep);
-		}
-		
-		#endif
+		gettimeofday(&tv, NULL);
+		timeUsecEnd= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
+		timeBetween=timeUsecEnd - timeUsecStart;
 
+		if(timeBetween<0){
+		}
+		else if(timeBetween>=local_period){
+			printf("temps sleep : %lld\n",local_period-timeBetween);
+		}else{
+		  usleep(local_period-timeBetween);
+		}
 
 	}
 	logString("THREAD PID : END");

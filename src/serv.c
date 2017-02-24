@@ -136,7 +136,7 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 
 	char array[400];
 	sprintf(array, "THREAD SERV : msg receve : %s", buff);
-	logString(array);
+	//logString(array);
 
 	(*cmpNumberMessage)++;
 

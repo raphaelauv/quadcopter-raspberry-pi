@@ -2,6 +2,7 @@
 
 int verbose_or_log=0;
 int idFile=-1;
+struct timespec ts;
 
 void closeLogFile(){
 	if(idFile!=-1){
@@ -50,6 +51,8 @@ int setVerboseOrLog(int argc, char * argv,int min) {
 				printf("ERROR FILE OPEN\n");
 				return -1;
 			}
+
+			timespec_get(&ts, TIME_UTC);
 		}
 	} else {
 		printf("add		--verbose	for verbose	mode\n");
@@ -96,7 +99,7 @@ int setDataFrequence(int freq){
 			return -1;
 	}
 	for(int i=0;i<log_frequence;i++){
-		arrayData[i]=(int*)malloc(sizeof(int)*5);
+		arrayData[i]=(int*)malloc(sizeof(int)*NB_VALUES_TO_LOG);
 		if(arrayData[i]==NULL){
 			return -1;
 		}
@@ -110,7 +113,7 @@ int setDataFrequence(int freq){
 
 void showArrayData(){
 	for(int i=0;i<log_frequence;i++){
-		for(int j=0;j<5;j++){
+		for(int j=0;j<NB_VALUES_TO_LOG;j++){
 			printf("%d ",arrayData[i][j]);
 		}
 		printf("\n");
@@ -119,17 +122,29 @@ void showArrayData(){
 }
 
 int lastDataIndex=0;
-int logDataFreq(int * array,int size){
+char arrayStr[400];
+int logDataFreq(int * arrayLog,int size){
 
 
-	if(array==NULL){return -1;}
+	if(arrayLog==NULL){return -1;}
 
 	for(int i=0;i<size;i++){
-		arrayData[lastDataIndex][i]=array[i];
+		arrayData[lastDataIndex][i]=arrayLog[i];
 	}
 
 	if (lastDataIndex + 1 == log_frequence) {
-		showArrayData();
+		int moyenneArray[NB_VALUES_TO_LOG];
+		int cmp=0;
+		for(int i=0;i<NB_VALUES_TO_LOG;i++){
+			for(int j=0;j<log_frequence;j++){
+				cmp+=arrayData[j][i];
+			}
+			cmp=cmp/log_frequence;
+			moyenneArray[i]=cmp;
+		}
+		//showArrayData();
+		sprintf(arrayStr,"DATAFREQ : FREQ=%d;%d;%d;%d;%d",log_frequence,moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3] );
+		logString(arrayStr);
 		lastDataIndex = 0;
 	}else{
 		lastDataIndex++;
@@ -152,11 +167,12 @@ void logString(char * str){
 	if(str==NULL){return;}
 
 	if(verbose_or_log==VAL_LOG_FILE){
-		struct timespec ts;
-		timespec_get(&ts, TIME_UTC);
+
 		char buff[100];
-		strftime(buff, sizeof buff, "%D %T", gmtime(&ts.tv_sec));
-		dprintf(idFile,"[%s.%09ld] : %s ;\n", buff, ts.tv_nsec,str);
+		struct tm * time=gmtime(&ts.tv_sec);
+
+		strftime(buff, sizeof buff, "%D %T", time);
+		dprintf(idFile,"%s.%09ld; %s ;\n", buff, ts.tv_nsec,str);
 
 	}else if(verbose_or_log==VAL_LOG_VERBOSE){
 		printf("%s\n",str);

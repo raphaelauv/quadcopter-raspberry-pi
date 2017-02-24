@@ -59,8 +59,13 @@ int set_power(Motor_info * info,int high_time);
 #endif
 
 /*
-Exemple of use of the API
+EXEMPLE OF USE OF THE API
 
+	MotorsAll * motorsAll;
+	if (init_MotorsAll(&motorsAll)) {
+		return EXIT_FAILURE;
+	}
+	
 	pthread_t threadMotors[NUMBER_OF_MOTORS];
 	
 	if(init_threads_motors(threadMotors,motorsAll)){
@@ -72,5 +77,7 @@ Exemple of use of the API
 			return EXIT_FAILURE;
 		}
 	}
+
+	clean_MotorsAll(motorsAll);
 
 */

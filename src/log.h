@@ -18,6 +18,8 @@ extern "C" {
 #define VAL_LOG_FILE 1
 #define VAL_LOG_VERBOSE 2
 
+#define NB_VALUES_TO_LOG 5
+
 int setVerboseOrLog(int argc, char * argv,int min);
 void setNoControl(char * NoControl, int argc, char * argv, int min);
 
