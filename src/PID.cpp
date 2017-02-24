@@ -153,8 +153,9 @@ void * thread_PID(void * args){
         /*					CODE FOR GET REMOTE					*/
         
         
-        pthread_mutex_lock(&(mutexDataControler->mutex));
+        
         if(cmp==50){
+            pthread_mutex_lock(&(mutexDataControler->mutex));
             if (data->flag== 0) {
                 pthread_mutex_unlock(&(mutexDataControler->mutex));
                 //printf("VAL POINT BOOL ARRET IN PID   : %d\n",controle_vol->motorsAll2->bool_arret_moteur);
