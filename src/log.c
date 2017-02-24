@@ -2,7 +2,6 @@
 
 int verbose_or_log=0;
 int idFile=-1;
-struct timespec ts;
 
 void closeLogFile(){
 	if(idFile!=-1){
@@ -52,7 +51,6 @@ int setVerboseOrLog(int argc, char * argv,int min) {
 				return -1;
 			}
 
-			timespec_get(&ts, TIME_UTC);
 		}
 	} else {
 		printf("add		--verbose	for verbose	mode\n");
@@ -167,12 +165,11 @@ void logString(char * str){
 	if(str==NULL){return;}
 
 	if(verbose_or_log==VAL_LOG_FILE){
-
+		struct timespec ts;
+		timespec_get(&ts, TIME_UTC);
 		char buff[100];
-		struct tm * time=gmtime(&ts.tv_sec);
-
-		strftime(buff, sizeof buff, "%D %T", time);
-		dprintf(idFile,"%s.%09ld; %s ;\n", buff, ts.tv_nsec,str);
+		strftime(buff, sizeof buff, "%D %T", gmtime(&ts.tv_sec));
+		dprintf(idFile,"[%s.%09ld] : %s ;\n", buff, ts.tv_nsec,str);
 
 	}else if(verbose_or_log==VAL_LOG_VERBOSE){
 		printf("%s\n",str);
