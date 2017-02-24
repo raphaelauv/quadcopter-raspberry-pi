@@ -1,6 +1,7 @@
 #include "serv.h"
 #include "motors.h"
 #include "PID.hpp"
+#include "Calibration/calibrate.h";
 //#include "signal.h"
 #include <sys/signal.h>
 
@@ -77,6 +78,8 @@ int main (int argc, char *argv[]){
 	if (init_MotorsAll2(&motorsAll2,4,BROCHE_MOTOR_0,BROCHE_MOTOR_1,BROCHE_MOTOR_2,BROCHE_MOTOR_3)) {
 		return EXIT_FAILURE;
 	}
+
+	calibrate_ESC(motorsAll2,1);
 
 	boolStopMotor=motorsAll2->bool_arret_moteur;
 

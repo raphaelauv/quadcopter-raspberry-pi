@@ -52,10 +52,10 @@
 #define MOTOR_HIGH_TIME 2000
 #define MOTOR_LOW_TIME 1000
 
-#define BROCHE_MOTOR_0 5
-#define BROCHE_MOTOR_1 28
-#define BROCHE_MOTOR_2 2
-#define BROCHE_MOTOR_3 24
+#define BROCHE_MOTOR_0 5 //Up right
+#define BROCHE_MOTOR_1 28 //Down right
+#define BROCHE_MOTOR_2 2 //Down left
+#define BROCHE_MOTOR_3 24 //Up left
 #define BROCHE_MOTOR_4 0
 #define BROCHE_MOTOR_5 0
 #define BROCHE_MOTOR_6 0

@@ -184,12 +184,6 @@ void * thread_PID(void * args){
 			if(puissance_motor0>MOTOR_HIGH_TIME) puissance_motor0=MOTOR_HIGH_TIME;
 			if(puissance_motor1>MOTOR_HIGH_TIME) puissance_motor1=MOTOR_HIGH_TIME;
 
-
-			//set la puissance au moteur.
-			//set_power(controle_vol->motorsAll->arrayOfMotors[0], puissance_motor0);
-			//set_power(controle_vol->motorsAll->arrayOfMotors[1], puissance_motor1);
-
-
 			powerTab[0] = puissance_motor0;
 			powerTab[1] = puissance_motor1;
 			//powerTab[2] = puissance_motor2;

@@ -20,7 +20,7 @@ SRC=src/concurrent.c src/network.c src/log.c
 
 SRC_RTIMULib = $(wildcard src/RTIMULib/*.cpp) $(wildcard src/RTIMULib/IMUDrivers/*.cpp)
 
-SRC_drone = $(SRC) src/PID.c src/serv.c src/capteur.cpp
+SRC_drone = $(SRC) src/PID.c src/serv.c src/capteur.cpp src/Calibration/calibrate.c
 
 SRC_client = $(SRC)  src/client.c src/Controller/controller.c src/Controller/manette.c 
 
