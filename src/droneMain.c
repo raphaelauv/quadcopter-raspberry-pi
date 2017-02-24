@@ -1,7 +1,7 @@
 #include "serv.h"
 #include "motors.h"
 #include "PID.hpp"
-#include "Calibration/calibrate.h";
+#include "Calibration/calibrate.h"
 //#include "signal.h"
 #include <sys/signal.h>
 
@@ -79,8 +79,6 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	calibrate_ESC(motorsAll2,1);
-
 	boolStopMotor=motorsAll2->bool_arret_moteur;
 
 	args_PID * argPID;
@@ -118,6 +116,9 @@ int main (int argc, char *argv[]){
 	}
 
 	int * returnValue;
+
+	calibrate_ESC(motorsAll2,1);
+
 
 	if (pthread_join(threadPID, (void**) &returnValue)){
 		logString("THREAD MAIN : ERROR pthread_join PID");

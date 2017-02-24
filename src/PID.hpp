@@ -7,7 +7,7 @@
 #include "capteur.hpp"
 //#include "Calibrage/Calibration_ESC.h"
 
-#define PID_SLEEP_TIME_SECURITE 10
+#define PID_SLEEP_TIME_SECURITE 100
 #define FREQUENCY_PID 250.0
 
 //PID pitch
