@@ -1,12 +1,12 @@
-#############################TODO#############################
--Fair un schema des branchement du drone(Andres)
--Monter le drone(90%).
--makefile avec library dynamique(Andres)
--Meme Test d’equilibrage  mais avec la manette.(Andres) 
--Premier Test Vol.
--Voir qu’elle materiel on aura besoin de plus? (Tous le monde).
-	-10~20 rondelle de retenue.
--Filtre de Kalman (Barometre + accel) (Andres + ?)
--Comprendre le code de Raph. (Adrian + Andres)
--relencement auto exec.
--Lancement du programme automatique au boot du Raspberry.
+#############################################################
+#							TODO							#
+
+Reste a faire :
+
+	-Un schema des branchement du drone					(Andres)
+	-Monter le drone(90%)
+	-Test d’equilibrage avec la manette					(Andres) 
+	-Premier Test Vol
+	-Filtre de Kalman (Barometre + accel) 				(Andres + ?)
+	-Comprendre le code de Raph 						(Adrian + Andres)
+	-Lancement du script au boot du Raspberry
