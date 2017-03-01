@@ -8,30 +8,30 @@
 #define ERROR(a,str) if (a<0) {perror(str); exit(1);}
 
 volatile int * boolStopServ=NULL;
-volatile int * boolStopMotor=NULL;
+MotorsAll2 * GlobalMotorAll=NULL;
 
-void stopMotor(){
-	if(boolStopMotor!=NULL){
-		*boolStopMotor=1;
+void handlerStopMotor(){
+	if(GlobalMotorAll!=NULL){
+		setMotorStop(GlobalMotorAll);
 	}
 }
 
-void stopNetwork(){
+void handlerStopNetwork(){
 	if(boolStopServ!=NULL){
 		*boolStopServ=1;
 	}
 }
 
-void stopAll(){
+void handlerStopAll(){
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
-	stopNetwork();
-	stopMotor();
+	handlerStopNetwork();
+	handlerStopMotor();
 	sleep(3);
 	exit(EXIT_FAILURE);
 }
 
 void handler_SIGINT(int i){
-  boolStopServ==NULL ? exit(EXIT_FAILURE) : stopAll();
+	handlerStopAll();
 }
 
 void init_mask(){
@@ -79,7 +79,8 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	boolStopMotor=motorsAll2->bool_arret_moteur;
+	GlobalMotorAll=motorsAll2;
+
 
 	args_PID * argPID;
 	if (init_args_PID(&argPID,argServ->dataController,motorsAll2)) {
@@ -105,13 +106,13 @@ int main (int argc, char *argv[]){
 
 
 	if(init_thread_PID(&threadPID,argPID)){
-		stopNetwork();
+		handlerStopNetwork();
 		return EXIT_FAILURE;
 	}
 
 
 	if(init_thread_startMotorAll2(&threadMotor2,motorsAll2)){
-		stopNetwork();
+		handlerStopNetwork();
 		return EXIT_FAILURE;
 	}
 
@@ -122,15 +123,15 @@ int main (int argc, char *argv[]){
 
 	if (pthread_join(threadPID, (void**) &returnValue)){
 		logString("THREAD MAIN : ERROR pthread_join PID");
-		stopNetwork();
-		stopMotor();
+		handlerStopMotor();
+		handlerStopNetwork();
 		return EXIT_FAILURE;
 	}
 
 	if (pthread_join(threadMotor2, (void**) &returnValue)) {
 		logString("THREAD MAIN : ERROR pthread_join MOTOR");
-		stopNetwork();
-		stopMotor();
+		handlerStopMotor();
+		handlerStopNetwork();
 		return EXIT_FAILURE;
 	}
 

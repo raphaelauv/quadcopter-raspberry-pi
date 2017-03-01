@@ -84,7 +84,6 @@ int absValue(int val){
 
 void * thread_PID(void * args){
     
-    logString("THREAD PID : START");
     //test();
     //calibrate(args);
     args_PID  * controle_vol =(args_PID  *)args;
@@ -125,12 +124,13 @@ void * thread_PID(void * args){
     
     if(setDataFrequence(50)){
         printf("ERROR\n");
+        //TODO
     }
+    logString("THREAD PID : SECURITY SLEEP");
     sleep(PID_SLEEP_TIME_SECURITE);
     
     int arrayLog[NUMBER_OF_MOTORS];
     logDataFreq(arrayLog,NUMBER_OF_MOTORS);
-    
     
     struct timeval tv;
     int cmp=0;
@@ -138,28 +138,27 @@ void * thread_PID(void * args){
     int timeUsecEnd=0;
     int timeBetween=0;
     int continuThread=1;
+
+    logString("THREAD PID : START");
     while (continuThread) {
-        
+
         gettimeofday(&tv, NULL);
         timeUsecStart= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
-        
-        if(*(controle_vol->motorsAll2->bool_arret_moteur)==1){
-            continuThread = 0;
-            continue;
-            //TODO break ?
+
+        if(isMotorStop(controle_vol->motorsAll2)){
+        	continuThread = 0;
+        	continue;
         }
         
         /*********************************************************/
         /*					CODE FOR GET REMOTE					*/
-        
-        
         
         if(cmp==50){
             pthread_mutex_lock(&(mutexDataControler->mutex));
             if (data->flag== 0) {
                 pthread_mutex_unlock(&(mutexDataControler->mutex));
                 //printf("VAL POINT BOOL ARRET IN PID   : %d\n",controle_vol->motorsAll2->bool_arret_moteur);
-                *(controle_vol->motorsAll2->bool_arret_moteur)=1;
+                setMotorStop(controle_vol->motorsAll2);
                 continuThread = 0;
                 continue;
             }
@@ -175,8 +174,9 @@ void * thread_PID(void * args){
             powerTab[1] =absValue(powerTab[1]);
             powerTab[2] =absValue(powerTab[2]);
             powerTab[3] =absValue(powerTab[3]);
+
+            set_power2(controle_vol->motorsAll2,powerTab);
             */
-            //set_power2(controle_vol->motorsAll2,powerTab);
             cmp=0;
         }
         else{
@@ -247,11 +247,10 @@ void * thread_PID(void * args){
         if(timeBetween<0){
         }
         else if(timeBetween>=local_period){
-            printf("temps sleep : %lld\n",local_period-timeBetween);
+            printf("PID temps sleep : %d\n",local_period-timeBetween);
         }else{
             usleep(local_period-timeBetween);
         }
-        
     }
     logString("THREAD PID : END");
     return NULL;

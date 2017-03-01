@@ -1,5 +1,4 @@
 #include "motors.h"
-#include "concurrent.h"
 
 int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...){
 	#ifdef __arm__
@@ -161,7 +160,7 @@ void * thread_startMotorAll(void * args){
 						usleep(dif);
 						sleepedTotalTime+=dif+TIME_LATENCY;
 					}else if(MOTOR_HIGH_TIME - sleepedTotalTime -TIME_LATENCY >0){
-						usleep(MOTOR_HIGH_TIME - sleepedTotalTime - TIME_LATENCY);
+						usleep(MOTOR_HIGH_TIME - (sleepedTotalTime + TIME_LATENCY));
 						sleepedTotalTime=MOTOR_HIGH_TIME;
 					}
 				}
@@ -173,19 +172,17 @@ void * thread_startMotorAll(void * args){
 
 			gettimeofday(&tv, NULL);
 			timeUsecEnd = (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
-			timeBetween = timeUsecEnd - timeUsecStart + TIME_LATENCY;
+			timeBetween = timeUsecEnd - timeUsecStart ;
 			if(timeBetween > local_period){
 				logString("THREAD MOTORS : ERROR PERIODE TOO SLOW !!!!");
 			}else{
 				if(timeBetween > MOTOR_HIGH_TIME + TIME_LATENCY){
-				  //printf("TEMPS BETWEEN : %d \n",timeBetween-TIME_LATENCY);
+					//printf("TEMPS BETWEEN : %d \n",timeBetween);
 				}
-				
 				usleep(local_period - timeBetween);
 			}
 
 		} else {
-			logString("THREAD MOTORS : BOOL STOP MOTOR TRUE");
 			pthread_mutex_unlock(&motors->MutexSetValues->mutex);
 			runMotor = 0;
 		}
@@ -231,4 +228,24 @@ int set_power2(MotorsAll2 * MotorsAll2, int * powers){
 		MotorsAll2->high_time[i]=powers[i];
 	}
 	pthread_mutex_unlock(&MotorsAll2->MutexSetValues->mutex);
+}
+
+void setMotorStop(MotorsAll2 * MotorsAll2){
+
+	pthread_mutex_lock(&MotorsAll2->MutexSetValues->mutex);
+
+	*(MotorsAll2->bool_arret_moteur)=1;
+
+	pthread_mutex_unlock(&MotorsAll2->MutexSetValues->mutex);
+}
+
+int isMotorStop(MotorsAll2 * MotorsAll2){
+
+	int value;
+	pthread_mutex_lock(&MotorsAll2->MutexSetValues->mutex);
+
+	value=*(MotorsAll2->bool_arret_moteur);
+
+	pthread_mutex_unlock(&MotorsAll2->MutexSetValues->mutex);
+	return value;
 }

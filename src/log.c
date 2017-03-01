@@ -94,7 +94,7 @@ int setDataFrequence(int freq){
 	clean_log_data();
 	arrayData=(int**)malloc(sizeof(int*)*log_frequence);
 	if(arrayData==NULL){
-			return -1;
+		return -1;
 	}
 	for(int i=0;i<log_frequence;i++){
 		arrayData[i]=(int*)malloc(sizeof(int)*NB_VALUES_TO_LOG);
