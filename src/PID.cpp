@@ -126,20 +126,39 @@ void * thread_PID(void * args){
         printf("ERROR\n");
         //TODO
     }
+
+    int continuThread=1;
+
+    /*********************************************************/
+    /*				START PID SECURITY SLEEP				*/
+    int numberOfSecondSleep=0;
+    char tmpFlag=0;
     logString("THREAD PID : SECURITY SLEEP");
-    sleep(PID_SLEEP_TIME_SECURITE);
-    
-    int arrayLog[NUMBER_OF_MOTORS];
-    logDataFreq(arrayLog,NUMBER_OF_MOTORS);
-    
+    while(numberOfSecondSleep<PID_SLEEP_TIME_SECURITE*10){
+    	numberOfSecondSleep++;
+    	pthread_mutex_lock(&(mutexDataControler->mutex));
+    	tmpFlag=data->flag;
+    	pthread_mutex_unlock(&(mutexDataControler->mutex));
+		if (tmpFlag == 0) {
+			setMotorStop(controle_vol->motorsAll2);
+			continuThread = 0;
+			break;
+		}
+    	else{
+			usleep(1000000/10);
+		}
+    }
+    /*********************************************************/
+
     struct timeval tv;
     int cmp=0;
     int timeUsecStart=0;
     int timeUsecEnd=0;
     int timeBetween=0;
-    int continuThread=1;
 
-    logString("THREAD PID : START");
+    if(continuThread){
+    	logString("THREAD PID : START");
+    }
     while (continuThread) {
 
         gettimeofday(&tv, NULL);
@@ -154,6 +173,7 @@ void * thread_PID(void * args){
         /*					CODE FOR GET REMOTE					*/
         
         if(cmp==50){
+        	cmp=0;
             pthread_mutex_lock(&(mutexDataControler->mutex));
             if (data->flag== 0) {
                 pthread_mutex_unlock(&(mutexDataControler->mutex));
@@ -177,11 +197,11 @@ void * thread_PID(void * args){
 
             set_power2(controle_vol->motorsAll2,powerTab);
             */
-            cmp=0;
         }
         else{
             cmp++;
         }
+        /*********************************************************/
         
 #ifdef __arm__
         if(imu->IMURead()){
