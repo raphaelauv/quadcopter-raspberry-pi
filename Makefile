@@ -1,34 +1,38 @@
 CC=g++
 
-CFLAGS=-std=c++0x -Wno-write-strings 
-CFLAGS_Raspberry= $(CFLAGS) -lwiringPi
+CFLAGS=-std=c++0x -Wno-write-strings
 
-LDFLAGS=-lpthread 
+LDFLAGS= -lpthread 
+LDFLAGS_WiringPi= -lwiringPi
+LDFLAGS_RTIMULIB=  -L/usr/local/lib  -lRTIMULib 
+
 
 ARCH := $(shell uname -m)
 
 ifeq ($(ARCH),armv7l)
-	LDFLAGS_Raspberry= $(LDFLAGS) -lwiringPi 
+	LDFLAGS_Raspberry= $(LDFLAGS) $(LDFLAGS_WiringPi)  $(LDFLAGS_RTIMULIB)
 else
-	LDFLAGS_Raspberry= $(LDFLAGS)
+	LDFLAGS_Raspberry= $(LDFLAGS) $(LDFLAGS_RTIMULIB)
 endif
-
 
 LDFLAGS_ClientRemote= $(LDFLAGS) -lSDL -lSDLmain
 
 SRC=src/concurrent.c src/network.c src/log.c
 
-SRC_RTIMULib = $(wildcard src/RTIMULib/*.cpp) $(wildcard src/RTIMULib/IMUDrivers/*.cpp)
+#SRC_RTIMULib = $(wildcard src/RTIMULib/*.cpp) $(wildcard src/RTIMULib/IMUDrivers/*.cpp)
 
-SRC_drone = $(SRC) src/PID.c src/serv.c src/capteur.cpp src/Calibration/calibrate.c
+SRC_drone = $(SRC) src/serv.c src/Calibration/calibrate.c
+
+SRC_drone_CPP= src/PID.cpp src/capteur.cpp 
 
 SRC_client = $(SRC)  src/client.c src/Controller/controller.c src/Controller/manette.c 
 
-OBJdroneMain= $(SRC_drone:.c=.o)
+OBJdroneMain= $(SRC_drone:.c=.o) $(SRC_drone_CPP:.cpp=.o)
+#src/capteur.o src/PID.o 
 
 OBJclientRemote= $(SRC_client:.c=.o) 
 
-OBJ_RTIMULib= $(SRC_RTIMULib:.cpp=.o)
+#OBJ_RTIMULib= $(SRC_RTIMULib:.cpp=.o)
 
 EXEC = clientRemoteMain droneMain
 
@@ -42,14 +46,11 @@ drone:droneMain
 
 client:clientRemoteMain
 
-
-src/motors.o: src/motors.c
-	$(CC) $(CFLAGS_Raspberry) -c $< -o $@
-
 src/droneMain.o: src/droneMain.c
-	$(CC) $(CFLAGS_Raspberry) -o $@ -c $< 
+	$(CC) $(CFLAGS) -o $@ -c $< $(LDFLAGS)
 
-droneMain: src/motors.o $(OBJdroneMain) $(OBJ_RTIMULib) src/droneMain.o
+#$(OBJ_RTIMULib)
+droneMain: src/motors.o $(OBJdroneMain)  src/droneMain.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS_Raspberry)
 
 src/clientRemoteMain.o: src/clientRemoteMain.c
