@@ -170,6 +170,10 @@ void getIP(char*  myIP) {
 	if(myIP==NULL){
 		return;
 	}
+	char str1[15];
+	char str2[15];
+	char str3[15];
+
 	struct ifaddrs *myaddrs, *addrsTMP;
 	struct sockaddr_in *s4;
 	int status;
@@ -198,9 +202,6 @@ void getIP(char*  myIP) {
 			if (inet_ntop(addrsTMP->ifa_addr->sa_family,
 					(void *) &(s4->sin_addr), myIP, 64 * sizeof(char)) != NULL) {
 
-				char str1[15];
-				char str2[15];
-
 				int ret = 0;
 
 				strcpy(str1, "127.0.0.1");
@@ -209,6 +210,8 @@ void getIP(char*  myIP) {
 				ret = strcmp(str1, str2);
 
 				if (ret != 0) {
+
+					strcpy(str3, myIP);
 					char array[400];
 					sprintf(array,"Adresse IP :%s", myIP);
 					logString(array);
@@ -220,4 +223,27 @@ void getIP(char*  myIP) {
 	freeifaddrs(myaddrs);
 	//free(ip);
 	//return nameIp;
+	strcpy(myIP,str3);
+}
+
+void readIpAdresse(char * ipAdresse,int size){
+	system("mpg123 -q  ~/drone/Lib/sound/My_Ip_Adresse_Is.mp3");usleep(SOUND_PAUSE_TIME);
+	for(int i=0;i<size;i++){
+		if(ipAdresse[i]=='\0'){
+			break;
+		}
+		switch (ipAdresse[i]){
+			case '.': system("mpg123 -q  ~/drone/Lib/sound/point.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '0': system("mpg123 -q  ~/drone/Lib/sound/0.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '1': system("mpg123 -q  ~/drone/Lib/sound/1.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '2': system("mpg123 -q  ~/drone/Lib/sound/2.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '3': system("mpg123 -q  ~/drone/Lib/sound/3.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '4': system("mpg123 -q  ~/drone/Lib/sound/4.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '5': system("mpg123 -q  ~/drone/Lib/sound/5.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '6': system("mpg123 -q  ~/drone/Lib/sound/6.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '7': system("mpg123 -q  ~/drone/Lib/sound/7.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '8': system("mpg123 -q  ~/drone/Lib/sound/8.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '9': system("mpg123 -q  ~/drone/Lib/sound/9.mp3");usleep(SOUND_PAUSE_TIME);break;
+		}
+	}
 }

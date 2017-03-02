@@ -2,9 +2,6 @@
 
 int init_args_SERVER(args_SERVER ** argServ){
 
-	char myIP[64];
-	getIP(myIP);
-
 	PMutex * PmutexDataControler = (PMutex *) malloc(sizeof(PMutex));
 	if (PmutexDataControler == NULL) {
 		logString("MALLOC FAIL : PmutexDataControler");

@@ -26,7 +26,6 @@ extern "C" {
 
 #include "concurrent.h"
 
-
 #define SIZE_SOCKET_MESSAGE 100
 
 #define SIZE_MSG_HEADER_REMOTE 7
@@ -70,6 +69,11 @@ int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message);
 int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message);
 
 void getIP(char*  myIP);
+
+#define SOUND_PLAYER_NAME mpg123
+
+#define SOUND_PAUSE_TIME 400000
+void readIpAdresse(char * ipAdresse,int size);
 
 /*
 #ifdef __cplusplus

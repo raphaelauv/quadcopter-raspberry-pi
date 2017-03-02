@@ -67,6 +67,11 @@ int main (int argc, char *argv[]){
 	char noControl=0;
 	setNoControl(&noControl,argc,argv[2],2);
 
+
+	char myIP[64];
+	getIP(myIP);
+	//readIpAdresse(myIP,64);
+
 	args_SERVER * argServ;
 	if(init_args_SERVER(&argServ)){
 		return EXIT_FAILURE;
