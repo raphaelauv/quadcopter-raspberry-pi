@@ -6,6 +6,12 @@
 
 Install RASPBIAN JESSIE Kernel version : 4.4 on the Raspberry Pi 2
 
+```
+Clone this git with this specific command ( without sudo !!)
+
+	pi@raspberry ~$ git clone git@moule.informatique.univ-paris-diderot.fr:thibaud/drone.git ~/drone
+```
+
 Active SSH and I2C , Install RTIMULib2 inside Lib folder ( follow Readme instructions )
 
 ```
@@ -72,4 +78,4 @@ for the Drone on the Raspberry Pi 2 :
 
 for the Client/Controller :
 
-	./client 127.0.0.1
+	./client 192.168.***.***
