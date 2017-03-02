@@ -227,23 +227,23 @@ void getIP(char*  myIP) {
 }
 
 void readIpAdresse(char * ipAdresse,int size){
-	system("mpg123 -q  ~/drone/Lib/sound/My_Ip_Adresse_Is.mp3");usleep(SOUND_PAUSE_TIME);
+	system(SOUND_COMMAND"My_Ip_Adresse_Is.mp3");usleep(SOUND_PAUSE_TIME);
 	for(int i=0;i<size;i++){
 		if(ipAdresse[i]=='\0'){
 			break;
 		}
 		switch (ipAdresse[i]){
-			case '.': system("mpg123 -q  ~/drone/Lib/sound/point.mp3");usleep(SOUND_PAUSE_TIME);break;
-			case '0': system("mpg123 -q  ~/drone/Lib/sound/0.mp3");usleep(SOUND_PAUSE_TIME);break;
-			case '1': system("mpg123 -q  ~/drone/Lib/sound/1.mp3");usleep(SOUND_PAUSE_TIME);break;
-			case '2': system("mpg123 -q  ~/drone/Lib/sound/2.mp3");usleep(SOUND_PAUSE_TIME);break;
-			case '3': system("mpg123 -q  ~/drone/Lib/sound/3.mp3");usleep(SOUND_PAUSE_TIME);break;
-			case '4': system("mpg123 -q  ~/drone/Lib/sound/4.mp3");usleep(SOUND_PAUSE_TIME);break;
-			case '5': system("mpg123 -q  ~/drone/Lib/sound/5.mp3");usleep(SOUND_PAUSE_TIME);break;
-			case '6': system("mpg123 -q  ~/drone/Lib/sound/6.mp3");usleep(SOUND_PAUSE_TIME);break;
-			case '7': system("mpg123 -q  ~/drone/Lib/sound/7.mp3");usleep(SOUND_PAUSE_TIME);break;
-			case '8': system("mpg123 -q  ~/drone/Lib/sound/8.mp3");usleep(SOUND_PAUSE_TIME);break;
-			case '9': system("mpg123 -q  ~/drone/Lib/sound/9.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '.': system(SOUND_COMMAND"point.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '0': system(SOUND_COMMAND"0.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '1': system(SOUND_COMMAND"1.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '2': system(SOUND_COMMAND"2.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '3': system(SOUND_COMMAND"3.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '4': system(SOUND_COMMAND"4.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '5': system(SOUND_COMMAND"5.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '6': system(SOUND_COMMAND"6.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '7': system(SOUND_COMMAND"7.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '8': system(SOUND_COMMAND"8.mp3");usleep(SOUND_PAUSE_TIME);break;
+			case '9': system(SOUND_COMMAND"9.mp3");usleep(SOUND_PAUSE_TIME);break;
 		}
 	}
 }
