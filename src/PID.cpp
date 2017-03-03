@@ -134,10 +134,10 @@ void * thread_PID(void * args){
     float gyro_cal[3]={0,0,0};
     for (i=0; i<2000; i++) {
         if(imu->IMURead()){
-            m_imuData = imu->getIMUData();
-            gyro_cal[0]+=m_imuData.gyro.x();
-            gyro_cal[1]+=m_imuData.gyro.y();
-            gyro_cal[2]+=m_imuData.gyro.z();
+            imuData = imu->getIMUData();
+            gyro_cal[0]+=imuData.gyro.x();
+            gyro_cal[1]+=imuData.gyro.y();
+            gyro_cal[2]+=imuData.gyro.z();
         }
         else{
             printf("trop rapide");
