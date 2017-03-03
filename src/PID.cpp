@@ -227,7 +227,7 @@ void * thread_PID(void * args){
         if(imu->IMURead()){
             imuData = imu->getIMUData();
             //input PID
-            input_pid_pitch=(input_pid_pitch*0.7) + ((m_imuData.gyro.x()-gyro_cal[0])*(180/M_PI)*0.3);
+            input_pid_pitch=(input_pid_pitch*0.7) + ((imuData.gyro.x()-gyro_cal[0])*(180/M_PI)*0.3);
             
             if(powerController[1]>=0){
                 client_gaz=powerController[1]*7+1100;
@@ -236,7 +236,7 @@ void * thread_PID(void * args){
                 client_gaz=1100;
             }
             
-            client_pitch=powerController[2]*5
+            client_pitch=powerController[2]*5;
             client_pitch-=imuData.fusionPose.y()*RTMATH_RAD_TO_DEGREE)*15;
             client_pitch/=3;
 
