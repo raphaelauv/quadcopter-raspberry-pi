@@ -101,6 +101,8 @@ void * thread_PID(void * args){
     //Consigne client
     float client_gaz = MOTOR_LOW_TIME + 50;
     float client_pitch = 0;
+    //input PID
+    float input_pid_pitch;
     
     //PID
     float output_pid_pitch = 0;
@@ -126,9 +128,27 @@ void * thread_PID(void * args){
         printf("ERROR\n");
         //TODO
     }
-
+    
     int continuThread=1;
-
+    
+    float gyro_cal[3]={0,0,0};
+    for (i=0; i<2000; i++) {
+        if(imu->IMURead()){
+            m_imuData = imu->getIMUData();
+            gyro_cal[0]+=m_imuData.gyro.x();
+            gyro_cal[1]+=m_imuData.gyro.y();
+            gyro_cal[2]+=m_imuData.gyro.z();
+        }
+        else{
+            printf("trop rapide");
+        }
+        usleep(2000);
+    }
+    gyro_cal[0]/=2000;
+    gyro_cal[1]/=2000;
+    gyro_cal[2]/=2000;
+    printf("Calibration fini\n");
+    
     /*********************************************************/
     /*				START PID SECURITY SLEEP				*/
     int numberOfSecondSleep=0;
@@ -206,14 +226,22 @@ void * thread_PID(void * args){
 #ifdef __arm__
         if(imu->IMURead()){
             imuData = imu->getIMUData();
+            //input PID
+            input_pid_pitch=(input_pid_pitch*0.7) + ((m_imuData.gyro.x()-gyro_cal[0])*(180/M_PI)*0.3);
+            
             if(powerController[1]>=0){
                 client_gaz=powerController[1]*7+1100;
             }
             else{
                 client_gaz=1100;
             }
+            
+            client_pitch=powerController[2]*5
+            client_pitch-=imuData.fusionPose.y()*RTMATH_RAD_TO_DEGREE)*15;
+            client_pitch/=3;
+
             //calcule pitch PID
-            pid_erreur_tmp_pitch=(imuData.fusionPose.y()*RTMATH_RAD_TO_DEGREE)-client_pitch;
+            pid_erreur_tmp_pitch=input_pid_pitch-client_pitch;
             pid_accu_erreur_pitch+=PID_GAIN_I_PITCH*pid_erreur_tmp_pitch;
             if (pid_accu_erreur_pitch>PID_MAX_PITCH) {
                 pid_accu_erreur_pitch=PID_MAX_PITCH;
