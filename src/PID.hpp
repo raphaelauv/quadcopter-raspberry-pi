@@ -12,8 +12,8 @@
 
 //PID pitch
 #define  PID_GAIN_P_PITCH 2.5
-#define  PID_GAIN_I_PITCH 0.005
-#define  PID_GAIN_D_PITCH 220
+#define  PID_GAIN_I_PITCH 0.02
+#define  PID_GAIN_D_PITCH 13
 #define  PID_MAX_PITCH 400
 /*2.5, 0.005 220*/
 
