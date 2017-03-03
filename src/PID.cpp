@@ -133,6 +133,7 @@ void * thread_PID(void * args){
     //calibration accel
     float gyro_cal[3]={0,0,0};
     int i;
+#ifdef __arm__
     for (i=0; i<2000; i++) {
         if(imu->IMURead()){
             imuData = imu->getIMUData();
@@ -149,7 +150,7 @@ void * thread_PID(void * args){
     gyro_cal[1]/=2000;
     gyro_cal[2]/=2000;
     printf("Calibration fini\n");
-    
+#endif
     /*********************************************************/
     /*				START PID SECURITY SLEEP				*/
     int numberOfSecondSleep=0;
@@ -237,7 +238,7 @@ void * thread_PID(void * args){
                 client_gaz=1100;
             }
             
-            client_pitch=powerController[2]*5;
+            client_pitch=0;
             client_pitch-=(imuData.fusionPose.y()*RTMATH_RAD_TO_DEGREE)*15;
             client_pitch/=3;
 
