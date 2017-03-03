@@ -130,8 +130,9 @@ void * thread_PID(void * args){
     }
     
     int continuThread=1;
-    
+    //calibration accel
     float gyro_cal[3]={0,0,0};
+    int i;
     for (i=0; i<2000; i++) {
         if(imu->IMURead()){
             imuData = imu->getIMUData();
