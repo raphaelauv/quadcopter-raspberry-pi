@@ -60,17 +60,15 @@ int main (int argc, char *argv[]){
 	
 	init_mask();
 	
-	if(setVerboseOrLog(argc,argv[1],1)){
+	if(tokenAnalyse(argc,argv)){
 		return EXIT_FAILURE;
 	}
 
-	char noControl=0;
-	setNoControl(&noControl,argc,argv[2],2);
-
-
-	char myIP[64];
-	getIP(myIP);
-	//readIpAdresse(myIP,64);
+	if (IP_Sound) {
+		char myIP[64];
+		getIP(myIP);
+		readIpAdresse(myIP, 64);
+	}
 
 	args_SERVER * argServ;
 	if(init_args_SERVER(&argServ)){
@@ -95,8 +93,8 @@ int main (int argc, char *argv[]){
 	pthread_t threadServer;
 	pthread_t threadPID;
 	pthread_t threadMotor2;
-	
-	if(!noControl){
+
+	if(noControl){
 		pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
 
 		if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {
@@ -108,7 +106,6 @@ int main (int argc, char *argv[]){
 
 		pthread_mutex_unlock(&argServ->pmutexRemoteConnect->mutex);
 	}
-
 
 	if(init_thread_PID(&threadPID,argPID)){
 		stopNetwork();

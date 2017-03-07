@@ -15,13 +15,18 @@ extern "C" {
 #include <fcntl.h>
 #include <unistd.h>
 
+static char noControl=0;
+static char IP_Sound=0;
+
 #define VAL_LOG_FILE 1
 #define VAL_LOG_VERBOSE 2
 
 #define NB_VALUES_TO_LOG 5
 
-int setVerboseOrLog(int argc, char * argv,int min);
-void setNoControl(char * NoControl, int argc, char * argv, int min);
+//int setVerboseOrLog(int argc, char * argv,int min);
+//void setNoControl(char * NoControl, int argc, char * argv, int min);
+
+int tokenAnalyse(int argc , char *argv[] );
 
 void closeLogFile();
 void logString(char * str);

@@ -1,6 +1,7 @@
 #include "log.h"
 
 int verbose_or_log=0;
+
 int idFile=-1;
 
 void closeLogFile(){
@@ -26,49 +27,92 @@ void setLogFileName(char * str){
 	sprintf(str,"LOG_%s.%09ld_%d",buff, ts.tv_nsec,getpid());
 }
 
-
 /*
- * Return -1 if fail , 0 if Succes
+ * Return -1 if FAIL , else return 0 in SUCCES
  */
-int setVerboseOrLog(int argc, char * argv,int min) {
-	if (argc > min) {
-		if (strcmp(argv, "--verbose") == 0) {
-			printf("verbose MODE select\n");
-			verbose_or_log=VAL_LOG_VERBOSE;
+int tokenAnalyse(int argc , char *argv[] ){
+
+	noControl=0;
+	IP_Sound=0;
+	int SHOW_LogOrVerbose=1;
+	int SHOW_noControl=1;
+	int SHOW_IpSound=1;
+	int SHOW_help=1;
+	char *argvv;
+
+	if (argc == 1) {
+		printf("add		--help		to list all options\n");
+		return 0;
+	}
+
+	for(int i=1; i<argc;i++){
+
+		argvv=argv[i];
+
+		if (strcmp(argvv, "--help") == 0) {
+			SHOW_help=1;
+			break;
 		}
-		else if (strcmp(argv, "--log") == 0) {
-			printf("log MODE select\n");
-			verbose_or_log = VAL_LOG_FILE;
 
-			char array[100];
-			setLogFileName(array);
-			array[99]='\0';
-			printf("FILE NAME : %s\n",array);
-			idFile=open(array,O_CREAT|O_WRONLY,0777);
+		if (strcmp(argvv, "--noControl") == 0) {
+			printf("No controller MODE select\n");
+			noControl = 1;
+			SHOW_noControl=0;
+		}
+		else if (strcmp(argvv, "--ipSound") == 0) {
+			printf("IP Sound MODE select\n");
+			IP_Sound = 1;
+			SHOW_IpSound = 0;
+		}
 
-			if(idFile==-1){
-				printf("ERROR FILE OPEN\n");
-				return -1;
+		else if (strcmp(argvv, "--verbose") == 0) {
+			if (SHOW_LogOrVerbose == 0) {
+				printf("VERBOSE OR LOG NOT BOTH\n");
+			} else {
+				printf("verbose MODE select\n");
+				verbose_or_log = VAL_LOG_VERBOSE;
+				SHOW_LogOrVerbose = 0;
 			}
 
+		} else if (strcmp(argvv, "--log") == 0) {
+			if (SHOW_LogOrVerbose == 0) {
+				printf("VERBOSE OR LOG NOT BOTH\n");
+			} else {
+				printf("log MODE select\n");
+				verbose_or_log = VAL_LOG_FILE;
+
+				char array[100];
+				setLogFileName(array);
+				array[99] = '\0';
+				printf("FILE NAME : %s\n", array);
+				idFile = open(array, O_CREAT | O_WRONLY, 0777);
+
+				if (idFile == -1) {
+					printf("ERROR FILE OPEN\n");
+					return -1;
+				}
+				SHOW_LogOrVerbose = 0;
+
+			}
 		}
-	} else {
-		printf("add		--verbose	for verbose	mode\n");
-		printf("add		--log		for log 	mode\n");
+
 	}
 
+	if (SHOW_LogOrVerbose) {
+		printf("add		--verbose	for verbose\n");
+		printf("add		--log		for log\n");
+	}
+	if (SHOW_noControl){
+		printf("add		--noControl	for noController\n");
+	}
+	if (SHOW_IpSound) {
+		printf("add		--ipSound	for IP SOUND\n");
+	}
+
+	if(SHOW_help){
+		return -1;
+	}
 	return 0;
-}
-
-void setNoControl(char * NoControl, int argc, char * argv, int min) {
-	if (argc > min) {
-		if (strcmp(argv, "--noControl") == 0) {
-			printf("No controller MODE select\n");
-			*NoControl = 1;
-		}
-	} else {
-		printf("add    --noControl  for noController mode\n");
-	}
 }
 
 int log_frequence=0;

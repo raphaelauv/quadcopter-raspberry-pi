@@ -84,6 +84,7 @@ int absValue(int val){
 
 void * thread_PID(void * args){
     
+	logString("THREAD PID : INITIALISATION");
     //test();
     //calibrate(args);
     args_PID  * controle_vol =(args_PID  *)args;
