@@ -27,6 +27,14 @@ void setLogFileName(char * str){
 	sprintf(str,"LOG_%s.%09ld_%d",buff, ts.tv_nsec,getpid());
 }
 
+int isNoControl(){
+	return noControl;
+}
+
+int isIpSound(){
+	return IP_Sound;
+}
+
 /*
  * Return -1 if FAIL , else return 0 in SUCCES
  */

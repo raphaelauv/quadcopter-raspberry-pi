@@ -64,7 +64,7 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	if (IP_Sound) {
+	if (isIpSound()) {
 		char myIP[64];
 		getIP(myIP);
 		readIpAdresse(myIP, 64);
@@ -94,7 +94,7 @@ int main (int argc, char *argv[]){
 	pthread_t threadPID;
 	pthread_t threadMotor2;
 
-	if(noControl){
+	if(isNoControl()){
 		pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
 
 		if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {

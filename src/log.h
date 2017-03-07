@@ -28,6 +28,8 @@ static char IP_Sound=0;
 
 int tokenAnalyse(int argc , char *argv[] );
 
+int isNoControl();
+int isIpSound();
 void closeLogFile();
 void logString(char * str);
 int logDataFreq(int * array,int size);
