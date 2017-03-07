@@ -37,7 +37,7 @@ int tokenAnalyse(int argc , char *argv[] ){
 	int SHOW_LogOrVerbose=1;
 	int SHOW_noControl=1;
 	int SHOW_IpSound=1;
-	int SHOW_help=1;
+	int SHOW_help=0;
 	char *argvv;
 
 	if (argc == 1) {

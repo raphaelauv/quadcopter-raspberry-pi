@@ -49,7 +49,7 @@ int main (int argc, char *argv[]){
 	}
 	char * adresse=argv[1];
 
-	if (setVerboseOrLog(argc, argv[2], 2)) {
+	if (tokenAnalyse(argc, argv)) {
 		return EXIT_FAILURE;
 	}
 
