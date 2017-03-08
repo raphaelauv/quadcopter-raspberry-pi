@@ -1,10 +1,15 @@
-* <2018-02-02>
+* <2017-03-08>
+** Fait:
+   - USB ok
+   - 1 seul thread pour le contrôle des moteurs (à tester)
+** À faire:
+   - PID avec intégration de l'accélération angulaire
+* <2017-02-02>
 ** Fait
    - Un cas simple: algo de "equilibrage" (qui semble marcher bien)
 ** À faire
    - Resoudre un bug du RT linux sur Raspberry pi
    - Avancer avec le projet
-
 * <2017-02-01>
 ** Fait
    - Organisation du code (Makefile, architecture, ...)
