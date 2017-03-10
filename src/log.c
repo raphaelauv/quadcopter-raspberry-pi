@@ -195,17 +195,18 @@ int lastDataIndex=0;
 char arrayStr[400];
 int logDataFreq(int * arrayLog,int size){
 
-
 	if(arrayLog==NULL){return -1;}
 
 	for(int i=0;i<size;i++){
 		arrayData[lastDataIndex][i]=arrayLog[i];
 	}
 
-	if (lastDataIndex + 1 == log_frequence) {
+	lastDataIndex++;
+	if (lastDataIndex == log_frequence) {
 		int moyenneArray[NB_VALUES_TO_LOG];
 		int cmp=0;
 		for(int i=0;i<NB_VALUES_TO_LOG;i++){
+			cmp=0;
 			for(int j=0;j<log_frequence;j++){
 				cmp+=arrayData[j][i];
 			}
@@ -216,8 +217,6 @@ int logDataFreq(int * arrayLog,int size){
 		sprintf(arrayStr,"DATAFREQ : FREQ=%d;%d;%d;%d;%d;%d;%d",log_frequence,moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3],moyenneArray[4],moyenneArray[5] );
 		logString(arrayStr);
 		lastDataIndex = 0;
-	}else{
-		lastDataIndex++;
 	}
 
 	return 0;
