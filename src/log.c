@@ -8,7 +8,7 @@ void closeLogFile(){
 	if(idFile!=-1){
 		close(idFile);
 		idFile=-1;
-		verbose_or_log=VAL_LOG_VERBOSE;
+		verbose_or_log=VAL_VERBOSE;
 	}
 }
 
@@ -35,6 +35,14 @@ int isIpSound(){
 	return IP_Sound;
 }
 
+int isCalibration(){
+	return doCalibration;
+}
+
+int isVerbose(){
+	return verbose_or_log==VAL_VERBOSE;
+}
+
 /*
  * Return -1 if FAIL , else return 0 in SUCCES
  */
@@ -44,6 +52,7 @@ int tokenAnalyse(int argc , char *argv[] ){
 	IP_Sound=0;
 	int SHOW_LogOrVerbose=1;
 	int SHOW_noControl=1;
+	int SHOW_doCalibration=1;
 	int SHOW_IpSound=1;
 	int SHOW_help=0;
 	char *argvv;
@@ -61,38 +70,43 @@ int tokenAnalyse(int argc , char *argv[] ){
 			SHOW_help=1;
 			break;
 		}
+		else if (strcmp(argvv, "--calibration") == 0) {
+			printf("calibration ON, ");
+			doCalibration = 1;
+			SHOW_doCalibration = 0;
+		}
 
-		if (strcmp(argvv, "--noControl") == 0) {
-			printf("No controller MODE select\n");
+		else if (strcmp(argvv, "--noControl") == 0) {
+			printf("No controller ON, ");
 			noControl = 1;
 			SHOW_noControl=0;
 		}
 		else if (strcmp(argvv, "--ipSound") == 0) {
-			printf("IP Sound MODE select\n");
+			printf("IP Sound ON, ");
 			IP_Sound = 1;
 			SHOW_IpSound = 0;
 		}
 
 		else if (strcmp(argvv, "--verbose") == 0) {
 			if (SHOW_LogOrVerbose == 0) {
-				printf("VERBOSE OR LOG NOT BOTH\n");
+				printf("\nVERBOSE OR LOG NOT BOTH\n");
 			} else {
-				printf("verbose MODE select\n");
-				verbose_or_log = VAL_LOG_VERBOSE;
+				printf("verbose ON, ");
+				verbose_or_log = VAL_VERBOSE;
 				SHOW_LogOrVerbose = 0;
 			}
 
 		} else if (strcmp(argvv, "--log") == 0) {
 			if (SHOW_LogOrVerbose == 0) {
-				printf("VERBOSE OR LOG NOT BOTH\n");
+				printf("\nVERBOSE OR LOG NOT BOTH\n");
 			} else {
-				printf("log MODE select\n");
-				verbose_or_log = VAL_LOG_FILE;
+				printf("log ON, ");
+				verbose_or_log = VAL_FILE;
 
 				char array[100];
 				setLogFileName(array);
 				array[99] = '\0';
-				printf("FILE NAME : %s\n", array);
+				printf("\nFILE NAME : %s\n", array);
 				idFile = open(array, O_CREAT | O_WRONLY, 0777);
 
 				if (idFile == -1) {
@@ -106,15 +120,21 @@ int tokenAnalyse(int argc , char *argv[] ){
 
 	}
 
+	if(!SHOW_help){
+		printf("\n");
+	}
 	if (SHOW_LogOrVerbose) {
-		printf("add		--verbose	for verbose\n");
-		printf("add		--log		for log\n");
+		printf("--verbose	for verbose\n");
+		printf("--log		for log\n");
 	}
 	if (SHOW_noControl){
-		printf("add		--noControl	for noController\n");
+		printf("--noControl	for noController\n");
 	}
 	if (SHOW_IpSound) {
-		printf("add		--ipSound	for IP SOUND\n");
+		printf("--ipSound	for IP SOUND\n");
+	}
+	if (SHOW_doCalibration) {
+		printf("--calibration	for calibration of the ESC\n");
 	}
 
 	if(SHOW_help){
@@ -216,14 +236,14 @@ void logString(char * str){
 
 	if(str==NULL){return;}
 
-	if(verbose_or_log==VAL_LOG_FILE){
+	if(verbose_or_log==VAL_FILE){
 		struct timespec ts;
 		timespec_get(&ts, TIME_UTC);
 		char buff[100];
 		strftime(buff, sizeof buff, "%D %T", gmtime(&ts.tv_sec));
 		dprintf(idFile,"[%s.%09ld] : %s ;\n", buff, ts.tv_nsec,str);
 
-	}else if(verbose_or_log==VAL_LOG_VERBOSE){
+	}else if(verbose_or_log==VAL_VERBOSE){
 		printf("%s\n",str);
 	}
 }

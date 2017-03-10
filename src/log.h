@@ -17,9 +17,10 @@ extern "C" {
 
 static char noControl=0;
 static char IP_Sound=0;
+static char doCalibration=0;
 
-#define VAL_LOG_FILE 1
-#define VAL_LOG_VERBOSE 2
+#define VAL_FILE 1
+#define VAL_VERBOSE 2
 
 #define NB_VALUES_TO_LOG 5
 
@@ -28,8 +29,11 @@ static char IP_Sound=0;
 
 int tokenAnalyse(int argc , char *argv[] );
 
+int isCalibration();
 int isNoControl();
 int isIpSound();
+int isVerbose();
+
 void closeLogFile();
 void logString(char * str);
 int logDataFreq(int * array,int size);

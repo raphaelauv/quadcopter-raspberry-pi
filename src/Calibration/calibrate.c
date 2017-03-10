@@ -1,12 +1,24 @@
 #include "calibrate.h"
 
 
-void viderBuffer(void){
+void emptyBuffer(void){
     int c;
     while((c=getchar()) != EOF && c != '\n');
 }
 
-void  Test_puissance(MotorsAll2  * motors){
+void input_test(char value_Wait) {
+	char tmp=255;
+	int first=1;
+	do {
+		if(!first){
+			printf("WRONG KEY !! push : %c  ",value_Wait);
+		}
+		first=0;
+		scanf("%c", &tmp);
+		emptyBuffer();
+	} while (tmp != value_Wait);
+}
+void test_power(MotorsAll2  * motors){
 /*
     int high_time=1000;
     while (high_time<=2000) {
@@ -25,37 +37,33 @@ void  Test_puissance(MotorsAll2  * motors){
 
 void calibrate_ESC(MotorsAll2 * motors,char verbose){
 
+	int powerMax[4] = { MOTOR_HIGH_TIME, MOTOR_HIGH_TIME, MOTOR_HIGH_TIME, MOTOR_HIGH_TIME };
+	int powerMin[4] = { MOTOR_LOW_TIME, MOTOR_LOW_TIME, MOTOR_LOW_TIME, MOTOR_LOW_TIME };
+
+	if (verbose) {
+		sleep(3);
+		fflush(NULL);
+		printf("******************\nESC CALIBRATION\n******************\n");
+		printf("THE BATTERY OF ESC NEED TO BE DISCONNECT FIRST ,when it's done : press the key y and ENTER\n");
+		input_test('y');
+	}
+	set_power2(motors,powerMax);
     if(verbose){
-    	printf("Calibration Des ESC:\n Pour calibrer les ESCs Brancher la baterie "
-    			"APRES AVOIR LANCEE CE PROGRAMME.\nPuis Atender les Deux beep des ESCs et "
-    			"appuyer sur o \n Apres cela aller atendre les 3 beep des ESCs, Vos ESC son calibre.\n");
-    }
-
-	int power[4] = { 2000, 2000, 2000, 2000 };
-
-	int power2[4] = { 1000, 1000, 1000, 1000 };
-
-
-    set_power2(motors,power);
-
-    char a;
-    if(verbose){
-    	scanf("%c", &a);
-    	viderBuffer();
+    	printf("\nNOW CONNECT THE BATTERY, when it's done : press the key y and ENTER\n");
+    	input_test('y');
+    	printf("\nNOW WAIT FOR THE 3 BIP, when it's over : press the key y and ENTER\n");
     }else{
-    	sleep(5);
-    	//sleepDuration(5);
+    	system(SOUND_COMMAND"connectTheBattery.mp3");usleep(SOUND_PAUSE_TIME);
+    	sleep(10);
+    	system(SOUND_COMMAND"calibrationStart.mp3");usleep(SOUND_PAUSE_TIME);
     }
+    set_power2(motors,powerMin);
+	if (verbose) {
+		input_test('y');
+		printf("\nCALIBRATION FINISH\n");
+	}else{
+		sleep(10);
+		system(SOUND_COMMAND"calibrationFinish.mp3");usleep(SOUND_PAUSE_TIME);
+	}
 
-    set_power2(motors,power2);
-
-    if(verbose){
-    	printf("Appuyer sur o quand le calibrage est fini. Merci. \n");
-        scanf("%c", &a);
-        viderBuffer();
-    }else{
-    	sleep(5);
-    	//sleepDuration(5);
-    }
-    //exit(1);
 }

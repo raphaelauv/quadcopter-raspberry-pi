@@ -70,16 +70,6 @@ int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message);
 
 void getIP(char*  myIP);
 
-#define SOUND_PLAYER "mpg123 -q "
-#ifdef __arm__
-#define SOUND_FOLDER "/home/pi/drone/Lib/sound/"
-#else
-#define SOUND_FOLDER " ~/drone/Lib/sound/"
-#endif
-
-#define SOUND_COMMAND SOUND_PLAYER SOUND_FOLDER
-
-#define SOUND_PAUSE_TIME 400000
 void readIpAdresse(char * ipAdresse,int size);
 
 /*

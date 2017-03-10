@@ -56,6 +56,17 @@ int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu);
 
 
 
+#define SOUND_PLAYER "mpg123 -q "
+#ifdef __arm__
+#define SOUND_FOLDER "/home/pi/drone/Lib/sound/"
+#else
+#define SOUND_FOLDER " ~/drone/Lib/sound/"
+#endif
+
+#define SOUND_COMMAND SOUND_PLAYER SOUND_FOLDER
+
+#define SOUND_PAUSE_TIME 400000
+
 /*
 #ifdef __cplusplus
 }
