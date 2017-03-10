@@ -22,7 +22,7 @@ static char doCalibration=0;
 #define VAL_FILE 1
 #define VAL_VERBOSE 2
 
-#define NB_VALUES_TO_LOG 5
+#define NB_VALUES_TO_LOG 7
 
 //int setVerboseOrLog(int argc, char * argv,int min);
 //void setNoControl(char * NoControl, int argc, char * argv, int min);

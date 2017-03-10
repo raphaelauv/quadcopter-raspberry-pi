@@ -213,7 +213,7 @@ int logDataFreq(int * arrayLog,int size){
 			moyenneArray[i]=cmp;
 		}
 		//showArrayData();
-		sprintf(arrayStr,"DATAFREQ : FREQ=%d;%d;%d;%d;%d",log_frequence,moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3] );
+		sprintf(arrayStr,"DATAFREQ : FREQ=%d;%d;%d;%d;%d;%d;%d",log_frequence,moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3],moyenneArray[4],moyenneArray[5] );
 		logString(arrayStr);
 		lastDataIndex = 0;
 	}else{

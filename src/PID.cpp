@@ -95,6 +95,9 @@ void * thread_PID(void * args){
     //sprintf(array, "VAL POINT BOOL ARRET IN PID   : %d\n",controle_vol->motorsAll2->bool_arret_moteur);
     //logString(array);
     int powerTab[NUMBER_OF_MOTORS];
+
+    int logTab[NUMBER_OF_MOTORS+2];
+
     int powerController[NUMBER_OF_MOTORS];
     int local_period=(1.0/FREQUENCY_PID)*USEC_TO_SEC;
     
@@ -277,12 +280,21 @@ void * thread_PID(void * args){
             
             powerTab[0] = puissance_motor0;
             powerTab[1] = puissance_motor1;
+            powerTab[2] = 1000;
             powerTab[3] = 1000;
-            powerTab[4] = 1000;
             //powerTab[2] = puissance_motor2;
             //powerTab[3] = puissance_motor3;
+
+            logTab[0]=powerTab[0];
+            logTab[1]=powerTab[1];
+            logTab[2]=powerTab[2];
+            logTab[3]=powerTab[3];
+            logTab[4]=(int)input_pid_pitch;
+            logTab[5]=(int)output_pid_pitch;
+
+
             set_power2(controle_vol->motorsAll2,powerTab);
-            logDataFreq(powerTab,NUMBER_OF_MOTORS);
+            logDataFreq(logTab,NUMBER_OF_MOTORS+2);
             
         }
         
