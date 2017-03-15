@@ -8,6 +8,7 @@ extern "C" {
 */
 
 #include <time.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -22,8 +23,6 @@ static char doCalibration=0;
 #define VAL_FILE 1
 #define VAL_VERBOSE 2
 
-#define NB_VALUES_TO_LOG 7
-
 //int setVerboseOrLog(int argc, char * argv,int min);
 //void setNoControl(char * NoControl, int argc, char * argv, int min);
 
@@ -37,7 +36,10 @@ int isVerbose();
 void closeLogFile();
 void logString(char * str);
 int logDataFreq(int * array,int size);
-int setDataFrequence(int freq);
+
+
+int setDataFrequence(int freq,int nb_values);
+
 
 /*
 #ifdef __cplusplus
