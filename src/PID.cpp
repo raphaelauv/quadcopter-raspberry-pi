@@ -245,7 +245,7 @@ void * thread_PID(void * args){
             input_pid_pitch=(input_pid_pitch*0.7) + ((imuData.gyro.y()-gyro_cal[1])*(180/M_PI)*0.3);
             
             if(powerController[1]>=0){
-                (client_gaz=powerController[1]*7)+1100;
+                client_gaz=(powerController[1]*7)+1100;
             }
             else{
                 client_gaz=1100;
