@@ -96,7 +96,7 @@ void * thread_PID(void * args){
     //logString(array);
     int powerTab[NUMBER_OF_MOTORS];
 
-    int logTab[NUMBER_OF_MOTORS+2];
+    
 
     int powerController[NUMBER_OF_MOTORS];
     int local_period=(1.0/FREQUENCY_PID)*USEC_TO_SEC;
@@ -131,6 +131,9 @@ void * thread_PID(void * args){
     
 
     int nb_values_log=NUMBER_OF_MOTORS+3;
+
+	int logTab[nb_values_log];
+
     if(setDataFrequence(50,nb_values_log)){
         printf("ERROR setDataFrequence\n");
         //TODO
@@ -299,7 +302,7 @@ void * thread_PID(void * args){
             logTab[3]=powerTab[3];
             logTab[4]=(int)input_pid_pitch;
             logTab[5]=(int)output_pid_pitch;
-            logTab[5]=(int)log_angle;
+            logTab[6]=(int)log_angle;
 
 
             set_power2(controle_vol->motorsAll2,powerTab);
