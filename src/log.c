@@ -1,6 +1,7 @@
 #include "log.h"
 
 int verbose_or_log=0;
+int NB_VALUES_TO_LOG=0;
 
 int idFile=-1;
 
@@ -20,6 +21,9 @@ void setLogFileName(char * str){
 	int tmp=0;
 	while(buff[tmp]!='\0'){
 		if(buff[tmp]=='/'){
+			buff[tmp]='-';
+		}
+		else if(buff[tmp]==' '){
 			buff[tmp]='-';
 		}
 		tmp++;
@@ -145,25 +149,33 @@ int tokenAnalyse(int argc , char *argv[] ){
 
 int log_frequence=0;
 
-int ** arrayData=NULL;
+//int ** arrayData=NULL;
+int * arrayData=NULL;
+
 
 void clean_log_data() {
 	if (arrayData != NULL) {
+		/*
 		for (int i = 0; i < log_frequence; i++) {
 			if (arrayData[i] == NULL) {
 				free(arrayData[i]);
 			}
 		}
+		*/
 		free(arrayData);
 	}
 }
 
-int setDataFrequence(int freq){
-	if (freq<0){return -1;}
+int setDataFrequence(int freq,int nb_values){
+	if (freq<0 || nb_values<0){return -1;}
 	else{
 		log_frequence=freq;
+		NB_VALUES_TO_LOG=nb_values;
 	}
+
 	clean_log_data();
+	/*
+
 	arrayData=(int**)malloc(sizeof(int*)*log_frequence);
 	if(arrayData==NULL){
 		return -1;
@@ -174,7 +186,13 @@ int setDataFrequence(int freq){
 			return -1;
 		}
 	}
+	*/
 
+	arrayData=(int*)malloc(sizeof(int)*NB_VALUES_TO_LOG);
+
+	for(int i=0;i<NB_VALUES_TO_LOG;i++){
+		arrayData[i]=0;
+	}
 	return 0;
 }
 
@@ -183,35 +201,62 @@ int setDataFrequence(int freq){
 
 void showArrayData(){
 	for(int i=0;i<log_frequence;i++){
+		/*
 		for(int j=0;j<NB_VALUES_TO_LOG;j++){
 			printf("%d ",arrayData[i][j]);
 		}
+		*/
+
+		printf("%d ",arrayData[i]);
 		printf("\n");
 	}
 
 }
 
+
+void fillStrLog(int size, ...){
+
+	va_list va;
+	va_start (va, size);
+
+	for (int i = 0; i < size; i++) {
+		int c = va_arg(va, int);
+	}
+
+}
+
 int lastDataIndex=0;
-char arrayStr[400];
+
 int logDataFreq(int * arrayLog,int size){
+
+	if(size>NB_VALUES_TO_LOG){return -1;}
 
 	if(arrayLog==NULL){return -1;}
 
 	for(int i=0;i<size;i++){
-		arrayData[lastDataIndex][i]=arrayLog[i];
+		//arrayData[lastDataIndex][i]=arrayLog[i];
+		arrayData[i]+=arrayLog[i];
 	}
 
 	lastDataIndex++;
+
 	if (lastDataIndex == log_frequence) {
+		char arrayStr[400];
 		int moyenneArray[NB_VALUES_TO_LOG];
 		int cmp=0;
 		for(int i=0;i<NB_VALUES_TO_LOG;i++){
+			
+			/*
 			cmp=0;
 			for(int j=0;j<log_frequence;j++){
 				cmp+=arrayData[j][i];
 			}
+			
 			cmp=cmp/log_frequence;
+			*/
+			cmp=arrayData[i]/log_frequence;
 			moyenneArray[i]=cmp;
+			arrayData[i]=0;
 		}
 		//showArrayData();
 		sprintf(arrayStr,"DATAFREQ : FREQ=%d;%d;%d;%d;%d;%d;%d",log_frequence,moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3],moyenneArray[4],moyenneArray[5] );

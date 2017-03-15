@@ -47,7 +47,7 @@
 #define NUMBER_OF_MOTORS 4
 #define FREQUENCY_MOTOR 50.0
 
-#define TIME_LATENCY 50
+#define TIME_LATENCY 5
 
 #define MOTOR_HIGH_TIME 2000
 #define MOTOR_LOW_TIME 1000
@@ -60,7 +60,6 @@
 #define BROCHE_MOTOR_5 0
 #define BROCHE_MOTOR_6 0
 #define BROCHE_MOTOR_7 0
-#define BROCHE_MOTOR_8 0
 /* ... */
 
 #define USEC_TO_SEC 1000000
@@ -75,7 +74,7 @@ typedef struct MotorsAll2 {
 	int high_time[NUMBER_OF_MOTORS];
 } MotorsAll2;
 
-int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...);
+int init_MotorsAll2(MotorsAll2 ** motorsAll2);
 void clean_MotorsAll2(MotorsAll2 * arg);
 int init_thread_startMotorAll2(pthread_t * pthread,MotorsAll2 * MotorsAll2);
 int set_power2(MotorsAll2 * MotorsAll2, int * powers);

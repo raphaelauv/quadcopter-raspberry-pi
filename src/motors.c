@@ -1,17 +1,18 @@
 #include "motors.h"
 
-int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...){
+int init_MotorsAll2(MotorsAll2 ** motorsAll2){
 	#ifdef __arm__
 	if (wiringPiSetup () == -1){
 		return -1;
 	}
 	#endif
 
+/*
 	if(NbMotors!=NUMBER_OF_MOTORS){
 		logString("init_MotorsAll2 FAIL : NbMotors arg different of MACRO NUMBER_OF_MOTORS");
 		return -1;
 	}
-
+*/
 	*motorsAll2 =(MotorsAll2 *) malloc(sizeof(MotorsAll2));
 	if (*motorsAll2 == NULL) {
 		logString("MALLOC FAIL : motorsAll");
@@ -36,15 +37,14 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2,int NbMotors,...){
 
 	(*motorsAll2)->MutexSetValues=barrier;
 
-	va_list va;
-	va_start (va, NbMotors);
+	int arrayValuesBrocheMotor [8]={BROCHE_MOTOR_0 ,BROCHE_MOTOR_1,BROCHE_MOTOR_2,BROCHE_MOTOR_3,BROCHE_MOTOR_4,BROCHE_MOTOR_5,BROCHE_MOTOR_6,BROCHE_MOTOR_7};
 
 	char array[400];
 	sprintf(array, "NUMBER OF MOTORS :%d",NUMBER_OF_MOTORS);
 	logString(array);
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
-		int c = va_arg(va, int);
-		(*motorsAll2)->broche[i]=c;
+		
+		(*motorsAll2)->broche[i]=arrayValuesBrocheMotor[i];
 		(*motorsAll2)->high_time[i]=MOTOR_LOW_TIME;
 		sprintf(array, "BROCHE %d VALUE : %d",i,(*motorsAll2)->broche[i]);
 		logString(array);
@@ -155,14 +155,15 @@ void * thread_startMotorAll(void * args){
 
 				dif=(valuesBrocheMotor[i][1])-sleepedTotalTime;
 				//printf("SLEEP %d : %d\n",i,dif);
-				if(dif>0){
-					if(sleepedTotalTime+dif< MOTOR_HIGH_TIME - TIME_LATENCY){
+				if(dif>10){
+					if(sleepedTotalTime+dif< MOTOR_HIGH_TIME){
 						usleep(dif);
-						sleepedTotalTime+=dif+TIME_LATENCY;
-					}else if(MOTOR_HIGH_TIME - sleepedTotalTime -TIME_LATENCY >0){
-						usleep(MOTOR_HIGH_TIME - (sleepedTotalTime + TIME_LATENCY));
+						sleepedTotalTime+=dif;
+					}else {
 						sleepedTotalTime=MOTOR_HIGH_TIME;
 					}
+				}else{
+					sleepedTotalTime+=dif;
 				}
 				#ifdef __arm__
 				digitalWrite(valuesBrocheMotor[i][0],0);
@@ -176,8 +177,9 @@ void * thread_startMotorAll(void * args){
 			if(timeBetween > local_period){
 				logString("THREAD MOTORS : ERROR PERIODE TOO SLOW !!!!");
 			}else{
-				if(timeBetween > MOTOR_HIGH_TIME + TIME_LATENCY){
-					//printf("TEMPS BETWEEN : %d \n",timeBetween);
+				if(timeBetween > MOTOR_HIGH_TIME +100 ){
+					//logString("THREAD MOTORS : ERROR PERIODE A BIT TOO LONG !!!!");
+					printf("TIME : %d\n",timeBetween);
 				}
 				usleep(local_period - timeBetween);
 			}

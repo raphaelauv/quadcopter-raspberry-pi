@@ -73,8 +73,8 @@ int absValue(int val){
     }
     val*=10;
     val+=1000;
-    if(val<1100){
-        val=1100;
+    if(val<1000){
+        val=1000;
     }
     else if(val>2000){
         val=2000;
@@ -125,11 +125,14 @@ void * thread_PID(void * args){
     int puissance_motor2 = MOTOR_LOW_TIME;
     int puissance_motor3 = MOTOR_LOW_TIME;
     
+    int log_angle;
     
     RTIMU_DATA imuData;
     
-    if(setDataFrequence(50)){
-        printf("ERROR\n");
+
+    int nb_values_log=NUMBER_OF_MOTORS+3;
+    if(setDataFrequence(50,nb_values_log)){
+        printf("ERROR setDataFrequence\n");
         //TODO
     }
     
@@ -160,7 +163,7 @@ void * thread_PID(void * args){
     int numberOfSecondSleep=0;
     char tmpFlag=0;
     logString("THREAD PID : SECURITY SLEEP");
-    while(numberOfSecondSleep<PID_SLEEP_TIME_SECURITE*10){
+    while(numberOfSecondSleep<PID_SLEEP_TIME_SECURITE * PID_SLEEP_TIME_SECURITE){
     	numberOfSecondSleep++;
     	pthread_mutex_lock(&(mutexDataControler->mutex));
     	tmpFlag=data->flag;
@@ -171,7 +174,7 @@ void * thread_PID(void * args){
 			break;
 		}
     	else{
-			usleep(1000000/10);
+			usleep(USEC_TO_SEC / PID_SLEEP_TIME_SECURITE);
 		}
     }
     /*********************************************************/
@@ -215,14 +218,17 @@ void * thread_PID(void * args){
             powerController[2] = data->axe_LeftRight;
             powerController[3] = data->axe_FrontBack;
             pthread_mutex_unlock(&(mutexDataControler->mutex));
-            /*
-            powerTab[0] =absValue(powerTab[0]);
-            powerTab[1] =absValue(powerTab[1]);
-            powerTab[2] =absValue(powerTab[2]);
-            powerTab[3] =absValue(powerTab[3]);
+            
+            
+            powerTab[0] =absValue(powerController[0]);
+            powerTab[1] =absValue(powerController[1]);
+            powerTab[2] =absValue(powerController[2]);
+            powerTab[3] =absValue(powerController[3]);
 
+            //printf("VALUES %d %d %d %d\n", powerTab[0],powerTab[1],powerTab[2],powerTab[3]);
             set_power2(controle_vol->motorsAll2,powerTab);
-            */
+            logDataFreq(powerTab,NUMBER_OF_MOTORS);
+            
         }
         else{
             cmp++;
@@ -236,14 +242,17 @@ void * thread_PID(void * args){
             input_pid_pitch=(input_pid_pitch*0.7) + ((imuData.gyro.y()-gyro_cal[1])*(180/M_PI)*0.3);
             
             if(powerController[1]>=0){
-                client_gaz=powerController[1]*7+1100;
+                (client_gaz=powerController[1]*7)+1100;
             }
             else{
                 client_gaz=1100;
             }
             
             client_pitch=powerController[2]*5;
-            client_pitch-=(imuData.fusionPose.y()*RTMATH_RAD_TO_DEGREE)*15;
+
+            log_angle=imuData.fusionPose.y()*RTMATH_RAD_TO_DEGREE;
+            client_pitch-=(log_angle)*15;
+
             client_pitch/=3;
 
             //calcule pitch PID
@@ -291,10 +300,11 @@ void * thread_PID(void * args){
             logTab[3]=powerTab[3];
             logTab[4]=(int)input_pid_pitch;
             logTab[5]=(int)output_pid_pitch;
+            logTab[5]=(int)log_angle;
 
 
             set_power2(controle_vol->motorsAll2,powerTab);
-            logDataFreq(logTab,NUMBER_OF_MOTORS+2);
+            logDataFreq(logTab,NUMBER_OF_MOTORS+3);
             
         }
         
