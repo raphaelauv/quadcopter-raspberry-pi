@@ -242,7 +242,7 @@ void * thread_PID(void * args){
                 client_gaz=1100;
             }
             
-            client_pitch=0;
+            client_pitch=powerController[2]*5;
             client_pitch-=(imuData.fusionPose.y()*RTMATH_RAD_TO_DEGREE)*15;
             client_pitch/=3;
 

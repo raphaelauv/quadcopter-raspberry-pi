@@ -11,11 +11,11 @@
 #define FREQUENCY_PID 250.0
 
 //PID pitch
-#define  PID_GAIN_P_PITCH 0.5
-#define  PID_GAIN_I_PITCH 0
-#define  PID_GAIN_D_PITCH 0
+#define  PID_GAIN_P_PITCH 1.3
+#define  PID_GAIN_I_PITCH 0.002
+#define  PID_GAIN_D_PITCH 30
 #define  PID_MAX_PITCH 400
-/*2.5, 0.005 220*/
+/*1.5, 0.002 220*/
 
 typedef struct args_PID {
 	MotorsAll2 * motorsAll2;
