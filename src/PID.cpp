@@ -222,7 +222,7 @@ void * thread_PID(void * args){
             powerController[3] = data->axe_FrontBack;
             pthread_mutex_unlock(&(mutexDataControler->mutex));
             
-            
+            /*
             powerTab[0] =absValue(powerController[0]);
             powerTab[1] =absValue(powerController[1]);
             powerTab[2] =absValue(powerController[2]);
@@ -231,7 +231,7 @@ void * thread_PID(void * args){
             //printf("VALUES %d %d %d %d\n", powerTab[0],powerTab[1],powerTab[2],powerTab[3]);
             set_power2(controle_vol->motorsAll2,powerTab);
             logDataFreq(powerTab,NUMBER_OF_MOTORS);
-            
+            */
         }
         else{
             cmp++;
