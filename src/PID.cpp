@@ -251,10 +251,10 @@ void * thread_PID(void * args){
                 client_gaz=1100;
             }
             
-            client_pitch=powerController[2]*5;
+            client_pitch=powerController[2]*PID_ANGLE_PRECISION_MULTIPLE;
 
             log_angle=imuData.fusionPose.y()*RTMATH_RAD_TO_DEGREE;
-            client_pitch-=(log_angle)*15;
+            client_pitch-=(log_angle)*PID_ANGLE_MULTIPLE;
 
             client_pitch/=3;
 
