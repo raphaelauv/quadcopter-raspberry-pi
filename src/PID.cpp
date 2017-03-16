@@ -166,7 +166,7 @@ void * thread_PID(void * args){
     int numberOfSecondSleep=0;
     char tmpFlag=0;
     logString("THREAD PID : SECURITY SLEEP");
-    while(numberOfSecondSleep<PID_SLEEP_TIME_SECURITE * PID_SLEEP_TIME_SECURITE){
+    while(numberOfSecondSleep<PID_SLEEP_TIME_SECURITE * PID_SLEEP_VERIF_FREQUENCY){
     	numberOfSecondSleep++;
     	pthread_mutex_lock(&(mutexDataControler->mutex));
     	tmpFlag=data->flag;
@@ -177,7 +177,7 @@ void * thread_PID(void * args){
 			break;
 		}
     	else{
-			usleep(USEC_TO_SEC / PID_SLEEP_TIME_SECURITE);
+			usleep(USEC_TO_SEC / PID_SLEEP_VERIF_FREQUENCY);
 		}
     }
     /*********************************************************/

@@ -19,6 +19,8 @@ extern "C" {
 
 #include "log.h"
 
+#define USEC_TO_SEC 1000000
+
 #define CPU_CORE_PID 1
 #define CPU_CORE_MOTOR 0
 

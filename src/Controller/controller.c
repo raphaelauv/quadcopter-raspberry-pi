@@ -91,6 +91,7 @@ void control(args_CONTROLLER * argsControl) {
 	DataController * manette = argsControl->manette;
 
 
+	int local_period=(1.0/FREQUENCY_CONTROLLER)*USEC_TO_SEC;
 	manette->flag = 0;
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
 
@@ -141,7 +142,7 @@ void control(args_CONTROLLER * argsControl) {
 			break;
 		}
 
-		usleep(Update_Frequence);
+		usleep(local_period);
 
 		updateEvent(&input); // on récupère les évènements
 

@@ -8,6 +8,8 @@
 //#include "Calibrage/Calibration_ESC.h"
 
 #define PID_SLEEP_TIME_SECURITE 10
+#define PID_SLEEP_VERIF_FREQUENCY 20
+
 #define FREQUENCY_PID 250.0
 
 //PID pitch

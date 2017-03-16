@@ -33,7 +33,6 @@
 #define BROCHE_MOTOR_7 0
 /* ... */
 
-#define USEC_TO_SEC 1000000
 
 /**********************************************************************/
 /* ONE THREAD SOLUTION */

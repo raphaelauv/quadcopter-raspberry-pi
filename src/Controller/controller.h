@@ -5,7 +5,7 @@
 
 #include "../concurrent.h"
 
-#define Update_Frequence 100000
+#define FREQUENCY_CONTROLLER 10.0
 
 typedef struct args_CONTROLLER {
 	char verbose;
