@@ -139,6 +139,8 @@ void * thread_PID(void * args){
         //TODO
     }
     
+    setDataStringTitle("line Motor1 Motor2 Motor3 Motor4   INPUT  OUTPUT  ANGLE");
+
     int continuThread=1;
     //calibration accel
     float gyro_cal[3]={0,0,0};
@@ -203,7 +205,7 @@ void * thread_PID(void * args){
         
         /*********************************************************/
         /*					CODE FOR GET REMOTE					*/
-        
+        cmp++;
         if(cmp==50){
         	cmp=0;
             pthread_mutex_lock(&(mutexDataControler->mutex));
@@ -231,10 +233,7 @@ void * thread_PID(void * args){
             //printf("VALUES %d %d %d %d\n", powerTab[0],powerTab[1],powerTab[2],powerTab[3]);
             set_power2(controle_vol->motorsAll2,powerTab);
             logDataFreq(powerTab,NUMBER_OF_MOTORS);
-            */
-        }
-        else{
-            cmp++;
+			*/
         }
         /*********************************************************/
         

@@ -64,3 +64,4 @@ clean:
 mrproper: clean
 	rm -rf $(EXEC)
 	rm -rf LOG_*
+	rm -rf DATA_*
