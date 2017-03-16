@@ -20,6 +20,8 @@ static char noControl=0;
 static char IP_Sound=0;
 static char doCalibration=0;
 
+#define SIZE_MAX_LOG 400
+
 #define VAL_FILE 1
 #define VAL_VERBOSE 2
 

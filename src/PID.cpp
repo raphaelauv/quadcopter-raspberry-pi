@@ -91,7 +91,7 @@ void * thread_PID(void * args){
     DataController * data = controle_vol->dataController;
     PMutex * mutexDataControler =controle_vol->dataController->pmutex;
     RTIMU *imu =(RTIMU *)controle_vol->imu;
-    //char array[400];
+    //char array[SIZE_MAX_LOG];
     //sprintf(array, "VAL POINT BOOL ARRET IN PID   : %d\n",controle_vol->motorsAll2->bool_arret_moteur);
     //logString(array);
     int powerTab[NUMBER_OF_MOTORS];

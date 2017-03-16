@@ -241,7 +241,7 @@ int logDataFreq(int * arrayLog,int size){
 	lastDataIndex++;
 
 	if (lastDataIndex == log_frequence) {
-		char arrayStr[400];
+		char arrayStr[SIZE_MAX_LOG];
 		int moyenneArray[NB_VALUES_TO_LOG];
 		int cmp=0;
 		for(int i=0;i<NB_VALUES_TO_LOG;i++){

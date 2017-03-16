@@ -39,7 +39,7 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2){
 
 	int arrayValuesBrocheMotor [8]={BROCHE_MOTOR_0 ,BROCHE_MOTOR_1,BROCHE_MOTOR_2,BROCHE_MOTOR_3,BROCHE_MOTOR_4,BROCHE_MOTOR_5,BROCHE_MOTOR_6,BROCHE_MOTOR_7};
 
-	char array[400];
+	char array[SIZE_MAX_LOG];
 	sprintf(array, "NUMBER OF MOTORS :%d",NUMBER_OF_MOTORS);
 	logString(array);
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
@@ -99,7 +99,7 @@ void * thread_startMotorAll(void * args){
 	}
 	#endif
 	/*
-	char array[400];
+	char array[SIZE_MAX_LOG];
 	sprintf(array, "VAL POINT BOOL ARRET IN MOTOR : %d\n",motors->bool_arret_moteur);
 	logString(array);
 	sleep(10);

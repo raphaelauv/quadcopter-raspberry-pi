@@ -203,7 +203,7 @@ void *thread_UDP_CLIENT(void *args) {
 		}
 
 		//sendto(sock, messageWithInfo,SIZE_SOCKET_MESSAGE, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
-		char array[400];
+		char array[SIZE_MAX_LOG];
 		sprintf(array,"THREAD CLIENT SENDED : %s", messageWithInfo);
 		logString(array);
 
@@ -256,7 +256,7 @@ void *thread_UDP_CLIENT(void *args) {
 
 
 		message[SIZE_SOCKET_MESSAGE-1]='\0';
-		char array[400];
+		char array[SIZE_MAX_LOG];
 		sprintf(array,"THREAD CLIENT SENDING : %s", message);
 		logString(array);
 

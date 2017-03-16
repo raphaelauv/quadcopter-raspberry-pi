@@ -64,9 +64,11 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	if (isIpSound()) {
-		char myIP[64];
-		getIP(myIP);
+	char myIP[64];
+	if(getIP(myIP)){
+		return EXIT_FAILURE;	
+	}
+	if (isIpSound()) {	
 		readIpAdresse(myIP, 64);
 	}
 

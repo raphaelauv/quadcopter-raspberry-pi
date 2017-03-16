@@ -94,7 +94,7 @@ void * thread_startMotor(void * args){
 	pinMode (info->broche, OUTPUT); //On defini la sorti du signal
 	#endif
 
-	char array[400];
+	char array[SIZE_MAX_LOG];
 	sprintf(array,"THREAD MOTOR %d : INIT DONE",info->broche);
     logString(array);
 

@@ -165,14 +165,19 @@ int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message) {
  * Fill myIP with an IP availalble on the network interface
  * myIP need to be malloc of a size of 64 char
  *
+ * return -1 if FAIL , else return 0 in SUCCES
  */
-void getIP(char*  myIP) {
+int getIP(char*  myIP) {
 	if(myIP==NULL){
-		return;
+		return -1;
 	}
-	char str1[15];
-	char str2[15];
-	char str3[15];
+	char str1[64];
+	char str2[64];
+	char str3[64];
+
+	strcpy(str1, "127.0.0.1");
+
+	int notfind=1;
 
 	struct ifaddrs *myaddrs, *addrsTMP;
 	struct sockaddr_in *s4;
@@ -204,16 +209,16 @@ void getIP(char*  myIP) {
 
 				int ret = 0;
 
-				strcpy(str1, "127.0.0.1");
+				
 				strcpy(str2, myIP);
 
 				ret = strcmp(str1, str2);
 
 				if (ret != 0) {
-
+					notfind=0;
 					strcpy(str3, myIP);
-					char array[400];
-					sprintf(array,"Adresse IP :%s", myIP);
+					char array[SIZE_MAX_LOG];
+					sprintf(array,"Adresse IP :%s", str3);
 					logString(array);
 				}
 				//strcpy(myIP,ip);
@@ -223,7 +228,17 @@ void getIP(char*  myIP) {
 	freeifaddrs(myaddrs);
 	//free(ip);
 	//return nameIp;
+
+	if(notfind){
+		strcpy(myIP,str1);	
+		char array[SIZE_MAX_LOG];
+		sprintf(array,"Adresse IP :%s", myIP);
+		logString(array);
+	}
+
+
 	strcpy(myIP,str3);
+	return 0;
 }
 
 void readIpAdresse(char * ipAdresse,int size){

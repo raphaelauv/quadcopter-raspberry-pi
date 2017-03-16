@@ -57,6 +57,14 @@ void clean_args_CONTROLLER(args_CONTROLLER * arg) {
 	}
 }
 
+void signalControllerReady(args_CONTROLLER * argsControl){
+
+	pthread_mutex_lock(&argsControl->pmutexControllerPlug->mutex);
+	pthread_cond_signal(&argsControl->pmutexControllerPlug->condition);
+	pthread_mutex_unlock(&argsControl->pmutexControllerPlug->mutex);
+
+}
+
 char is_connect() {
 	//char name[100];
 	//strcpy(name, "Microsoft X-Box 360 pad");
@@ -156,7 +164,7 @@ void control(args_CONTROLLER * argsControl) {
 					input.boutons[7] = input.boutons[9] = input.boutons[10] = 0;
 
 
-			char array[400];
+			char array[SIZE_MAX_LOG];
 			sprintf(array,"THREAD CONTROLLER : bool_moteur_active= %d", manette->flag);
 			logString(array);
 
@@ -166,10 +174,7 @@ void control(args_CONTROLLER * argsControl) {
 				updateEvent(&input);
 			}
 			sleep(1);
-
-			pthread_mutex_lock(&argsControl->pmutexControllerPlug->mutex);
-			pthread_cond_signal(&argsControl->pmutexControllerPlug->condition);
-			pthread_mutex_unlock(&argsControl->pmutexControllerPlug->mutex);
+			signalControllerReady(argsControl);
 		}
 
 		//printf("APRES IF\n");
@@ -231,7 +236,7 @@ void control(args_CONTROLLER * argsControl) {
 
 		if (!is_connect()) {
 			manette->flag = 0;
-			char array[400];
+			char array[SIZE_MAX_LOG];
 			sprintf(array,"THREAD CONTROLLER : ERROR NO MORE Controller %d", manette->flag);
 			logString(array);
 

@@ -53,7 +53,7 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	char array[400];
+	char array[SIZE_MAX_LOG];
 	sprintf(array, "THREAD MAIN : adresse enter : %s",argv[1]);
 	logString(array);
 

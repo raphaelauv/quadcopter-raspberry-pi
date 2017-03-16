@@ -68,7 +68,7 @@ int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message);
 
 int sendNetwork(int sock,struct sockaddr_in *adr_svr,char * message);
 
-void getIP(char*  myIP);
+int getIP(char*  myIP);
 
 void readIpAdresse(char * ipAdresse,int size);
 

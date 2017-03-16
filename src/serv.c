@@ -131,7 +131,7 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 
 	buff[SIZE_SOCKET_MESSAGE-1] = '\0';
 
-	char array[400];
+	char array[SIZE_MAX_LOG];
 	sprintf(array, "THREAD SERV : msg receve : %s", buff);
 	//logString(array);
 
@@ -227,7 +227,7 @@ void *thread_UDP_SERVER(void *args) {
 			}
 
 		buff[SIZE_SOCKET_MESSAGE - 1] = '\0';
-		char array[400];
+		char array[SIZE_MAX_LOG];
 		sprintf(array,"THREAD SERV : mesg receve : %s", buff);
 		logString(array);
 		memset(&adr_send, 0, sizeof(adr_send));
