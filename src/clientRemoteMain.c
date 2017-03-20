@@ -44,12 +44,12 @@ int main (int argc, char *argv[]){
 	init_mask();
 
 	if(argc<2){
-		perror("put IP adresse of drone in argument");
+		printf("PUT IP adresse of drone in argument\n");
 		return EXIT_FAILURE;
 	}
 	char * adresse=argv[1];
 
-	if (tokenAnalyse(argc, argv)) {
+	if (tokenAnalyse(argc, argv,FLAG_OPTIONS_CLIENT)) {
 		return EXIT_FAILURE;
 	}
 

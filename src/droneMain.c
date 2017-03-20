@@ -60,7 +60,7 @@ int main (int argc, char *argv[]){
 	
 	init_mask();
 	
-	if(tokenAnalyse(argc,argv)){
+	if(tokenAnalyse(argc,argv,FLAG_OPTIONS_DRONE)){
 		return EXIT_FAILURE;
 	}
 

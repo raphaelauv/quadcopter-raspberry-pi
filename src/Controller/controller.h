@@ -5,8 +5,6 @@
 
 #include "../concurrent.h"
 
-#define FREQUENCY_CONTROLLER 10.0
-
 typedef struct args_CONTROLLER {
 	char verbose;
 	volatile int endController;

@@ -99,6 +99,11 @@ void * thread_PID(void * args){
     
 
     int powerController[NUMBER_OF_MOTORS];
+
+    for(int i=0;i<NUMBER_OF_MOTORS;i++){
+    	powerController[i]=0;
+    }
+
     int local_period=(1.0/FREQUENCY_PID)*USEC_TO_SEC;
     
     
@@ -206,7 +211,7 @@ void * thread_PID(void * args){
         /*********************************************************/
         /*					CODE FOR GET REMOTE					*/
         cmp++;
-        if(cmp==50){
+        if(cmp>FREQUENCY_PID/FREQUENCY_CONTROLLER){
         	cmp=0;
             pthread_mutex_lock(&(mutexDataControler->mutex));
             if (data->flag== 0) {
@@ -237,7 +242,6 @@ void * thread_PID(void * args){
         }
         /*********************************************************/
 
-        //printf("PID_ANGLE_MULTIPLE :%d\n",PID_ANGLE_MULTIPLE);
         
 #ifdef __arm__
         if(imu->IMURead()){
@@ -257,7 +261,7 @@ void * thread_PID(void * args){
             log_angle=imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE;
 
 
-            client_pitch-= log_angle * 15;//PID_ANGLE_MULTIPLE;
+            client_pitch-= log_angle * PID_ANGLE_MULTIPLE;
 
             client_pitch/=3;
 
@@ -286,12 +290,16 @@ void * thread_PID(void * args){
             puissance_motor1=client_gaz - output_pid_pitch;
             
             //Pour jamais mettre a l'arret les moteur.
-            if(puissance_motor0<1100) puissance_motor0=1100;
-            if(puissance_motor1<1100) puissance_motor1=1100;
+            if(puissance_motor0<MOTOR_MIN_ROTATE_TIME) puissance_motor0=MOTOR_MIN_ROTATE_TIME;
+            if(puissance_motor1<MOTOR_MIN_ROTATE_TIME) puissance_motor1=MOTOR_MIN_ROTATE_TIME;
+            if(puissance_motor2<MOTOR_MIN_ROTATE_TIME) puissance_motor2=MOTOR_MIN_ROTATE_TIME;
+            if(puissance_motor3<MOTOR_MIN_ROTATE_TIME) puissance_motor3=MOTOR_MIN_ROTATE_TIME;
             
             //puissance max=MOTOR_HIGH_TIME donc il faut pas depasser.
             if(puissance_motor0>MOTOR_HIGH_TIME) puissance_motor0=MOTOR_HIGH_TIME;
             if(puissance_motor1>MOTOR_HIGH_TIME) puissance_motor1=MOTOR_HIGH_TIME;
+            if(puissance_motor2>MOTOR_HIGH_TIME) puissance_motor2=MOTOR_HIGH_TIME;
+            if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
             
             powerTab[0] = puissance_motor0;
             powerTab[1] = puissance_motor1;
@@ -307,7 +315,6 @@ void * thread_PID(void * args){
             logTab[4]=(int)input_pid_pitch;
             logTab[5]=(int)output_pid_pitch;
             logTab[6]=(int)log_angle;
-
 
             set_power2(controle_vol->motorsAll2,powerTab);
             logDataFreq(logTab,NUMBER_OF_MOTORS+3);

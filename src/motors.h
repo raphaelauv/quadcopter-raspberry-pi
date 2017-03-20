@@ -15,13 +15,14 @@
 #include <stdarg.h>
 #include "concurrent.h"
 
-#define NUMBER_OF_MOTORS 4
-#define FREQUENCY_MOTOR 50.0
-
 #define TIME_LATENCY 5
 
-#define MOTOR_HIGH_TIME 2000
 #define MOTOR_LOW_TIME 1000
+#define MOTOR_HIGH_TIME 2000
+
+#define MOTOR_MIN_ROTATE_TIME 1050
+
+#define NUMBER_OF_MOTORS 4
 
 #define BROCHE_MOTOR_0 5 //Up right
 #define BROCHE_MOTOR_1 28 //Down right

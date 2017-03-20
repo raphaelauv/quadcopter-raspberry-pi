@@ -19,6 +19,10 @@ extern "C" {
 
 #include "log.h"
 
+#define FREQUENCY_CONTROLLER 10.0
+#define FREQUENCY_PID 250.0
+#define FREQUENCY_MOTOR 50.0
+
 #define USEC_TO_SEC 1000000
 
 #define CPU_CORE_PID 1

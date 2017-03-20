@@ -20,6 +20,10 @@ static char noControl=0;
 static char IP_Sound=0;
 static char doCalibration=0;
 
+#define FLAG_OPTIONS_DRONE 1
+#define FLAG_OPTIONS_CLIENT 2
+
+
 #define FLAG_LOG_FILE 1
 #define FLAG_LOG_DATA 2
 
@@ -31,7 +35,7 @@ static char doCalibration=0;
 //int setVerboseOrLog(int argc, char * argv,int min);
 //void setNoControl(char * NoControl, int argc, char * argv, int min);
 
-int tokenAnalyse(int argc , char *argv[] );
+int tokenAnalyse(int argc , char *argv[],int flag );
 
 int isCalibration();
 int isNoControl();

@@ -63,7 +63,7 @@ int isVerbose(){
 /*
  * Return -1 if FAIL , else return 0 in SUCCES
  */
-int tokenAnalyse(int argc , char *argv[] ){
+int tokenAnalyse(int argc , char *argv[],int flag ){
 
 	noControl=0;
 	IP_Sound=0;
@@ -77,26 +77,45 @@ int tokenAnalyse(int argc , char *argv[] ){
 		return 0;
 	}
 
-	for(int i=1; i<argc;i++){
+	int unknow_option;
 
+	for(int i=1; i<argc;i++){
+		unknow_option=0;
 		argvv=argv[i];
+
+		if(i==1 && flag == FLAG_OPTIONS_CLIENT){
+			continue;
+			//the first argument of Client exec is the ip Adresse of the drone
+		}
 
 		if (strcmp(argvv, "--help") == 0) {
 			SHOW_help=1;
 			break;
 		}
 		else if (strcmp(argvv, "--cali") == 0) {
-			printf("calibration ON, ");
-			doCalibration = 1;
+			if (flag == FLAG_OPTIONS_CLIENT) {
+				unknow_option = 1;
+			} else {
+				printf("calibration ON, ");
+				doCalibration = 1;
+			}
 		}
 
 		else if (strcmp(argvv, "--noC") == 0) {
-			printf("No controller ON, ");
-			noControl = 1;
+			if (flag == FLAG_OPTIONS_CLIENT) {
+				unknow_option = 1;
+			} else {
+				printf("No controller ON, ");
+				noControl = 1;
+			}
 		}
 		else if (strcmp(argvv, "--s") == 0) {
-			printf("IP Sound ON, ");
-			IP_Sound = 1;
+			if (flag == FLAG_OPTIONS_CLIENT) {
+				unknow_option = 1;
+			} else {
+				printf("IP Sound ON, ");
+				IP_Sound = 1;
+			}
 		}
 
 		else if (strcmp(argvv, "--verb") == 0) {
@@ -123,20 +142,28 @@ int tokenAnalyse(int argc , char *argv[] ){
 
 
 		} else if(strcmp(argvv, "--data") == 0) {
-			printf("logData ON, ");
-			LOG_data_ON=1;
+			if(flag==FLAG_OPTIONS_CLIENT){
+				unknow_option=1;
+			}else{
+				printf("logData ON, ");
+				LOG_data_ON=1;
 
-			char array[100];
-			setLogFileName(array,FLAG_LOG_DATA);
-			array[99] = '\0';
-			printf("\nDATA FILE NAME : %s\n", array);
-			idFileData = open(array, O_CREAT | O_WRONLY, 0777);
-			if (idFileData == -1) {
-				printf("ERROR DATA FILE OPEN\n");
-				return -1;
+				char array[100];
+				setLogFileName(array,FLAG_LOG_DATA);
+				array[99] = '\0';
+				printf("\nDATA FILE NAME : %s\n", array);
+				idFileData = open(array, O_CREAT | O_WRONLY, 0777);
+				if (idFileData == -1) {
+					printf("ERROR DATA FILE OPEN\n");
+					return -1;
+				}
 			}
 
 		}else{
+			unknow_option=1;
+		}
+
+		if(unknow_option){
 			printf("UNKNOW OPTION : %s\n",argvv);
 		}
 
@@ -146,12 +173,16 @@ int tokenAnalyse(int argc , char *argv[] ){
 		printf("\n");
 	}
 	else{
+
 		printf("--verb	for verbose\n");
 		printf("--log	for log\n");
-		printf("--data	for dataExport\n");
-		printf("--cali	for calibration of the ESC\n");
-		printf("--s		for SOUND\n");
-		printf("--noC	for noController\n");
+
+		if(flag==FLAG_OPTIONS_DRONE){
+			printf("--data	for dataExport\n");
+			printf("--cali	for calibration of the ESC\n");
+			printf("--s	for SOUND\n");
+			printf("--noC	for noController\n");
+		}
 		return -1;
 	}
 	return 0;
