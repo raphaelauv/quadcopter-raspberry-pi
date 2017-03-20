@@ -1,0 +1,9 @@
+Recuperation de tension.
+-MCP3008 ADC 8 channel. SPI tension max 3.3V
+-1N4001 diode.
+-resistance 1000 et 2670 (2700). (Formule Uf= Umax * (R1/(R1+R2)) (Diviseur de tension.)
+
+
+Diode led. + Resistance. 
+Calcule de la resistance.
+R= (U - Udiode) / Idiode (Udiode et Idiode se trouve dans la datasheet des diode. )
