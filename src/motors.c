@@ -116,6 +116,7 @@ void * thread_startMotorAll(void * args){
 	int i;
 	int sleepedTotalTime=0;
 	int dif=0;
+	logString("THREAD MOTORS : START");
 	while (runMotor) {
 		//usleep(5);
 
@@ -155,15 +156,13 @@ void * thread_startMotorAll(void * args){
 
 				dif=(valuesBrocheMotor[i][1])-sleepedTotalTime;
 				//printf("SLEEP %d : %d\n",i,dif);
-				if(dif>10){
+				if(dif>0){
 					if(sleepedTotalTime+dif< MOTOR_HIGH_TIME){
 						usleep(dif);
 						sleepedTotalTime+=dif;
 					}else {
 						sleepedTotalTime=MOTOR_HIGH_TIME;
 					}
-				}else{
-					sleepedTotalTime+=dif;
 				}
 				#ifdef __arm__
 				digitalWrite(valuesBrocheMotor[i][0],0);
@@ -175,11 +174,11 @@ void * thread_startMotorAll(void * args){
 			timeUsecEnd = (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
 			timeBetween = timeUsecEnd - timeUsecStart ;
 			if(timeBetween > local_period){
-				logString("THREAD MOTORS : ERROR PERIODE TOO SLOW !!!!");
+				logString("THREAD MOTORS : ERROR PERIODE TOO SLOW");
 			}else{
 				if(timeBetween > MOTOR_HIGH_TIME +100 ){
-					//logString("THREAD MOTORS : ERROR PERIODE A BIT TOO LONG !!!!");
-					printf("TIME : %d\n",timeBetween);
+					//logString("THREAD MOTORS : ERROR PERIODE A BIT TOO LONG !!!!"); TODO
+					printf("THREAD MOTORTIME : %d\n",timeBetween);
 				}
 				usleep(local_period - timeBetween);
 			}
