@@ -5,8 +5,11 @@ Reste a faire :
 
 	-Un schema des branchement du drone					(Andres)
 	-Monter le drone(90%)
-	-Test d’equilibrage avec la manette					(Andres) 
-	-Premier Test Vol
+	-Test d’equilibrage avec la manette					(Andres)
 	-Filtre de Kalman (Barometre + accel) 				(Andres + ?)
-	-Comprendre le code de Raph 						(Adrian + Andres)
-	-Lancement du script au boot du Raspberry
+	-Lancement du script au boot du Raspberry 80%
+	-Finir les signaux , essayer de factoriser le code entre clien et drone
+	-Variable de sortie condition dans la main en cas d'absance de manette
+	-Ajouter message de confirmation de connection ente client et drone ( definir TIMEOUT )
+	-Choix composant recuperation valeur Voltage batterie
+
