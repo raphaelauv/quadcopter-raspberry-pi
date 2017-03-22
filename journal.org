@@ -1,3 +1,7 @@
+* <017-03-22>
+** Fait:
+** À faire:
+   - intégrer la puissance de la batterie dans les calculs
 * <2017-03-08>
 ** Fait:
    - USB ok
