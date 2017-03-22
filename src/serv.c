@@ -219,12 +219,12 @@ void *thread_UDP_SERVER(void *args) {
 	int cmpNumberMessage = 1;
 
 	int notConnected=1;
-	while(notConnected){
+	while(notConnected && runServ){
 		if (receveNetwork(sock, NULL, buff) == -1) {//TODO attente borné
 				logString("THREAD SERV :FAIL RECEVE NETWORK ERROR");
 				runServ=0;//TODO
 				notConnected=0;
-			}
+		}
 
 		buff[SIZE_SOCKET_MESSAGE - 1] = '\0';
 		char array[SIZE_MAX_LOG];

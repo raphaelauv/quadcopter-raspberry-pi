@@ -30,8 +30,6 @@ void stopAll(){
 void handler_SIGINT(int i){
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
 	stopAll();
-	sleep(3);
-	exit(EXIT_FAILURE);
 }
 
 void init_mask(){
@@ -134,6 +132,7 @@ int main (int argc, char *argv[]){
 
 	int * returnValue;
 
+	int re=0;
 
 	if (pthread_join(threadPID, (void**) &returnValue)){
 		logString("THREAD MAIN : ERROR pthread_join PID");
@@ -147,10 +146,13 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	if (pthread_join(threadServer,(void**) &returnValue)){
-		logString("THREAD MAIN : ERROR pthread_join SERVER");
-		return EXIT_FAILURE;
+	if(!isNoControl()){
+		if ((re=pthread_join(threadServer,NULL))>0) {
+				logString("THREAD MAIN : ERROR pthread_join SERVER");
+				return EXIT_FAILURE;
+		}
 	}
+
 
 	clean_args_SERVER(argServ);
 	clean_args_PID(argPID);

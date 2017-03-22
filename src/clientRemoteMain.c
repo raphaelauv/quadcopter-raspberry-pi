@@ -9,8 +9,8 @@ volatile int * boolStopClient=NULL;
 void stopNetwork(){
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
 	*boolStopClient=1;
-	sleep(3);
-	exit(EXIT_FAILURE);
+	//sleep(3);
+	//exit(EXIT_FAILURE);
 }
 
 void handler(int i){
@@ -50,9 +50,9 @@ int main (int argc, char *argv[]){
 	char * adresse=argv[1];
 
 	if (tokenAnalyse(argc, argv,FLAG_OPTIONS_CLIENT)) {
+		printf("Error Args\n");
 		return EXIT_FAILURE;
 	}
-
 	char array[SIZE_MAX_LOG];
 	sprintf(array, "THREAD MAIN : adresse enter : %s",argv[1]);
 	logString(array);
@@ -86,24 +86,28 @@ int main (int argc, char *argv[]){
 
 	pthread_mutex_unlock(&argController->pmutexControllerPlug->mutex);
 
-	//CONTROLER IS ON , we can start the client socket thread
-	if (pthread_create(&threadClient, NULL, thread_UDP_CLIENT, argClient)) {
-		logString("THREAD MAIN : ERROR pthread_create thread_UDP_CLIENT");
-		return EXIT_FAILURE;
+	if((argController->endController)!=1){
+		printf("ICI");
+			//CONTROLER IS ON , we can start the client socket thread
+			if (pthread_create(&threadClient, NULL, thread_UDP_CLIENT, argClient)) {
+				logString("THREAD MAIN : ERROR pthread_create thread_UDP_CLIENT");
+				return EXIT_FAILURE;
+			}
+
+			if (pthread_join(threadClient, NULL)) {
+				logString("THREAD MAIN : ERROR pthread_join thread_UDP_CLIENT");
+				stopNetwork();
+				return EXIT_FAILURE;
+			}
+
+			argController->endController=1;
+
+			if (pthread_join(threadController, NULL)) {
+				logString("THREAD MAIN : ERROR pthread_join CONTROLER");
+				return EXIT_FAILURE;
+			}
 	}
 
-	if (pthread_join(threadClient, NULL)) {
-		logString("THREAD MAIN : ERROR pthread_join thread_UDP_CLIENT");
-		stopNetwork();
-		return EXIT_FAILURE;
-	}
-
-	argController->endController=1;
-
-	if (pthread_join(threadController, NULL)) {
-		logString("THREAD MAIN : ERROR pthread_join CONTROLER");
-		return EXIT_FAILURE;
-	}
 
 	clean_args_CLIENT(argClient);
 	clean_args_CONTROLLER(argController);

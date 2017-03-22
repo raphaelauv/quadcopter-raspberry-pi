@@ -1,10 +1,23 @@
 #include "controller.h"
 
+
+void signalControllerReady(args_CONTROLLER * argsControl){
+
+	pthread_mutex_lock(&argsControl->pmutexControllerPlug->mutex);
+	pthread_cond_signal(&argsControl->pmutexControllerPlug->condition);
+	pthread_mutex_unlock(&argsControl->pmutexControllerPlug->mutex);
+
+}
+
 void *thread_CONTROLLER(void *args) {
 
 	args_CONTROLLER *argController =(args_CONTROLLER *) args;
 
 	control( argController);
+
+	argController->endController=1;
+
+	signalControllerReady(argController);
 
 	logString("THREAD CONTROLLER : END");
 
@@ -57,13 +70,6 @@ void clean_args_CONTROLLER(args_CONTROLLER * arg) {
 	}
 }
 
-void signalControllerReady(args_CONTROLLER * argsControl){
-
-	pthread_mutex_lock(&argsControl->pmutexControllerPlug->mutex);
-	pthread_cond_signal(&argsControl->pmutexControllerPlug->condition);
-	pthread_mutex_unlock(&argsControl->pmutexControllerPlug->mutex);
-
-}
 
 char is_connect() {
 	//char name[100];
