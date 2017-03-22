@@ -115,6 +115,8 @@ void * thread_startMotorAll(void * args){
 
 	logString("THREAD MOTORS : START");
 
+	int tmp=0;
+
 	while (runMotor) {
 
 
@@ -155,11 +157,16 @@ void * thread_startMotorAll(void * args){
 				dif=(valuesBrocheMotor[i][1])-sleepedTotalTime;
 				//printf("SLEEP %d : %d\n",i,dif);
 				if(dif>0){
-					if(sleepedTotalTime+dif< MOTOR_HIGH_TIME){
+					if(sleepedTotalTime+dif<= MOTOR_HIGH_TIME){
 						//usleep(dif);
-						nanoSleepSecure((dif)* NSEC_TO_USEC_MULTIPLE);
+						nanoSleepSecure(dif * NSEC_TO_USEC_MULTIPLE);
 						sleepedTotalTime+=dif;
-					}else {
+					}else{
+
+						tmp=MOTOR_HIGH_TIME-sleepedTotalTime;
+						if(tmp>0){
+							nanoSleepSecure((tmp)* NSEC_TO_USEC_MULTIPLE);
+						}
 						sleepedTotalTime=MOTOR_HIGH_TIME;
 					}
 				}
