@@ -183,6 +183,11 @@ void * thread_PID(void * args){
 			continuThread = 0;
 			break;
 		}
+		if (isMotorStop(controle_vol->motorsAll2)) {
+			continuThread = 0;
+			continue;
+		}
+
     	else{
 			usleep(USEC_TO_SEC / PID_SLEEP_VERIF_FREQUENCY);
 		}

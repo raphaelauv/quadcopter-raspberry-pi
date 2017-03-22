@@ -8,7 +8,7 @@ Reste a faire :
 	-Test d’equilibrage avec la manette					(Andres)
 	-Filtre de Kalman (Barometre + accel) 				(Andres + ?)
 	-Lancement du script au boot du Raspberry 80%
-	-Finir les signaux , essayer de factoriser le code entre clien et drone
+	-Essayer de factoriser le code entre clien et drone pour les Signaux
 	-Variable de sortie condition dans la main en cas d'absance de manette
 	-Ajouter message de confirmation de connection ente client et drone ( definir TIMEOUT )
 	-Choix composant recuperation valeur Voltage batterie
