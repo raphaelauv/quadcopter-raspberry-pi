@@ -91,9 +91,7 @@ void * thread_PID(void * args){
     DataController * data = controle_vol->dataController;
     PMutex * mutexDataControler =controle_vol->dataController->pmutex;
     RTIMU *imu =(RTIMU *)controle_vol->imu;
-    //char array[SIZE_MAX_LOG];
-    //sprintf(array, "VAL POINT BOOL ARRET IN PID   : %d\n",controle_vol->motorsAll2->bool_arret_moteur);
-    //logString(array);
+
     int powerTab[NUMBER_OF_MOTORS];
 
     
@@ -161,7 +159,8 @@ void * thread_PID(void * args){
         else{
             printf("trop rapide");
         }
-        usleep(2000);
+        //usleep(2000);
+        nanoSleepSecure(2000 *NSEC_TO_USEC_MULTIPLE);
     }
     gyro_cal[0]/=2000;
     gyro_cal[1]/=2000;
@@ -173,6 +172,9 @@ void * thread_PID(void * args){
     int numberOfSecondSleep=0;
     char tmpFlag=0;
     logString("THREAD PID : SECURITY SLEEP");
+
+    int nanoSleepTimeInterval = NSEC_TO_SEC / PID_SLEEP_VERIF_FREQUENCY;
+
     while(numberOfSecondSleep<PID_SLEEP_TIME_SECURITE * PID_SLEEP_VERIF_FREQUENCY){
     	numberOfSecondSleep++;
     	pthread_mutex_lock(&(mutexDataControler->mutex));
@@ -189,7 +191,8 @@ void * thread_PID(void * args){
 		}
 
     	else{
-			usleep(USEC_TO_SEC / PID_SLEEP_VERIF_FREQUENCY);
+			//usleep(USEC_TO_SEC / PID_SLEEP_VERIF_FREQUENCY);
+			nanoSleepSecure(nanoSleepTimeInterval);
 		}
     }
     /*********************************************************/
@@ -200,6 +203,7 @@ void * thread_PID(void * args){
     int timeUsecEnd=0;
     int timeBetween=0;
 
+    char arrayLog[SIZE_MAX_LOG];
     if(continuThread){
     	logString("THREAD PID : START");
     }
@@ -338,9 +342,13 @@ void * thread_PID(void * args){
         if(timeBetween<0){
         }
         else if(timeBetween>=local_period){
-            printf("PID temps sleep : %d\n",local_period-timeBetween);
+        	sprintf(arrayLog,"THREAD PID : TIME : %d\n",local_period-timeBetween);
+        	logString(arrayLog);
         }else{
-            usleep(local_period-timeBetween);
+
+        	//usleep(local_period-timeBetween);
+        	nanoSleepSecure(local_period-timeBetween * NSEC_TO_USEC_MULTIPLE);
+
         }
     }
     logString("THREAD PID : END");

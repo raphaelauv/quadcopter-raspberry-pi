@@ -56,22 +56,6 @@ void clean_DataController(DataController * arg){
 	}
 }
 
-void sleepDuration(int sleepTime) {
-	int result = 1;
-	while (result > 0) {
-		result = sleep(sleepTime);
-		sleepTime -= result;
-	}
-}
-
-void UsleepDuration(int sleepTime) {
-	int result = 1;
-	while (result > 0) {
-		result = usleep(sleepTime);
-		sleepTime -= result;
-	}
-}
-
 /**
  * if Fail return -1 , else return 0
  */

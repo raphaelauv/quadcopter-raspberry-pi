@@ -165,7 +165,8 @@ int testCloseDrone(int sock,struct sockaddr_in * adr_client , char * message) {
 				stopNotReceve = 0;
 				return 0;
 			}
-			UsleepDuration(1000000);//TODO
+			usleep(1000000);//TODO
+			//UsleepDuration(1000000);//TODO
 		}
 	}
 	return 0;

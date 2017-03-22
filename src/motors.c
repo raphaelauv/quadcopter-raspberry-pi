@@ -98,12 +98,7 @@ void * thread_startMotorAll(void * args){
 		pinMode (motors->broche[i], OUTPUT);
 	}
 	#endif
-	/*
-	char array[SIZE_MAX_LOG];
-	sprintf(array, "VAL POINT BOOL ARRET IN MOTOR : %d\n",motors->bool_arret_moteur);
-	logString(array);
-	sleep(10);
-	*/
+
 	logString("THREAD MOTORS : INIT DONE");
 
 	int runMotor=1;
@@ -116,9 +111,12 @@ void * thread_startMotorAll(void * args){
 	int i;
 	int sleepedTotalTime=0;
 	int dif=0;
+	char arrayLog[SIZE_MAX_LOG];
+
 	logString("THREAD MOTORS : START");
+
 	while (runMotor) {
-		//usleep(5);
+
 
 		gettimeofday(&tv, NULL);
 		timeUsecStart= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
@@ -158,7 +156,8 @@ void * thread_startMotorAll(void * args){
 				//printf("SLEEP %d : %d\n",i,dif);
 				if(dif>0){
 					if(sleepedTotalTime+dif< MOTOR_HIGH_TIME){
-						usleep(dif);
+						//usleep(dif);
+						nanoSleepSecure((dif)* NSEC_TO_USEC_MULTIPLE);
 						sleepedTotalTime+=dif;
 					}else {
 						sleepedTotalTime=MOTOR_HIGH_TIME;
@@ -177,10 +176,12 @@ void * thread_startMotorAll(void * args){
 				logString("THREAD MOTORS : ERROR PERIODE TOO SLOW");
 			}else{
 				if(timeBetween > MOTOR_HIGH_TIME +100 ){
-					//logString("THREAD MOTORS : ERROR PERIODE A BIT TOO LONG !!!!"); TODO
-					printf("THREAD MOTORTIME : %d\n",timeBetween);
+					sprintf(arrayLog,"THREAD MOTOR : TIME : %d\n",timeBetween);
+					logString(arrayLog);
 				}
-				usleep(local_period - timeBetween);
+
+				//usleep(local_period - timeBetween);
+				nanoSleepSecure((local_period - timeBetween)* NSEC_TO_USEC_MULTIPLE);
 			}
 
 		} else {
