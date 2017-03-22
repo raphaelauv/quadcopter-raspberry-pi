@@ -142,6 +142,17 @@ void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWi
     //return result;
 }
 
+void cleanMessageReceve(char * message,int size){
+
+	for(int i=0;i<size;i++){
+		message[i]=0;
+	}
+}
+
+int analyseMessageReceve(char * message){
+	//TODO
+	return 0;
+}
 
 /**
  *
@@ -219,6 +230,8 @@ void *thread_UDP_CLIENT(void *args) {
 	int resultWait;
 
 	int flag;
+	char messageReceve[SIZE_SOCKET_MESSAGE];
+	int resultMessageReceve=0;
 	while (runClient) {
 
 
@@ -258,23 +271,39 @@ void *thread_UDP_CLIENT(void *args) {
 
 		message[SIZE_SOCKET_MESSAGE-1]='\0';
 		char array[SIZE_MAX_LOG];
-		sprintf(array,"THREAD CLIENT SENDING : %s", message);
+		sprintf(array,"THREAD CLIENT : SENDING : %s", message);
 		logString(array);
 
 		if(sendNetwork(sock,adr_client,message)==-1){
 			//TODO ERROR
 		}
-
 		//ARRET
-		if(flag==0){
+		if (flag == 0) {
 
-			if(testCloseDrone(sock,adr_client,message)==0) {
+			if (testCloseDrone(sock, adr_client, message) == 0) {
 				logString("THREAD CLIENT :ERROR message STOP from DRONE NOT RECEVE");
 			} else {
 				logString("THREAD CLIENT STOP MSG RECEVE FROM DRONE");
 			}
-			runClient=0;
+			runClient = 0;
+			continue;
 		}
+
+
+		if (recvfrom(sock, messageReceve, SIZE_SOCKET_MESSAGE, 0, NULL, NULL)> 0) {//NON BLOCKING
+
+			resultMessageReceve = analyseMessageReceve(messageReceve);
+
+			if (resultMessageReceve < 0) {
+				//TODO
+			}
+			char array[SIZE_MAX_LOG];
+			sprintf(array,"THREAD CLIENT : RECEVE : %s", messageReceve);
+			logString(array);
+			cleanMessageReceve(messageReceve,SIZE_SOCKET_MESSAGE);
+		}
+
+
 	}
 
 	close(sock);

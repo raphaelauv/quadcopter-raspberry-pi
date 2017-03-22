@@ -255,6 +255,9 @@ void *thread_UDP_SERVER(void *args) {
 	struct timeval tv;
 	fd_set rdfs;
 
+	int counterMsg=0;
+	int freqConfirm=(int)FREQUENCY_CONTROLLER;
+
 	
 	while(runServ && !(*(argSERV->boolStopServ))){
 
@@ -272,6 +275,15 @@ void *thread_UDP_SERVER(void *args) {
 			if (firstMessage) {
 				unlockWaitMain(argSERV);
 				firstMessage = 0;
+			}
+
+			counterMsg++;
+			if(counterMsg%freqConfirm==0){
+				char confirm[8] = "CONFIRM";
+				if (sendNetwork(sock, &adr_send, confirm) == -1) {
+					logString("THREAD SERV : NETWORK ERROR DURING -> SEND CONFIRM");
+					//TODO
+				}
 			}
 
 			if(manageNewMessage(argSERV,sock,buff,&cmpNumberMessage,&dataTmp)==0){
@@ -293,7 +305,8 @@ void *thread_UDP_SERVER(void *args) {
 		 * Code without any receve security ( and no need for )
 		 * NO CRITIC SECTION
 		 */
-		char stop[5] = "STOP";
+		//char stop[5] = "STOP";
+		char stop[SIZE_MSG_HEADER_STOP+1] = STR_STOP;
 		logString("THREAD SERV : SEND STOP");
 		for (int i = 0; i < 10; i++) {
 			if (sendNetwork(sock, &adr_send, stop) == -1) {
