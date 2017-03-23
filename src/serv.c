@@ -124,7 +124,6 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 	if (receveNetwork(sock, NULL, buff) == -1) {
 		//TODO prendre decision sur controleur de vol , demander atterissage
 		logString("THREAD SERV : RECEVE NETWORK ERROR");
-		//fini=0;
 		return 0;
 	}
 

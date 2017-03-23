@@ -69,6 +69,9 @@ int main (int argc, char *argv[]){
 	pthread_t threadPID;
 	pthread_t threadMotor2;
 
+	void *threadPID_stack_buf=NULL;
+	void *threadMotor2_stack_buf=NULL;
+
 	if(!isNoControl()){
 		pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
 
@@ -82,12 +85,12 @@ int main (int argc, char *argv[]){
 		pthread_mutex_unlock(&argServ->pmutexRemoteConnect->mutex);
 	}
 
-	if(init_thread_PID(&threadPID,argPID)){
+	if(init_thread_PID(&threadPID,threadPID_stack_buf,argPID)){
 		stopNetworkServ();
 		return EXIT_FAILURE;
 	}
 
-	if(init_thread_startMotorAll2(&threadMotor2,motorsAll2)){
+	if(init_thread_startMotorAll2(&threadMotor2,threadMotor2_stack_buf,motorsAll2)){
 		drone_stopAll();
 		return EXIT_FAILURE;
 	}
@@ -99,8 +102,6 @@ int main (int argc, char *argv[]){
 	if(isCalibration()){
 		calibrate_ESC(motorsAll2,isVerbose());
 		drone_stopAll();
-		sleep(1);//TODO
-		return EXIT_SUCCESS;
 	}
 
 
@@ -127,6 +128,13 @@ int main (int argc, char *argv[]){
 		}
 	}
 
+
+	if(threadPID_stack_buf!=NULL){
+		//munmap(threadPID_stack_buf, PTHREAD_STACK_MIN);
+	}
+	if(threadMotor2_stack_buf){
+		//munmap(threadMotor2_stack_buf, PTHREAD_STACK_MIN);
+	}
 
 	clean_args_SERVER(argServ);
 	clean_args_PID(argPID);

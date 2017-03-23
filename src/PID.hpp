@@ -33,7 +33,7 @@ typedef struct args_PID {
 
 int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll2 * motorsAll);
 
-int init_thread_PID(pthread_t * threadControlerVOL,args_PID * argPID);
+int init_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * argPID);
 
 void clean_args_PID(args_PID * arg);
 

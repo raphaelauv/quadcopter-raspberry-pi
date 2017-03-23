@@ -205,12 +205,12 @@ void * thread_startMotorAll(void * args){
 /**
  * Return -1 if FAIL to open the thread , else 0 in SUCCES
  */
-int init_thread_startMotorAll2(pthread_t * pthread,MotorsAll2 * motorsAll2){
+int init_thread_startMotorAll2(pthread_t * pthread,void * threadMotor2_stack_buf,MotorsAll2 * motorsAll2){
 
     pthread_attr_t attributs;
     int error=0;
 
-    if(init_Attr_Pthread(&attributs,99,CPU_CORE_MOTOR)){
+    if(init_Attr_Pthread(&attributs,99,CPU_CORE_MOTOR,threadMotor2_stack_buf)){
     	logString("THREAD MAIN : ERROR pthread_attributs MOTORS");
     	return -1;
     }

@@ -48,10 +48,10 @@ void * thread_PID(void * args);
 /**
  * return 0 if Succes
  */
-int init_thread_PID(pthread_t * threadPID,args_PID * argPID){
+int init_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * argPID){
     
     pthread_attr_t attributs;
-    if(init_Attr_Pthread(&attributs,99,CPU_CORE_PID)){
+    if(init_Attr_Pthread(&attributs,99,CPU_CORE_PID,threadPID_stack_buf)){
         logString("THREAD MAIN : ERROR pthread_attributs PID");
         return -1;
     }

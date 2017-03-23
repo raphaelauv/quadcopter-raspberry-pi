@@ -61,7 +61,7 @@ int main (int argc, char *argv[]){
 	pthread_mutex_unlock(&argController->pmutexControllerPlug->mutex);
 
 	if((argController->endController)!=1){
-		printf("ICI");
+
 			//CONTROLER IS ON , we can start the client socket thread
 			if (pthread_create(&threadClient, NULL, thread_UDP_CLIENT, argClient)) {
 				logString("THREAD MAIN : ERROR pthread_create thread_UDP_CLIENT");

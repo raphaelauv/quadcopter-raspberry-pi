@@ -47,7 +47,7 @@ typedef struct MotorsAll2 {
 
 int init_MotorsAll2(MotorsAll2 ** motorsAll2);
 void clean_MotorsAll2(MotorsAll2 * arg);
-int init_thread_startMotorAll2(pthread_t * pthread,MotorsAll2 * MotorsAll2);
+int init_thread_startMotorAll2(pthread_t * pthread,void * threadMotor2_stack_buf,MotorsAll2 * motorsAll2);
 int set_power2(MotorsAll2 * MotorsAll2, int * powers);
 void setMotorStop(MotorsAll2 * MotorsAll2);
 int isMotorStop(MotorsAll2 * MotorsAll2);

@@ -7,6 +7,8 @@ extern "C" {
 #endif
 */
 
+//#define _GNU_SOURCE
+
 #include <errno.h>
 #include <pthread.h>
 #include <stdlib.h>
@@ -17,6 +19,7 @@ extern "C" {
 #include <sys/mman.h>
 #include <sys/signal.h>
 #include <unistd.h>
+
 
 #include "log.h"
 
@@ -79,7 +82,7 @@ void clean_DataController(DataController * arg);
 //void sleepDuration(int sleepTime);
 //void UsleepDuration(int sleepTime);
 
-int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu);
+int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu,void *stack_buf);
 
 
 
