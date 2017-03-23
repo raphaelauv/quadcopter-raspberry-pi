@@ -62,6 +62,7 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 	adr_client->sin_port	= htons(UDP_PORT_DRONE);
 
 	if(inet_aton(adresse, &adr_client->sin_addr)==0){
+		printf("ERROR IP ADRESSE INVALIDE FORMAT : %s\n",adresse);
 		logString("FAIL INET_ATON IP ADRESS");
 		close(sock);
 		return EXIT_FAILURE;
@@ -149,16 +150,11 @@ void cleanMessageReceve(char * message,int size){
 	}
 }
 
-int analyseMessageReceve(char * message){
-	//TODO
-	return 0;
-}
-
 /**
  *
  * testCloseDrone wait for STOP confirmation from DRONE else resend a STOP MESSAGE
  *
- * if succes return 1 else return 0
+ * if succes return 0 else return -1
  */
 int testCloseDrone(int sock,struct sockaddr_in * adr_client , char * message) {
 	int stopNotReceve = 1;
@@ -167,14 +163,13 @@ int testCloseDrone(int sock,struct sockaddr_in * adr_client , char * message) {
 		char messageReceve[SIZE_SOCKET_MESSAGE];
 		recvfrom(sock, messageReceve, SIZE_SOCKET_MESSAGE, 0, NULL, NULL); //NON BLOCKING
 		cmp++;
-		if (isMessageStop(messageReceve) == 1) {
-			stopNotReceve = 0;
-			return 1;
+		if (isMessageStop(messageReceve)) {
+			return 0;
 		}
 		else {
 			if (sendNetwork(sock, adr_client, message) == -1  || cmp==10) {
 				stopNotReceve = 0;
-				return 0;
+				return -1;
 			}
 			usleep(1000000);//TODO
 			//UsleepDuration(1000000);//TODO
@@ -280,7 +275,7 @@ void *thread_UDP_CLIENT(void *args) {
 		//ARRET
 		if (flag == 0) {
 
-			if (testCloseDrone(sock, adr_client, message) == 0) {
+			if (testCloseDrone(sock, adr_client, message)) {
 				logString("THREAD CLIENT :ERROR message STOP from DRONE NOT RECEVE");
 			} else {
 				logString("THREAD CLIENT STOP MSG RECEVE FROM DRONE");
@@ -292,11 +287,12 @@ void *thread_UDP_CLIENT(void *args) {
 
 		if (recvfrom(sock, messageReceve, SIZE_SOCKET_MESSAGE, 0, NULL, NULL)> 0) {//NON BLOCKING
 
-			resultMessageReceve = analyseMessageReceve(messageReceve);
-
-			if (resultMessageReceve < 0) {
-				//TODO
+			if (isMessageStop(messageReceve)) {
+				logString("THREAD CLIENT STOP MSG RECEVE FROM DRONE");
+				runClient = 0;
+				continue;
 			}
+
 			char array[SIZE_MAX_LOG];
 			sprintf(array,"THREAD CLIENT : RECEVE : %s", messageReceve);
 			logString(array);

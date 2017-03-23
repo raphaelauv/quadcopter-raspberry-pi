@@ -145,8 +145,12 @@ void * thread_PID(void * args){
     setDataStringTitle("line Motor1 Motor2 Motor3 Motor4   INPUT  OUTPUT  ANGLE");
 
     int continuThread=1;
-    //calibration accel
+
     float gyro_cal[3]={0,0,0};
+
+    /*********************************************************/
+    /*				CALIBRATION ACCEL						*/
+    /*
     int i;
 #ifdef __arm__
     for (i=0; i<2000; i++) {
@@ -167,15 +171,23 @@ void * thread_PID(void * args){
     gyro_cal[2]/=2000;
     printf("Calibration fini\n");
 #endif
+*/
     /*********************************************************/
     /*				START PID SECURITY SLEEP				*/
     int numberOfSecondSleep=0;
     char tmpFlag=0;
-    logString("THREAD PID : SECURITY SLEEP");
+
+    if(isCalibration()){
+    	numberOfSecondSleep=PID_SLEEP_TIME_SECURITE * PID_SLEEP_VERIF_FREQUENCY;
+    }else{
+    	logString("THREAD PID : SECURITY SLEEP");
+    }
 
     int nanoSleepTimeInterval = NSEC_TO_SEC / PID_SLEEP_VERIF_FREQUENCY;
 
     while(numberOfSecondSleep<PID_SLEEP_TIME_SECURITE * PID_SLEEP_VERIF_FREQUENCY){
+
+
     	numberOfSecondSleep++;
     	pthread_mutex_lock(&(mutexDataControler->mutex));
     	tmpFlag=data->flag;
@@ -325,9 +337,13 @@ void * thread_PID(void * args){
             logTab[5]=(int)output_pid_pitch;
             logTab[6]=(int)log_angle;
 
-            set_power2(controle_vol->motorsAll2,powerTab);
+            if(isCalibration()){
+
+            }else{
+            	set_power2(controle_vol->motorsAll2,powerTab);
+            }
             logDataFreq(logTab,NUMBER_OF_MOTORS+3);
-            
+
         }
         
 #endif

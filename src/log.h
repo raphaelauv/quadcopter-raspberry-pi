@@ -16,6 +16,15 @@ extern "C" {
 #include <fcntl.h>
 #include <unistd.h>
 
+#define OPTION_PREFIX "--"
+#define OPTION_CALIBRATION OPTION_PREFIX"cali"
+#define OPTION_NO_CONTROL OPTION_PREFIX"noC"
+#define OPTION_VERBOSE OPTION_PREFIX"verb"
+#define OPTION_LOG OPTION_PREFIX"log"
+#define OPTION_DATA OPTION_PREFIX"data"
+#define OPTION_SOUND OPTION_PREFIX"s"
+#define OPTION_HELP OPTION_PREFIX"help"
+
 static char noControl=0;
 static char IP_Sound=0;
 static char doCalibration=0;

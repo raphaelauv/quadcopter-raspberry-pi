@@ -44,7 +44,7 @@ int main (int argc, char *argv[]){
 	init_mask();
 
 	if(argc<2){
-		printf("PUT IP adresse of drone in argument\n");
+		printf("ERROR : enter IP adresse of drone in argument\n");
 		return EXIT_FAILURE;
 	}
 	char * adresse=argv[1];

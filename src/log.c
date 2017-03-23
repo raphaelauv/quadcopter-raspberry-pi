@@ -73,7 +73,7 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 	char *argvv;
 
 	if (argc == 1) {
-		printf("add		--help		to list all options\n");
+		printf(OPTION_HELP"		to list all options\n");
 		return 0;
 	}
 
@@ -88,11 +88,11 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 			//the first argument of Client exec is the ip Adresse of the drone
 		}
 
-		if (strcmp(argvv, "--help") == 0) {
+		if (strcmp(argvv, OPTION_HELP) == 0) {
 			SHOW_help=1;
 			break;
 		}
-		else if (strcmp(argvv, "--cali") == 0) {
+		else if (strcmp(argvv, OPTION_CALIBRATION) == 0) {
 			if (flag == FLAG_OPTIONS_CLIENT) {
 				unknow_option = 1;
 			} else {
@@ -101,7 +101,7 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 			}
 		}
 
-		else if (strcmp(argvv, "--noC") == 0) {
+		else if (strcmp(argvv, OPTION_NO_CONTROL) == 0) {
 			if (flag == FLAG_OPTIONS_CLIENT) {
 				unknow_option = 1;
 			} else {
@@ -109,7 +109,7 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 				noControl = 1;
 			}
 		}
-		else if (strcmp(argvv, "--s") == 0) {
+		else if (strcmp(argvv, OPTION_SOUND) == 0) {
 			if (flag == FLAG_OPTIONS_CLIENT) {
 				unknow_option = 1;
 			} else {
@@ -118,12 +118,12 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 			}
 		}
 
-		else if (strcmp(argvv, "--verb") == 0) {
+		else if (strcmp(argvv, OPTION_VERBOSE) == 0) {
 			printf("verbose ON, ");
 			LOG_verbose_ON=1;
 			//verbose_or_log = FLAG_VAL_VERBOSE;
 
-		} else if (strcmp(argvv, "--log") == 0) {
+		} else if (strcmp(argvv, OPTION_LOG) == 0) {
 
 			printf("logFile ON, ");
 			LOG_file_ON=1;
@@ -141,7 +141,7 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 			}
 
 
-		} else if(strcmp(argvv, "--data") == 0) {
+		} else if(strcmp(argvv, OPTION_DATA) == 0) {
 			if(flag==FLAG_OPTIONS_CLIENT){
 				unknow_option=1;
 			}else{
@@ -174,15 +174,22 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 	}
 	else{
 
-		printf("--verb	for verbose\n");
-		printf("--log	for log\n");
+		printf(OPTION_VERBOSE"	for verbose\n");
+		printf(OPTION_LOG"	for log\n");
 
 		if(flag==FLAG_OPTIONS_DRONE){
-			printf("--data	for dataExport\n");
-			printf("--cali	for calibration of the ESC\n");
-			printf("--s	for SOUND\n");
-			printf("--noC	for noController\n");
+			printf(OPTION_DATA"	for dataExport\n");
+			printf(OPTION_CALIBRATION"	for calibration of the ESC\n");
+			printf(OPTION_SOUND"	for SOUND\n");
+			printf(OPTION_NO_CONTROL"	for noController\n");
 		}
+		return -1;
+	}
+
+
+	if( doCalibration && noControl){
+
+		printf("ERROR : --cali  and  --noC  | you need CONTROL activate for calibration to simulate the normal behavior\n");
 		return -1;
 	}
 	return 0;

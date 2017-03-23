@@ -94,19 +94,6 @@ int main (int argc, char *argv[]){
 	pthread_t threadPID;
 	pthread_t threadMotor2;
 
-
-	/**
-	 * AFTER THE CALIBRATION THE PROGRAM FINISH
-	 */
-	if(isCalibration()){
-		if (init_thread_startMotorAll2(&threadMotor2, motorsAll2)) {
-			stopAll();
-			return EXIT_FAILURE;
-		}
-		calibrate_ESC(motorsAll2,isVerbose());
-		return EXIT_SUCCESS;
-	}
-
 	if(!isNoControl()){
 		pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
 
@@ -129,6 +116,18 @@ int main (int argc, char *argv[]){
 		stopAll();
 		return EXIT_FAILURE;
 	}
+
+
+	/**
+	 * AFTER THE CALIBRATION THE PROGRAM FINISH
+	 */
+	if(isCalibration()){
+		calibrate_ESC(motorsAll2,isVerbose());
+		stopAll();
+		sleep(1);
+		return EXIT_SUCCESS;
+	}
+
 
 	int * returnValue;
 
