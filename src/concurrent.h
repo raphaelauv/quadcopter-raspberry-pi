@@ -15,9 +15,15 @@ extern "C" {
 #include <sched.h>
 #include <sys/time.h>
 #include <sys/mman.h>
+#include <sys/signal.h>
 #include <unistd.h>
 
 #include "log.h"
+
+#define ERROR(a,str) if (a<0) {perror(str); exit(1);}
+
+void init_mask(void (*functionPtr)(int));
+
 
 #define FREQUENCY_CONTROLLER 10.0
 #define FREQUENCY_PID 250.0
@@ -39,6 +45,9 @@ extern "C" {
 
 #define CPU_CORE_PID 1
 #define CPU_CORE_MOTOR 0
+
+
+
 
 typedef struct PMutex {
 	//volatile int * var;

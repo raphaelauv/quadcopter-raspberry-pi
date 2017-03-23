@@ -1,47 +1,21 @@
 #include "client.h"
 #include "Controller/controller.h"
-#include <sys/signal.h>
-
-#define ERROR(a,str) if (a<0) {perror(str); exit(1);}
 
 volatile int * boolStopClient=NULL;
 
-void stopNetwork(){
-	logString("THREAD MAIN : SIGINT catched -> process to stop");
+void stopNetworkClient(){
 	*boolStopClient=1;
-	//sleep(3);
-	//exit(EXIT_FAILURE);
 }
 
-void handler(int i){
-  boolStopClient==NULL ? exit(EXIT_FAILURE) : stopNetwork();
+void handler_SIGINT_client(int i){
+	logString("THREAD MAIN : SIGINT catched -> process to stop");
+	boolStopClient==NULL ? exit(EXIT_FAILURE) : stopNetworkClient();
 }
 
-void init_mask(){
-  int rc;
-  
-  struct sigaction sa;
-  memset(&sa,0,sizeof(sa));
-  sa.sa_flags = 0;
-
-  sa.sa_handler = handler;
-
-  sigset_t set;
-  rc = sigemptyset(&set);
-  ERROR(rc,"sigemptyset\n");
-  rc = sigaddset(&set,SIGQUIT);
-  ERROR(rc, "sigaddset\n");
-
-  sa.sa_mask = set;
-  
-  rc = sigaction(SIGINT, &sa, NULL);
-  ERROR(rc,"sigaction\n");
-
-}
 
 int main (int argc, char *argv[]){
 
-	init_mask();
+	init_mask(handler_SIGINT_client);
 
 	if(argc<2){
 		printf("ERROR : enter IP adresse of drone in argument\n");
@@ -96,7 +70,7 @@ int main (int argc, char *argv[]){
 
 			if (pthread_join(threadClient, NULL)) {
 				logString("THREAD MAIN : ERROR pthread_join thread_UDP_CLIENT");
-				stopNetwork();
+				stopNetworkClient();
 				return EXIT_FAILURE;
 			}
 

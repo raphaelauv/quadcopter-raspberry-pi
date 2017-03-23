@@ -8,7 +8,6 @@ Reste a faire :
 	-Test d’equilibrage avec la manette					(Andres)
 	-Filtre de Kalman (Barometre + accel) 				(Andres + ?)
 	-Lancement du script au boot du Raspberry 80%
-	-Essayer de factoriser le code entre clien et drone pour les Signaux
 	-Choix composant recuperation valeur Voltage batterie
 	-Verifier Algo moteur à oscilloscope , verifier calibration des ESC
 

@@ -6,6 +6,9 @@ int LOG_verbose_ON=0;
 int LOG_file_ON=0;
 int LOG_data_ON=0;
 
+char noControl=0;
+char IP_Sound=0;
+char doCalibration=0;
 
 int NB_VALUES_TO_LOG=0;
 

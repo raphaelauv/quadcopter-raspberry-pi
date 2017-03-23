@@ -1,5 +1,26 @@
 #include "concurrent.h"
 
+void init_mask(void (*functionPtr)(int)){
+  int rc;
+
+  /* for the moment sigaction for SIGINT signal only*/
+  struct sigaction sa;
+  memset(&sa,0,sizeof(sa));
+  sa.sa_flags = 0;
+  sa.sa_handler = functionPtr;
+  /* mask all the other signal while SIGINT signal is catched */
+  sigset_t set;
+  rc = sigfillset(&set);
+  ERROR(rc, "sigaddset\n");
+
+  sa.sa_mask = set;
+
+  rc = sigaction(SIGINT, &sa, NULL);
+  ERROR(rc,"sigaction\n");
+
+}
+
+
 int init_PMutex(PMutex * arg) {
 	if (arg != NULL) {
 		arg->mutex = (pthread_mutex_t )PTHREAD_MUTEX_INITIALIZER;

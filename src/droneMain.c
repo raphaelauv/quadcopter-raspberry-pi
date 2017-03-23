@@ -2,13 +2,9 @@
 #include "motors.h"
 #include "PID.hpp"
 #include "Calibration/calibrate.h"
-//#include "signal.h"
-#include <sys/signal.h>
 
-#define ERROR(a,str) if (a<0) {perror(str); exit(1);}
-
-volatile int * boolStopServ=NULL;
 MotorsAll2 * GlobalMotorAll=NULL;
+volatile int * boolStopServ=NULL;
 
 void stopMotor(){
 	if(GlobalMotorAll!=NULL){
@@ -16,47 +12,26 @@ void stopMotor(){
 	}
 }
 
-void stopNetwork(){
+void stopNetworkServ(){
 	if(boolStopServ!=NULL){
 		*boolStopServ=1;
 	}
 }
 
-void stopAll(){
+void drone_stopAll(){
 	stopMotor();
-	stopNetwork();
+	stopNetworkServ();
 }
 
-void handler_SIGINT(int i){
+
+void handler_SIGINT_Drone(int i){
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
-	stopAll();
-}
-
-void init_mask(){
-  int rc;
-
-  /* for the moment sigaction for SIGINT signal only*/
-  struct sigaction sa;
-  memset(&sa,0,sizeof(sa));
-  sa.sa_flags = 0;
-
-  sa.sa_handler = handler_SIGINT;
-
-  /* mask all the other signal while SIGINT signal is catched */
-  sigset_t set;
-  rc = sigfillset(&set);
-  ERROR(rc, "sigaddset\n");
-
-  sa.sa_mask = set;
-  
-  rc = sigaction(SIGINT, &sa, NULL);
-  ERROR(rc,"sigaction\n");
-
+	drone_stopAll();
 }
 
 int main (int argc, char *argv[]){
 	
-	init_mask();
+	init_mask(handler_SIGINT_Drone);
 	
 	if(tokenAnalyse(argc,argv,FLAG_OPTIONS_DRONE)){
 		return EXIT_FAILURE;
@@ -108,12 +83,12 @@ int main (int argc, char *argv[]){
 	}
 
 	if(init_thread_PID(&threadPID,argPID)){
-		stopNetwork();
+		stopNetworkServ();
 		return EXIT_FAILURE;
 	}
 
 	if(init_thread_startMotorAll2(&threadMotor2,motorsAll2)){
-		stopAll();
+		drone_stopAll();
 		return EXIT_FAILURE;
 	}
 
@@ -123,8 +98,8 @@ int main (int argc, char *argv[]){
 	 */
 	if(isCalibration()){
 		calibrate_ESC(motorsAll2,isVerbose());
-		stopAll();
-		sleep(1);
+		drone_stopAll();
+		sleep(1);//TODO
 		return EXIT_SUCCESS;
 	}
 
@@ -135,13 +110,13 @@ int main (int argc, char *argv[]){
 
 	if (pthread_join(threadPID, (void**) &returnValue)){
 		logString("THREAD MAIN : ERROR pthread_join PID");
-		stopAll();
+		drone_stopAll();
 		return EXIT_FAILURE;
 	}
 
 	if (pthread_join(threadMotor2, (void**) &returnValue)) {
 		logString("THREAD MAIN : ERROR pthread_join MOTOR");
-		stopAll();
+		drone_stopAll();
 		return EXIT_FAILURE;
 	}
 

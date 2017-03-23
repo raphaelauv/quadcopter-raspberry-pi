@@ -25,9 +25,6 @@ extern "C" {
 #define OPTION_SOUND OPTION_PREFIX"s"
 #define OPTION_HELP OPTION_PREFIX"help"
 
-static char noControl=0;
-static char IP_Sound=0;
-static char doCalibration=0;
 
 #define FLAG_OPTIONS_DRONE 1
 #define FLAG_OPTIONS_CLIENT 2
