@@ -44,7 +44,6 @@ void init_mask(void (*functionPtr)(int));
 
 #define NSEC_TO_SEC USEC_TO_SEC * 1000 //nanosecond
 
-//int nanoSleepSecure(int nano);
 
 #define CPU_CORE_PID 1
 #define CPU_CORE_MOTOR 0
@@ -82,11 +81,7 @@ typedef struct DataController{
 
 void clean_DataController(DataController * arg);
 
-//void sleepDuration(int sleepTime);
-//void UsleepDuration(int sleepTime);
-
 int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu,void *stack_buf);
-
 
 
 #define SOUND_PLAYER "mpg123 -q "
@@ -124,7 +119,7 @@ inline int nanoSleepSecure(int nano) {
 
 	int result = 1;
 	result = nanosleep(&tim, &tim2);
-
+	//result= clock_nanosleep(CLOCK_MONOTONIC,0,&tim,&tim2);
 	/* TODO a tester
 	i++;
 	while (result != 0) {

@@ -70,6 +70,7 @@ void clean_args_CONTROLLER(args_CONTROLLER * arg) {
 	}
 }
 
+int isControllerConnect=0;
 
 char is_connect() {
 	//char name[100];
@@ -77,6 +78,13 @@ char is_connect() {
 
 	const char * tmp = SDL_JoystickName(0);
 	if (tmp != NULL) {
+		if(isControllerConnect==0){
+			char array[SIZE_MAX_LOG];
+			sprintf(array, "THREAD CONTROLLER : CONTROLLER CONNECT : %s", tmp);
+			logString(array);
+			isControllerConnect=1;
+		}
+
 		return 1;
 	}
 	return 0;
@@ -133,7 +141,7 @@ void control(args_CONTROLLER * argsControl) {
 	initialiserInput(&input, 0); // on l'initialise au joystick n°0
 
 	int modele;
-	int val_max = 32768;
+
 
 	int quitter = (SDL_NumJoysticks() > 0) ? 0 : 1;
 
@@ -161,31 +169,34 @@ void control(args_CONTROLLER * argsControl) {
 
 			//TODO choix combinaison demarrage et arret
 
+			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
+
 			if (manette->flag == 2) {
 				manette->flag = 0;
 			} else {
 				manette->flag = 2;
 			}
 
+			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
+
 			input.boutons[4] = input.boutons[5] = input.boutons[6] =
 					input.boutons[7] = input.boutons[9] = input.boutons[10] = 0;
 
 
 			char array[SIZE_MAX_LOG];
-			sprintf(array,"THREAD CONTROLLER : bool_moteur_active= %d", manette->flag);
+			sprintf(array,"THREAD CONTROLLER : FLAG -> %d", manette->flag);
 			logString(array);
 
 
 			while (!modele
-					&& (input.axes[4] != -val_max || input.axes[5] != -val_max)) {
+					&& (input.axes[4] != -XBOX_CONTROLLER_MAX_VALUE || input.axes[5] != -XBOX_CONTROLLER_MAX_VALUE)) {
 				updateEvent(&input);
 			}
 			sleep(1);
 			signalControllerReady(argsControl);
 		}
 
-		//printf("APRES IF\n");
-		if (manette->flag == 2) {
+		if (manette->flag >0) {
 			/*
 			 tmpM0 = (input.axes[0] < 0) ?
 			 (float) input.axes[0] * -1 * 5.0 / 32768 + 5 :
@@ -203,23 +214,23 @@ void control(args_CONTROLLER * argsControl) {
 
 			//tmpM0 = Rotation axe lacet (Rotation) (y)
 			tmpM0 = modele ?
-					pourcent(input.axes[0], val_max) :
-					pourcent(input.axes[2], val_max);
+					pourcent(input.axes[0], XBOX_CONTROLLER_MAX_VALUE) :
+					pourcent(input.axes[2], XBOX_CONTROLLER_MAX_VALUE);
 
 			//tmpM1 = monter ou descendre (UpDown)
 			tmpM1 = modele ?
-					pourcent(-1 * input.axes[1], val_max) :
-					(diff_axes(input.axes[5], input.axes[4], val_max));
+					pourcent(-1 * input.axes[1], XBOX_CONTROLLER_MAX_VALUE) :
+					(diff_axes(input.axes[5], input.axes[4], XBOX_CONTROLLER_MAX_VALUE));
 
 			//tmpM2 = rotation axe roulis (LeftRight) (z)
 			tmpM2 = modele ?
-					pourcent(input.axes[3], val_max) :
-					pourcent(input.axes[0], val_max);
+					pourcent(input.axes[3], XBOX_CONTROLLER_MAX_VALUE) :
+					pourcent(input.axes[0], XBOX_CONTROLLER_MAX_VALUE);
 
 			//tmpM2 = rotation axe tangage (FrontBack) (x)
 			tmpM3 = modele ?
-					pourcent(-1 * input.axes[4], val_max) :
-					pourcent(-1 * input.axes[1], val_max);
+					pourcent(-1 * input.axes[4], XBOX_CONTROLLER_MAX_VALUE) :
+					pourcent(-1 * input.axes[1], XBOX_CONTROLLER_MAX_VALUE);
 
 			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
 
@@ -228,6 +239,7 @@ void control(args_CONTROLLER * argsControl) {
 			manette->axe_UpDown = tmpM1;
 			manette->axe_LeftRight = tmpM2;
 			manette->axe_FrontBack = tmpM3;
+			manette->flag = 2;
 
 			pthread_cond_signal(&argsControl->pmutexReadDataController->condition);
 			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
@@ -242,13 +254,24 @@ void control(args_CONTROLLER * argsControl) {
 		}
 
 		if (!is_connect()) {
-			manette->flag = 0;
 			char array[SIZE_MAX_LOG];
-			sprintf(array,"THREAD CONTROLLER : ERROR NO MORE Controller %d", manette->flag);
-			logString(array);
 
-			//TODO
-			break;
+			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
+
+			manette->flag = 1;
+			pthread_cond_signal(&argsControl->pmutexReadDataController->condition);
+			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
+
+			if (isControllerConnect == 1) {
+				sprintf(array,
+						"THREAD CONTROLLER : ERROR NO MORE Controller %d",
+						manette->flag);
+				logString(array);
+				isControllerConnect = 0;
+			}
+
+
+
 		}
 
 	}

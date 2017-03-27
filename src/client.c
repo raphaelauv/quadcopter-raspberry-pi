@@ -135,7 +135,7 @@ void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWi
     space[1]=0;
 
     strcpy(messageWithInfo, typeMsg);
-    strcat(messageWithInfo,(const char *) &space);
+    //strcat(messageWithInfo,(const char *) &space);
     strcat(messageWithInfo, s1);
     strcat(messageWithInfo,(const char *) &space);
     strcat(messageWithInfo, s2);
@@ -189,18 +189,16 @@ void *thread_UDP_CLIENT(void *args) {
 
 	struct sockaddr_in * adr_client=argClient->adr_client;
 
-	char str[15];
-	sprintf(str, "%d", UDP_PORT_REMOTE);
+	char strPort[15];
+	sprintf(strPort, "%d", UDP_PORT_REMOTE);
 
 	char myIP[64];
-
-	//int sizeMessageInfo=15+64;
 	char messageWithInfo[SIZE_SOCKET_MESSAGE];
 
 
 	getIP(myIP);
 	if(myIP!=NULL){//TODO
-		concat("REMOTE",myIP,str,messageWithInfo);
+		concat(STR_REMOTE,myIP,strPort,messageWithInfo);
 		messageWithInfo[SIZE_SOCKET_MESSAGE-1]='\0';
 
 		if(sendNetwork(sock,adr_client,messageWithInfo)==-1){

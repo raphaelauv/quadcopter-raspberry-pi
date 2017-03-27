@@ -5,6 +5,8 @@
 
 #include "../concurrent.h"
 
+#define XBOX_CONTROLLER_MAX_VALUE 32768
+
 typedef struct args_CONTROLLER {
 	char verbose;
 	volatile int endController;
