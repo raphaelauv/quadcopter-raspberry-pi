@@ -53,6 +53,12 @@ int init_args_CONTROLLER(args_CONTROLLER ** argController){
 		logString("MALLOC FAIL : argController->manette");
 		return EXIT_FAILURE;
 	}
+	(*argController)->manette->flag=0;
+	(*argController)->manette->axe_FrontBack=0;
+	(*argController)->manette->axe_LeftRight=0;
+	(*argController)->manette->axe_Rotation=0;
+	(*argController)->manette->axe_UpDown=0;
+
 	(*argController)->pmutexReadDataController=pmutexRead;
 	(*argController)->pmutexControllerPlug=pmutexControllerPlug;
 
@@ -71,10 +77,15 @@ void clean_args_CONTROLLER(args_CONTROLLER * arg) {
 }
 
 int isControllerConnect=0;
+inputt input;
 
 char is_connect() {
 	//char name[100];
 	//strcpy(name, "Microsoft X-Box 360 pad");
+
+	if (isControllerConnect == 0) {
+		initialiserInput(&input, 0); // on l'initialise au joystick n°0
+	}
 
 	const char * tmp = SDL_JoystickName(0);
 	if (tmp != NULL) {
@@ -85,9 +96,9 @@ char is_connect() {
 			isControllerConnect=1;
 		}
 
-		return 1;
+		return 0;
 	}
-	return 0;
+	return -1;
 }
 
 float pourcent(int valeur, float reference) {
@@ -106,7 +117,7 @@ void control(args_CONTROLLER * argsControl) {
 
 
 	int local_period=(1.0/FREQUENCY_CONTROLLER)*USEC_TO_SEC;
-	manette->flag = 0;
+
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
 
 	/*
@@ -137,15 +148,14 @@ void control(args_CONTROLLER * argsControl) {
 	 }
 	 }*/
 
-	inputt input; // on crée la structure
-	initialiserInput(&input, 0); // on l'initialise au joystick n°0
-
 	int modele;
 
+	int firstConnectMade=0;
 
-	int quitter = (SDL_NumJoysticks() > 0) ? 0 : 1;
+	int quitter=0;
 
 	if ((SDL_NumJoysticks() <= 0)){
+		quitter=1;
 		logString("THREAD CONTROLLER : ERROR no Controller plug");
 	}
 	float tmpM0, tmpM1, tmpM2, tmpM3;
@@ -156,7 +166,44 @@ void control(args_CONTROLLER * argsControl) {
 			break;
 		}
 
+		if (is_connect()) {
+			char array[SIZE_MAX_LOG];
+			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
+			if (firstConnectMade) {
+
+				manette->flag = 1;
+				logString(array);
+
+
+			}
+
+			if (isControllerConnect == 1) {
+				sprintf(array,"THREAD CONTROLLER : ERROR NO MORE Controller %d",manette->flag);
+				logString(array);
+				manette->flag = 1;
+				isControllerConnect = 0;
+				detruireInput(&input);
+			}
+
+			//pthread_cond_signal(&argsControl->pmutexReadDataController->condition);
+			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
+
+		}else{
+			if(firstConnectMade){
+				pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
+				manette->flag = 2;
+				//pthread_cond_signal(&argsControl->pmutexReadDataController->condition);
+				pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
+
+
+			}
+		}
+
 		usleep(local_period);
+
+		if(!isControllerConnect){
+			continue;
+		}
 
 		updateEvent(&input); // on récupère les évènements
 
@@ -169,14 +216,18 @@ void control(args_CONTROLLER * argsControl) {
 
 			//TODO choix combinaison demarrage et arret
 
+			int tmpFlag;
+
 			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
 
 			if (manette->flag == 2) {
 				manette->flag = 0;
 			} else {
 				manette->flag = 2;
+				firstConnectMade=1;
 			}
 
+			tmpFlag=manette->flag;
 			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
 
 			input.boutons[4] = input.boutons[5] = input.boutons[6] =
@@ -184,7 +235,7 @@ void control(args_CONTROLLER * argsControl) {
 
 
 			char array[SIZE_MAX_LOG];
-			sprintf(array,"THREAD CONTROLLER : FLAG -> %d", manette->flag);
+			sprintf(array,"THREAD CONTROLLER : FLAG -> %d", tmpFlag);
 			logString(array);
 
 
@@ -196,7 +247,7 @@ void control(args_CONTROLLER * argsControl) {
 			signalControllerReady(argsControl);
 		}
 
-		if (manette->flag >0) {
+
 			/*
 			 tmpM0 = (input.axes[0] < 0) ?
 			 (float) input.axes[0] * -1 * 5.0 / 32768 + 5 :
@@ -239,7 +290,6 @@ void control(args_CONTROLLER * argsControl) {
 			manette->axe_UpDown = tmpM1;
 			manette->axe_LeftRight = tmpM2;
 			manette->axe_FrontBack = tmpM3;
-			manette->flag = 2;
 
 			pthread_cond_signal(&argsControl->pmutexReadDataController->condition);
 			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
@@ -251,28 +301,6 @@ void control(args_CONTROLLER * argsControl) {
 						manette->axe_LeftRight, manette->axe_FrontBack);
 			*/
 
-		}
-
-		if (!is_connect()) {
-			char array[SIZE_MAX_LOG];
-
-			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
-
-			manette->flag = 1;
-			pthread_cond_signal(&argsControl->pmutexReadDataController->condition);
-			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
-
-			if (isControllerConnect == 1) {
-				sprintf(array,
-						"THREAD CONTROLLER : ERROR NO MORE Controller %d",
-						manette->flag);
-				logString(array);
-				isControllerConnect = 0;
-			}
-
-
-
-		}
 
 	}
 
