@@ -51,7 +51,7 @@ void * thread_PID(void * args);
 int init_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * argPID){
     
     pthread_attr_t attributs;
-    if(init_Attr_Pthread(&attributs,99,CPU_CORE_PID,threadPID_stack_buf)){
+    if(init_Attr_Pthread(&attributs,CPU_PRIORITY_PID,CPU_CORE_PID,threadPID_stack_buf)){
         logString("THREAD MAIN : ERROR pthread_attributs PID");
         return -1;
     }
@@ -363,7 +363,7 @@ void * thread_PID(void * args){
         }else{
 
         	//usleep(local_period-timeBetween);
-        	nanoSleepSecure(local_period-timeBetween * NSEC_TO_USEC_MULTIPLE);
+        	nanoSleepSecure( (local_period-timeBetween) * NSEC_TO_USEC_MULTIPLE);
 
         }
     }

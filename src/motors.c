@@ -210,7 +210,7 @@ int init_thread_startMotorAll2(pthread_t * pthread,void * threadMotor2_stack_buf
     pthread_attr_t attributs;
     int error=0;
 
-    if(init_Attr_Pthread(&attributs,99,CPU_CORE_MOTOR,threadMotor2_stack_buf)){
+    if(init_Attr_Pthread(&attributs,CPU_PRIORITY_MOTOR,CPU_CORE_MOTOR,threadMotor2_stack_buf)){
     	logString("THREAD MAIN : ERROR pthread_attributs MOTORS");
     	return -1;
     }

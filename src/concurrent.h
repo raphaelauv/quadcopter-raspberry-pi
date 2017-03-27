@@ -49,6 +49,9 @@ void init_mask(void (*functionPtr)(int));
 #define CPU_CORE_PID 1
 #define CPU_CORE_MOTOR 0
 
+#define CPU_PRIORITY_PID 99
+#define CPU_PRIORITY_MOTOR 99
+
 
 
 
@@ -108,16 +111,26 @@ inline int nanoSleepSecure(int nano) {
 	tim.tv_sec = 0;
 	tim.tv_nsec = nano;
 
+	/*
+	if(nano>=999999999){
+		logString("ERROR NANOSLEEP TOO BIG");
+	}
+
+	if (nano < 0) {
+		logString("EROR NANOSLEEP TOO LOW");
+	}
+	 */
 	int i=0;
 
 	int result = 1;
-	return result = nanosleep(&tim, &tim2);
+	result = nanosleep(&tim, &tim2);
 
-	/* TODO a tester !!
+	/* TODO a tester
 	i++;
 	while (result != 0) {
-		if (errno == EINTR) {
 
+		if (errno == EINTR) {
+			logString("NANOSLEEP ERROR EINTR");
 			if(i%2==0){
 				result=nanosleep(&tim,&tim2);
 			}else{
@@ -125,13 +138,25 @@ inline int nanoSleepSecure(int nano) {
 			}
 			i++;
 		}
+		else if (errno == EINVAL){
+			logString("NANOSLEEP ERROR EINVAL");
+			return -1;
+		}
 		else{
+			logString("NANOSLEEP ERROR UNKNOW");
 			return -1;
 		}
 	}
-	return 0;
+
+	if(i>1){
+		logString("NANOSLEEP CORRECTED");
+	}
 
 	*/
+
+	return 0;
+
+	//*/
 }
 
 
