@@ -1,13 +1,6 @@
-/*
- * Exemple of use:
- *
- *
- *
- */
-
-
 #ifndef MCP3008_h
 #define MCP3008_h
+#include "../concurrent.h"
 
 #ifdef __arm__
 #include <wiringPi.h>
@@ -28,8 +21,7 @@ typedef struct MCP3008 {
 
 
 int initMCP3008(MCP3008 ** mcp,int clockpin, int mosipin, int misopin, int cspin);
-int softwareReadADC(int adcnum);
-int hardwareReadADC(int adcnum);
+int softwareReadADC(MCP3008 * mcp, int adcnum);
 int testMCP3008(int chanel);
 
 #endif

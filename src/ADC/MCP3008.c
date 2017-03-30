@@ -1,6 +1,5 @@
 //#include "Arduino.h"
 #include "MCP3008.h"
-#include "../concurrent.h"
 
 int initMCP3008(MCP3008 ** mcp, int clockpin, int mosipin, int misopin,
 		int cspin) {
@@ -108,7 +107,7 @@ int testMCP3008(int chanel){
 
 	int val;
 	while (1) {
-		val = softwareReadADC(chanel); // read Chanel 0 from MCP3008 ADC
+		val = softwareReadADC(mcp,chanel); // read Chanel 0 from MCP3008 ADC
 		printf("CHANNEL %d | VAL : %d\n",chanel, val);
 	}
 }
