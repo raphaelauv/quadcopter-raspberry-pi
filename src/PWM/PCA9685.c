@@ -54,8 +54,8 @@ int initPCA9685(PCA9685 ** pca,int bus, int address){
 		return EXIT_FAILURE;
 	}
 	(*pca)->i2c =i2c_c;
-	reset((*pca));
-	setPWMFreq((*pca),1000);
+	custom_reset((*pca));
+	custom_setPWMFreq((*pca),1000);
 }
 
 int cleanPCA9685(PCA9685 *pca){
@@ -67,7 +67,7 @@ int cleanPCA9685(PCA9685 *pca){
 }
 
 //! Sets PCA9685 mode to 00
-int reset(PCA9685 *pca) {
+int custom_reset(PCA9685 *pca) {
 
 		I2C_custom_write_byte(pca->i2c,MODE1, 0x00); //Normal mode
 		I2C_custom_write_byte(pca->i2c,MODE2, 0x04); //totem pole
@@ -77,7 +77,7 @@ int reset(PCA9685 *pca) {
 /*!
  \param freq desired frequency. 40Hz to 1000Hz using internal 25MHz oscillator.
  */
-int setPWMFreq(PCA9685 *pca,int freq) {
+int custom_setPWMFreq(PCA9685 *pca,int freq) {
 
 		uint8_t prescale_val = (CLOCK_FREQ / 4096 / freq)  - 1;
 		I2C_custom_write_byte(pca->i2c,MODE1, 0x10); //sleep
@@ -92,8 +92,8 @@ int setPWMFreq(PCA9685 *pca,int freq) {
  \param led channel (1-16) to set PWM value for
  \param value 0-4095 value for PWM
  */
-int setPWM(PCA9685 *pca,uint8_t led, int value) {
-	setPWM(pca,led, 0, value);
+int custom_setPWM_1(PCA9685 *pca,uint8_t led, int value) {
+	custom_setPWM_2(pca,led, 0, value);
 }
 //! PWM a single channel with custom on time
 /*!
@@ -101,7 +101,7 @@ int setPWM(PCA9685 *pca,uint8_t led, int value) {
  \param on_value 0-4095 value to turn on the pulse
  \param off_value 0-4095 value to turn off the pulse
  */
-int setPWM(PCA9685 *pca,uint8_t led, int on_value, int off_value) {
+int custom_setPWM_2(PCA9685 *pca,uint8_t led, int on_value, int off_value) {
 
 		I2C_custom_write_byte(pca->i2c,LED0_ON_L + LED_MULTIPLYER * (led - 1), on_value & 0xFF);
 		I2C_custom_write_byte(pca->i2c,LED0_ON_H + LED_MULTIPLYER * (led - 1), on_value >> 8);
@@ -116,7 +116,7 @@ int setPWM(PCA9685 *pca,uint8_t led, int on_value, int off_value) {
  */
 
 
-int getPWM(PCA9685 *pca,uint8_t led){
+int custom_getPWM(PCA9685 *pca,uint8_t led){
 	int ledval = 0;
 	ledval = I2C_custom_read_byte(pca->i2c,LED0_OFF_H + LED_MULTIPLYER * (led-1));
 	ledval = ledval & 0xf;

@@ -56,12 +56,12 @@ typedef struct PCA9685 {
 int initPCA9685(PCA9685 ** pca,int bus, int address);
 int cleanPCA9685(PCA9685 *pca);
 
-int reset(PCA9685 *pca);
+int custom_reset(PCA9685 *pca);
 
-int setPWMFreq(PCA9685 *pca,int freq);
-int setPWM(PCA9685 *pca,uint8_t led, int value);
-int setPWM(PCA9685 *pca,uint8_t led, int on_value, int off_value);
-int getPWM(PCA9685 *pca,uint8_t led);
+int custom_setPWMFreq(PCA9685 *pca,int freq);
+int custom_setPWM_1(PCA9685 *pca,uint8_t led, int value);
+int custom_setPWM_2(PCA9685 *pca,uint8_t led, int on_value, int off_value);
+int custom_getPWM(PCA9685 *pca,uint8_t led);
 
 #endif
 
