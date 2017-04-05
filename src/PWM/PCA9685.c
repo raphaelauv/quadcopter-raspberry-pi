@@ -1,0 +1,126 @@
+/*
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ *
+ * Name        : PCA9685.cpp
+ * Author      : Georgi Todorov
+ * Version     :
+ * Created on  : Dec 9, 2012
+ *
+ * Copyright © 2012 Georgi Todorov  <terahz@geodar.com>
+ */
+
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <linux/i2c.h>
+#include <linux/i2c-dev.h>
+#include <stdio.h>      /* Standard I/O functions */
+#include <fcntl.h>
+#include <syslog.h>		/* Syslog functionallity */
+#include <inttypes.h>
+#include <errno.h>
+#include <math.h>
+
+#include "PCA9685.h"
+
+//! Constructor takes bus and address arguments
+/*!
+ \param bus the bus to use in /dev/i2c-%d.
+ \param address the device address on bus
+ */
+int initPCA9685(PCA9685 ** pca,int bus, int address){
+
+	*pca = (PCA9685 *) malloc(sizeof(PCA9685));
+	if (*pca == NULL) {
+		//logString("MALLOC FAIL : PCA9685");
+		return EXIT_FAILURE;
+	}
+
+	I2C_custom * i2c_c;
+	if(initI2C_custom(&i2c_c,bus,address)){
+		//logString("MALLOC FAIL : I2C_custom");
+		return EXIT_FAILURE;
+	}
+	(*pca)->i2c =i2c_c;
+	reset((*pca));
+	setPWMFreq((*pca),1000);
+}
+
+int cleanPCA9685(PCA9685 *pca){
+	if(pca!=NULL){
+		cleanI2C_custom(pca->i2c);
+	}
+	free(pca);
+	return 0;
+}
+
+//! Sets PCA9685 mode to 00
+int reset(PCA9685 *pca) {
+
+		I2C_custom_write_byte(pca->i2c,MODE1, 0x00); //Normal mode
+		I2C_custom_write_byte(pca->i2c,MODE2, 0x04); //totem pole
+		return 0;
+}
+//! Set the frequency of PWM
+/*!
+ \param freq desired frequency. 40Hz to 1000Hz using internal 25MHz oscillator.
+ */
+int setPWMFreq(PCA9685 *pca,int freq) {
+
+		uint8_t prescale_val = (CLOCK_FREQ / 4096 / freq)  - 1;
+		I2C_custom_write_byte(pca->i2c,MODE1, 0x10); //sleep
+		I2C_custom_write_byte(pca->i2c,PRE_SCALE, prescale_val); // multiplyer for PWM frequency
+		I2C_custom_write_byte(pca->i2c,MODE1, 0x80); //restart
+		I2C_custom_write_byte(pca->i2c,MODE2, 0x04); //totem pole (default)
+		return 0;
+}
+
+//! PWM a single channel
+/*!
+ \param led channel (1-16) to set PWM value for
+ \param value 0-4095 value for PWM
+ */
+int setPWM(PCA9685 *pca,uint8_t led, int value) {
+	setPWM(pca,led, 0, value);
+}
+//! PWM a single channel with custom on time
+/*!
+ \param led channel (1-16) to set PWM value for
+ \param on_value 0-4095 value to turn on the pulse
+ \param off_value 0-4095 value to turn off the pulse
+ */
+int setPWM(PCA9685 *pca,uint8_t led, int on_value, int off_value) {
+
+		I2C_custom_write_byte(pca->i2c,LED0_ON_L + LED_MULTIPLYER * (led - 1), on_value & 0xFF);
+		I2C_custom_write_byte(pca->i2c,LED0_ON_H + LED_MULTIPLYER * (led - 1), on_value >> 8);
+		I2C_custom_write_byte(pca->i2c,LED0_OFF_L + LED_MULTIPLYER * (led - 1), off_value & 0xFF);
+		I2C_custom_write_byte(pca->i2c,LED0_OFF_H + LED_MULTIPLYER * (led - 1), off_value >> 8);
+		return 0;
+}
+
+//! Get current PWM value
+/*!
+ \param led channel (1-16) to get PWM value from
+ */
+
+
+int getPWM(PCA9685 *pca,uint8_t led){
+	int ledval = 0;
+	ledval = I2C_custom_read_byte(pca->i2c,LED0_OFF_H + LED_MULTIPLYER * (led-1));
+	ledval = ledval & 0xf;
+	ledval <<= 8;
+	ledval += I2C_custom_read_byte(pca->i2c,LED0_OFF_L + LED_MULTIPLYER * (led-1));
+	return ledval;
+}

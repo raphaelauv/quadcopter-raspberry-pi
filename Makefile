@@ -19,7 +19,7 @@ SRC_basic = src/concurrent.c src/network.c src/log.c
 
 #SRC_RTIMULib = $(wildcard src/RTIMULib/*.cpp) $(wildcard src/RTIMULib/IMUDrivers/*.cpp)
 
-SRC_drone = $(SRC_basic) src/serv.c src/Calibration/calibrate.c src/ADC/MCP3008.c src/motors.c
+SRC_drone = $(SRC_basic) src/serv.c src/Calibration/calibrate.c src/ADC/MCP3008.c src/motors.c src/PWM/I2C_custom.c src/PWM/PCA9685.c
 
 SRC_drone_CPP = src/PID.cpp src/sensor.cpp 
 

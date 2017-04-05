@@ -9,5 +9,11 @@ Reste a faire :
 	-Filtre de Kalman (Barometre + accel) 				(Andres + ?)
 	-Lancement du script au boot du Raspberry 80%
 	-Choix composant recuperation valeur Voltage batterie
-	-Verifier Algo moteur à oscilloscope , verifier calibration des ESC
+	
+	-Traduire librairy de la carte PWM
+	-Interfacer code PID avec code PWM ( desactiver thread motor)
+	-Corriger code calibration
+	-Verifier PWM moteur à oscilloscope
+
+	-Tester decharge de la batterie
 
