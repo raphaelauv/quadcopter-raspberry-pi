@@ -19,7 +19,7 @@ SRC_basic = src/concurrent.c src/network.c src/log.c
 
 #SRC_RTIMULib = $(wildcard src/RTIMULib/*.cpp) $(wildcard src/RTIMULib/IMUDrivers/*.cpp)
 
-SRC_drone = $(SRC_basic) src/serv.c src/Calibration/calibrate.c
+SRC_drone = $(SRC_basic) src/serv.c src/Calibration/calibrate.c src/ADC/MCP3008.c src/motors.c
 
 SRC_drone_CPP = src/PID.cpp src/capteur.cpp 
 
@@ -44,7 +44,7 @@ drone:droneMain
 client:clientRemoteMain
 
 #$(OBJ_RTIMULib)
-droneMain: src/motors.o $(OBJdroneMain)  src/droneMain.o
+droneMain: $(OBJdroneMain)  src/droneMain.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS_Raspberry)
 
 clientRemoteMain: $(OBJclientRemote) src/clientRemoteMain.o 

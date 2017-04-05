@@ -1,6 +1,77 @@
 //#include "Arduino.h"
 #include "MCP3008.h"
 
+
+int initHardwareADC(int adcnum){
+
+
+	#ifdef __arm__
+	if(wiringPiSPISetup (adcnum, 300000)==-1){
+		//logString("initHardwareADC - wiringPiSPIDataRW FAIL\n");
+        return 1;
+    }
+	#endif
+
+	unsigned char send[3]={0x18,0x00,0x00};
+	#ifdef __arm__
+	if(!wiringPiSPIDataRW (adcnum, send, 3)){
+		//logString("initHardwareADC - wiringPiSPIDataRW FAIL\n");
+		return -1;
+	}
+	#endif
+
+}
+
+int hardwareReadADC(int adcnum){
+
+	unsigned char send[3]={0x01,0x80,0x00};
+
+	#ifdef __arm__
+	if(!wiringPiSPIDataRW (adcnum, send, 3)){
+		//logString("hardwareReadADC - wiringPiSPIDataRW FAIL\n");
+		return -1;
+	}
+	#endif
+
+	return ((send[1] & 0x03) <<8) | send[2];
+
+}
+
+
+int getFiltredValue(int adcnum,MCP3008 * mcp){
+
+
+    int voltage=0;
+    float batterie_charge=0;
+
+    int j=0;
+
+    int hardwareMode=0;
+    if(mcp==NULL){
+    	hardwareMode=1;
+    }
+    while(1){
+
+    	if(hardwareMode){
+    		voltage=hardwareReadADC(adcnum);
+    	}else{
+    		voltage=softwareReadADC(mcp,adcnum);
+    	}
+
+        batterie_charge=batterie_charge* 0.92 + (voltage+65)* 0.09853;
+        
+        if(j==EXPO_MOYEN_VAL){
+            break;
+        }
+
+        usleep(SLEEP_TIME_MOYENNE);
+        j++;
+    }
+    
+    return (batterie_charge * CENVERTION_TO_VOLT) - DECALAGE;
+
+}
+
 int initMCP3008(MCP3008 ** mcp, int clockpin, int mosipin, int misopin,
 		int cspin) {
 
@@ -14,7 +85,7 @@ int initMCP3008(MCP3008 ** mcp, int clockpin, int mosipin, int misopin,
 
 	*mcp = (MCP3008 *) malloc(sizeof(MCP3008));
 	if (*mcp == NULL) {
-		logString("MALLOC FAIL : mcp");
+		//logString("MALLOC FAIL : mcp");
 		return EXIT_FAILURE;
 	}
 	(*mcp)->clockpin = clockpin;
@@ -37,9 +108,13 @@ int initMCP3008(MCP3008 ** mcp, int clockpin, int mosipin, int misopin,
 // read SPI data from MCP3008 chip, 8 possible adc's (0 thru 7)
 int softwareReadADC(MCP3008 * mcp, int adcnum) {
 
-	if ((adcnum > 7) || (adcnum < 0))
-		return -1; // Wrong adc address return -1
+	if(mcp == NULL){
+		return -1;
+	}
 
+	if ((adcnum > 7) || (adcnum < 0)){
+		return -1; // Wrong adc address return -1
+	}
 
 	#ifdef __arm__
 	digitalWrite(mcp->cspin, HIGH);
@@ -98,16 +173,27 @@ int softwareReadADC(MCP3008 * mcp, int adcnum) {
 	return adcout;
 }
 
-int testMCP3008(int chanel){
-
-	MCP3008 * mcp;
-	if(initMCP3008(&mcp,CLOCK_PIN, MOSI_PIN, MISO_PIN, CS_PIN)){
-		return -1;
-	}
+int testMCP3008(int chanel,int modeFlag){
 
 	int val;
-	while (1) {
-		val = softwareReadADC(mcp,chanel); // read Chanel 0 from MCP3008 ADC
-		printf("CHANNEL %d | VAL : %d\n",chanel, val);
+	MCP3008 * mcp;
+
+	if( modeFlag == FLAG_HARDWARE_MODE){
+		initHardwareADC(chanel);
+	}else if(modeFlag == FLAG_SOFTWARE_MODE){
+		if (initMCP3008(&mcp, CLOCK_PIN, MOSI_PIN, MISO_PIN, CS_PIN)) {
+			return -1;
+		}
 	}
+
+	while (1) {
+		if(mcp==NULL){
+			val=getFiltredValue(chanel,NULL);
+		}else{
+			val=getFiltredValue(chanel,mcp);
+		}
+		printf("CHANNEL %d | VAL : %d\n", chanel, val);
+	}
+
 }
+

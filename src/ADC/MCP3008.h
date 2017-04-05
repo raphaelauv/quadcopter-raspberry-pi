@@ -1,16 +1,12 @@
 #ifndef MCP3008_h
 #define MCP3008_h
-#include "../concurrent.h"
+//#include "../concurrent.h"
+#include "../log.h"
 
 #ifdef __arm__
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 #endif
-
-#define CS_PIN 12
-#define CLOCK_PIN 9
-#define MOSI_PIN 11
-#define MISO_PIN 10
 
 typedef struct MCP3008 {
 	int clockpin;
@@ -20,8 +16,30 @@ typedef struct MCP3008 {
 } MCP3008;
 
 
+#define SLEEP_TIME_MOYENNE 4000
+#define FLAG_SOFTWARE_MODE 1
+#define FLAG_HARDWARE_MODE 2
+
+//SOFTWARE
+#define CS_PIN 12
+#define CLOCK_PIN 9
+#define MOSI_PIN 11
+#define MISO_PIN 10
+
 int initMCP3008(MCP3008 ** mcp,int clockpin, int mosipin, int misopin, int cspin);
 int softwareReadADC(MCP3008 * mcp, int adcnum);
-int testMCP3008(int chanel);
+
+
+
+//HARDWARE
+#define DECALAGE 0.5
+#define CENVERTION_TO_VOLT 0.01
+#define EXPO_MOYEN_VAL 125
+
+int initHardwareADC(int adcnum);
+int hardwareReadADC(int adcnum);
+
+int getFiltredValue(int adcnum,MCP3008 * mcp);
+int testMCP3008(int chanel,int modeFlag);
 
 #endif
