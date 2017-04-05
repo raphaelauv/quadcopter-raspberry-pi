@@ -2,6 +2,7 @@
 #include "motors.h"
 #include "PID.hpp"
 #include "Calibration/calibrate.h"
+#include "ADC/MCP3008.h"
 
 MotorsAll2 * GlobalMotorAll=NULL;
 volatile int * boolStopServ=NULL;
@@ -30,7 +31,7 @@ void handler_SIGINT_Drone(int i){
 }
 
 int main (int argc, char *argv[]){
-	
+
 	init_mask(handler_SIGINT_Drone);
 	
 	if(tokenAnalyse(argc,argv,FLAG_OPTIONS_DRONE)){
@@ -89,13 +90,13 @@ int main (int argc, char *argv[]){
 		stopNetworkServ();
 		return EXIT_FAILURE;
 	}
-
+    /*
 	if(init_thread_startMotorAll2(&threadMotor2,threadMotor2_stack_buf,motorsAll2)){
 		drone_stopAll();
 		return EXIT_FAILURE;
 	}
 
-
+     */
 	/**
 	 * AFTER THE CALIBRATION THE PROGRAM FINISH
 	 */

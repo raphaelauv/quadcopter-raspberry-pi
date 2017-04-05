@@ -90,15 +90,15 @@ char is_connect() {
 	const char * tmp = SDL_JoystickName(0);
 	if (tmp != NULL) {
 		if(isControllerConnect==0){
+			isControllerConnect=1;
 			char array[SIZE_MAX_LOG];
 			sprintf(array, "THREAD CONTROLLER : CONTROLLER CONNECT : %s", tmp);
 			logString(array);
-			isControllerConnect=1;
 		}
 
-		return 0;
+		return 1;
 	}
-	return -1;
+	return 0;
 }
 
 float pourcent(int valeur, float reference) {
@@ -114,10 +114,7 @@ float diff_axes(int axe_down, int axe_up, int val_max) {
 
 void control(args_CONTROLLER * argsControl) {
 	DataController * manette = argsControl->manette;
-
-
 	int local_period=(1.0/FREQUENCY_CONTROLLER)*USEC_TO_SEC;
-
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
 
 	/*
@@ -149,9 +146,7 @@ void control(args_CONTROLLER * argsControl) {
 	 }*/
 
 	int modele;
-
 	int firstConnectMade=0;
-
 	int quitter=0;
 
 	if ((SDL_NumJoysticks() <= 0)){
@@ -166,36 +161,41 @@ void control(args_CONTROLLER * argsControl) {
 			break;
 		}
 
-		if (is_connect()) {
+		if (!is_connect()) {
 			char array[SIZE_MAX_LOG];
-			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
+
 			if (firstConnectMade) {
-
+				pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
 				manette->flag = 1;
-				logString(array);
+				argsControl->newThing = 1;
+				manette->axe_Rotation = 0;
+				manette->axe_UpDown = 0;
+				manette->axe_LeftRight = 0;
+				manette->axe_FrontBack = 0;
 
-
+				pthread_cond_signal(&argsControl->pmutexReadDataController->condition);
+				pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
 			}
 
 			if (isControllerConnect == 1) {
+				pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
+				manette->flag = 1;
+				pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
 				sprintf(array,"THREAD CONTROLLER : ERROR NO MORE Controller %d",manette->flag);
 				logString(array);
-				manette->flag = 1;
 				isControllerConnect = 0;
+				printf("isControllerConnect : %d\n",isControllerConnect);
 				detruireInput(&input);
 			}
 
-			//pthread_cond_signal(&argsControl->pmutexReadDataController->condition);
-			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
+
+
 
 		}else{
 			if(firstConnectMade){
 				pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
 				manette->flag = 2;
-				//pthread_cond_signal(&argsControl->pmutexReadDataController->condition);
 				pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
-
-
 			}
 		}
 
