@@ -185,9 +185,9 @@ int testMCP3008(int chanel,int modeFlag){
 	if( modeFlag == FLAG_HARDWARE_MODE){
 		initHardwareADC(chanel);
 		hardwareMode=1;
-		printf("FLAG_HARDWARE_MODE"\n);
+		printf("FLAG_HARDWARE_MODE\n");
 	}else if(modeFlag == FLAG_SOFTWARE_MODE){
-		printf("FLAG_SOFTWARE_MODE"\n);
+		printf("FLAG_SOFTWARE_MODE\n");
 		if (initMCP3008(&mcp, CLOCK_PIN, MOSI_PIN, MISO_PIN, CS_PIN)) {
 			return -1;
 		}
