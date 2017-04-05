@@ -21,6 +21,8 @@ int initHardwareADC(int adcnum){
 	}
 	#endif
 
+	return 0;
+
 }
 
 int hardwareReadADC(int adcnum){
@@ -37,11 +39,10 @@ int hardwareReadADC(int adcnum){
 	send[0]=0x01;
 	send[1]=0x80;
 	return value;
-
 }
 
 
-int getFiltredValue(int adcnum,MCP3008 * mcp){
+float getFiltredValue(int adcnum,MCP3008 * mcp){
 
 
     int voltage=0;
@@ -62,16 +63,14 @@ int getFiltredValue(int adcnum,MCP3008 * mcp){
     	}
 
         batterie_charge=batterie_charge* 0.92 + (voltage+65)* 0.09853;
-        
+
         if(j==EXPO_MOYEN_VAL){
             break;
         }
-
-        usleep(SLEEP_TIME_MOYENNE);
         j++;
     }
-    
-    return (batterie_charge * CENVERTION_TO_VOLT) - DECALAGE;
+
+    return (batterie_charge * CENVERTION_TO_VOLT) - BATTERY_DECALAGE;
 
 }
 
@@ -193,9 +192,8 @@ int testMCP3008(int chanel,int modeFlag){
 		}
 	}
 
-
-
 	while (1) {
+        usleep(4000);
 		if(hardwareMode){
 			val=getFiltredValue(chanel,NULL);
 		}else{

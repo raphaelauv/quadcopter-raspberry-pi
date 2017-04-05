@@ -25,6 +25,11 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll2 * m
     }
 #endif
     
+    if(initHardwareADC(DEFAULT_CHANNEL_ADCNUM)){
+    	logString("initHardwareADC FAIL");
+    	return EXIT_FAILURE;
+    }
+
     return 0;
 }
 
@@ -42,6 +47,8 @@ void clean_args_PID(args_PID * arg) {
         arg = NULL;
     }
 }
+
+
 
 
 void * thread_PID(void * args);
@@ -80,6 +87,24 @@ int absValue(int val){
         val=2000;
     }
     return val;
+}
+
+int batteryValue=0;
+int batteryTMPVALUE=0;
+int batteryVoltage=0;
+
+int getFiltredBatteryValue(){
+
+
+	batteryVoltage=hardwareReadADC(DEFAULT_CHANNEL_ADCNUM);
+	if(batteryVoltage==-1){
+		return -1;
+	}
+	batteryTMPVALUE=batteryTMPVALUE* 0.92 + (batteryVoltage+65)* 0.09853;
+	batteryTMPVALUE=(batteryTMPVALUE * CENVERTION_TO_VOLT) - BATTERY_DECALAGE;
+
+	return 0;
+
 }
 
 void * thread_PID(void * args){
@@ -152,26 +177,27 @@ void * thread_PID(void * args){
     /*				CALIBRATION ACCEL						*/
     /*
     int i;
-#ifdef __arm__
-    for (i=0; i<2000; i++) {
-        if(imu->IMURead()){
-            imuData = imu->getIMUData();
-            gyro_cal[0]+=imuData.gyro.x();
-            gyro_cal[1]+=imuData.gyro.y();
-            gyro_cal[2]+=imuData.gyro.z();
-        }
-        else{
-            printf("trop rapide");
-        }
-        //usleep(2000);
-        nanoSleepSecure(2000 *NSEC_TO_USEC_MULTIPLE);
-    }
-    gyro_cal[0]/=2000;
-    gyro_cal[1]/=2000;
-    gyro_cal[2]/=2000;
-    printf("Calibration fini\n");
-#endif
-*/
+	#ifdef __arm__
+		for (i=0; i<2000; i++) {
+			if(imu->IMURead()){
+				imuData = imu->getIMUData();
+				gyro_cal[0]+=imuData.gyro.x();
+				gyro_cal[1]+=imuData.gyro.y();
+				gyro_cal[2]+=imuData.gyro.z();
+			}
+			else{
+				printf("trop rapide");
+			}
+			//usleep(2000);
+			nanoSleepSecure(2000 *NSEC_TO_USEC_MULTIPLE);
+		}
+		gyro_cal[0]/=2000;
+		gyro_cal[1]/=2000;
+		gyro_cal[2]/=2000;
+		printf("Calibration fini\n");
+	#endif
+    */
+
     /*********************************************************/
     /*				START PID SECURITY SLEEP				*/
     int numberOfSecondSleep=0;
@@ -179,6 +205,7 @@ void * thread_PID(void * args){
 
     if(isCalibration()){
     	numberOfSecondSleep=PID_SLEEP_TIME_SECURITE * PID_SLEEP_VERIF_FREQUENCY;
+    	//to skip security sleep
     }else{
     	logString("THREAD PID : SECURITY SLEEP");
     }
@@ -209,11 +236,27 @@ void * thread_PID(void * args){
     }
     /*********************************************************/
 
+
+    /*********************************************************/
+    /*				BATTERY INIT VALUE						*/
+
+    for(int i=0;i<FREQUENCY_PID;i++){
+		getFiltredBatteryValue(); //TODO test return value
+
+    }
+    batteryValue=batteryTMPVALUE;
+
+    /*********************************************************/
+
+
     struct timeval tv;
-    int cmp=0;
+    int iterRemote=0;
+    int iterBattery=0;
     int timeUsecStart=0;
     int timeUsecEnd=0;
     int timeBetween=0;
+
+    int readSensorSucces=0;
 
     char arrayLog[SIZE_MAX_LOG];
     if(continuThread){
@@ -231,13 +274,12 @@ void * thread_PID(void * args){
         
         /*********************************************************/
         /*					CODE FOR GET REMOTE					*/
-        cmp++;
-        if(cmp>FREQUENCY_PID/FREQUENCY_CONTROLLER){
-        	cmp=0;
+        iterRemote++;
+        if(iterRemote>FREQUENCY_PID/FREQUENCY_CONTROLLER){
+        	iterRemote=0;
             pthread_mutex_lock(&(mutexDataControler->mutex));
             if (data->flag== 0) {
                 pthread_mutex_unlock(&(mutexDataControler->mutex));
-                //printf("VAL POINT BOOL ARRET IN PID   : %d\n",controle_vol->motorsAll2->bool_arret_moteur);
                 setMotorStop(controle_vol->motorsAll2);
                 continuThread = 0;
                 continue;
@@ -261,12 +303,28 @@ void * thread_PID(void * args){
             logDataFreq(powerTab,NUMBER_OF_MOTORS);
 			*/
         }
-        /*********************************************************/
 
-        
-#ifdef __arm__
+        /*********************************************************/
+		/*					CODE BATTERY				*/
+		iterBattery++;
+		if(iterBattery>FREQUENCY_PID){
+			batteryValue=batteryTMPVALUE;
+			iterBattery=0;
+		}
+		getFiltredBatteryValue(); //TODO test return value
+
+		#ifdef __arm__
         if(imu->IMURead()){
+        	readSensorSucces=1;
+        }else{
+        	readSensorSucces=0;
+        }
+		#endif
+
+        if(readSensorSucces){
+			#ifdef __arm__
             imuData = imu->getIMUData();
+			#endif
             //input PID
             input_pid_pitch=(input_pid_pitch*0.7) + ((imuData.gyro.y()-gyro_cal[1])*(180/M_PI)*0.3);
             
@@ -338,15 +396,14 @@ void * thread_PID(void * args){
             logTab[6]=(int)log_angle;
 
             if(isCalibration()){
-
+            	//nothing to apply because we are in a calibrate mode execution
             }else{
             	set_power2(controle_vol->motorsAll2,powerTab);
             }
-            logDataFreq(logTab,NUMBER_OF_MOTORS+3);
+            logDataFreq(logTab,nb_values_log);
 
         }
-        
-#endif
+
         
         /*********************************************************/
         /*			CODE FOR SLEEP PID FREQUENCY				*/

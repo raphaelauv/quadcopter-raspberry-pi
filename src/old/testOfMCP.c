@@ -1,4 +1,4 @@
-#include "MCP3008.h"
+#include "../ADC/MCP3008.h"
 
 int main(int argc, char **argv){
 

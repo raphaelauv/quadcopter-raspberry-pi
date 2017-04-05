@@ -6,10 +6,10 @@
 //#include "RTIMULib/RTIMULib.h"
 #include "capteur.hpp"
 //#include "Calibrage/Calibration_ESC.h"
+#include "ADC/MCP3008.h"
 
 #define PID_SLEEP_TIME_SECURITE 10
 #define PID_SLEEP_VERIF_FREQUENCY 20
-
 
 //PID pitch
 #define PID_GAIN_P_PITCH 1.3

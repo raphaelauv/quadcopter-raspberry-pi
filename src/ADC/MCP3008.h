@@ -8,6 +8,8 @@
 #include <wiringPiSPI.h>
 #endif
 
+#define DEFAULT_CHANNEL_ADCNUM 0
+
 typedef struct MCP3008 {
 	int clockpin;
 	int mosipin;
@@ -15,8 +17,6 @@ typedef struct MCP3008 {
 	int cspin;
 } MCP3008;
 
-
-#define SLEEP_TIME_MOYENNE 4000
 #define FLAG_SOFTWARE_MODE 1
 #define FLAG_HARDWARE_MODE 2
 
@@ -32,14 +32,14 @@ int softwareReadADC(MCP3008 * mcp, int adcnum);
 
 
 //HARDWARE
-#define DECALAGE 0.5
+#define BATTERY_DECALAGE 0.5
 #define CENVERTION_TO_VOLT 0.01
-#define EXPO_MOYEN_VAL 125
 
 int initHardwareADC(int adcnum);
 int hardwareReadADC(int adcnum);
 
-int getFiltredValue(int adcnum,MCP3008 * mcp);
+#define EXPO_MOYEN_VAL 125
+float getFiltredValue(int adcnum,MCP3008 * mcp);
 int testMCP3008(int chanel,int modeFlag);
 
 #endif
