@@ -54,7 +54,7 @@ typedef struct PCA9685 {
 	
 
 int initPCA9685(PCA9685 ** pca,int bus, int address);
-int cleanPCA9685(PCA9685 *pca);
+void cleanPCA9685(PCA9685 *pca);
 
 int custom_reset(PCA9685 *pca);
 

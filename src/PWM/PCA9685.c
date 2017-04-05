@@ -45,32 +45,38 @@ int initPCA9685(PCA9685 ** pca,int bus, int address){
 	*pca = (PCA9685 *) malloc(sizeof(PCA9685));
 	if (*pca == NULL) {
 		//logString("MALLOC FAIL : PCA9685");
-		return EXIT_FAILURE;
+		return -1;
 	}
 
 	I2C_custom * i2c_c;
 	if(initI2C_custom(&i2c_c,bus,address)){
-		//logString("MALLOC FAIL : I2C_custom");
-		return EXIT_FAILURE;
+		return -1;
 	}
 	(*pca)->i2c =i2c_c;
-	custom_reset((*pca));
-	custom_setPWMFreq((*pca),1000);
+	if(custom_reset((*pca))){
+		return -1;
+	}
+	if(custom_setPWMFreq((*pca),1000)){
+		return -1;	
+	}
 }
 
-int cleanPCA9685(PCA9685 *pca){
+void cleanPCA9685(PCA9685 *pca){
 	if(pca!=NULL){
 		cleanI2C_custom(pca->i2c);
 	}
 	free(pca);
-	return 0;
 }
 
 //! Sets PCA9685 mode to 00
 int custom_reset(PCA9685 *pca) {
-
-		I2C_custom_write_byte(pca->i2c,MODE1, 0x00); //Normal mode
-		I2C_custom_write_byte(pca->i2c,MODE2, 0x04); //totem pole
+		int result=0;
+		result+=I2C_custom_write_byte(pca->i2c,MODE1, 0x00); //Normal mode
+		result+=I2C_custom_write_byte(pca->i2c,MODE2, 0x04); //totem pole
+		if(result){
+			//logString("PCA9685 FAIL : custom_reset");
+			return -1;
+		}
 		return 0;
 }
 //! Set the frequency of PWM
@@ -79,11 +85,18 @@ int custom_reset(PCA9685 *pca) {
  */
 int custom_setPWMFreq(PCA9685 *pca,int freq) {
 
+
 		uint8_t prescale_val = (CLOCK_FREQ / 4096 / freq)  - 1;
-		I2C_custom_write_byte(pca->i2c,MODE1, 0x10); //sleep
-		I2C_custom_write_byte(pca->i2c,PRE_SCALE, prescale_val); // multiplyer for PWM frequency
-		I2C_custom_write_byte(pca->i2c,MODE1, 0x80); //restart
-		I2C_custom_write_byte(pca->i2c,MODE2, 0x04); //totem pole (default)
+		int result=0;
+		result+=I2C_custom_write_byte(pca->i2c,MODE1, 0x10); //sleep
+		result+=I2C_custom_write_byte(pca->i2c,PRE_SCALE, prescale_val); // multiplyer for PWM frequency
+		result+=I2C_custom_write_byte(pca->i2c,MODE1, 0x80); //restart
+		result+=I2C_custom_write_byte(pca->i2c,MODE2, 0x04); //totem pole (default)
+
+		if(result){
+			//logString("PCA9685 FAIL : custom_setPWMFreq");
+			return -1;
+		}
 		return 0;
 }
 
@@ -93,7 +106,7 @@ int custom_setPWMFreq(PCA9685 *pca,int freq) {
  \param value 0-4095 value for PWM
  */
 int custom_setPWM_1(PCA9685 *pca,uint8_t led, int value) {
-	custom_setPWM_2(pca,led, 0, value);
+	return custom_setPWM_2(pca,led, 0, value);
 }
 //! PWM a single channel with custom on time
 /*!
@@ -103,10 +116,15 @@ int custom_setPWM_1(PCA9685 *pca,uint8_t led, int value) {
  */
 int custom_setPWM_2(PCA9685 *pca,uint8_t led, int on_value, int off_value) {
 
-		I2C_custom_write_byte(pca->i2c,LED0_ON_L + LED_MULTIPLYER * (led - 1), on_value & 0xFF);
-		I2C_custom_write_byte(pca->i2c,LED0_ON_H + LED_MULTIPLYER * (led - 1), on_value >> 8);
-		I2C_custom_write_byte(pca->i2c,LED0_OFF_L + LED_MULTIPLYER * (led - 1), off_value & 0xFF);
-		I2C_custom_write_byte(pca->i2c,LED0_OFF_H + LED_MULTIPLYER * (led - 1), off_value >> 8);
+		int result=0;
+		result+=I2C_custom_write_byte(pca->i2c,LED0_ON_L + LED_MULTIPLYER * (led - 1), on_value & 0xFF);
+		result+=I2C_custom_write_byte(pca->i2c,LED0_ON_H + LED_MULTIPLYER * (led - 1), on_value >> 8);
+		result+=I2C_custom_write_byte(pca->i2c,LED0_OFF_L + LED_MULTIPLYER * (led - 1), off_value & 0xFF);
+		result+=I2C_custom_write_byte(pca->i2c,LED0_OFF_H + LED_MULTIPLYER * (led - 1), off_value >> 8);
+		if(result){
+			//logString("PCA9685 FAIL : custom_setPWM_2");
+			return -1;
+		}
 		return 0;
 }
 
@@ -114,13 +132,20 @@ int custom_setPWM_2(PCA9685 *pca,uint8_t led, int on_value, int off_value) {
 /*!
  \param led channel (1-16) to get PWM value from
  */
-
-
 int custom_getPWM(PCA9685 *pca,uint8_t led){
 	int ledval = 0;
 	ledval = I2C_custom_read_byte(pca->i2c,LED0_OFF_H + LED_MULTIPLYER * (led-1));
+	if(ledval==-1){
+		//logString("PCA9685 FAIL : custom_getPWM");
+		return -1;
+	}
 	ledval = ledval & 0xf;
 	ledval <<= 8;
-	ledval += I2C_custom_read_byte(pca->i2c,LED0_OFF_L + LED_MULTIPLYER * (led-1));
+	int tmp =I2C_custom_read_byte(pca->i2c,LED0_OFF_L + LED_MULTIPLYER * (led-1));
+	if(tmp==-1){
+		//logString("PCA9685 FAIL : custom_getPWM");
+		return -1;
+	}
+	ledval +=tmp;
 	return ledval;
 }

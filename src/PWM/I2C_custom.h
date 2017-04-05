@@ -13,7 +13,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
- * Name        : I2C.h
+ * Name        : I2C_custom.h
  * Author      : Georgi Todorov
  * Version     :
  * Created on  : Dec 30, 2012
