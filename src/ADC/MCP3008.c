@@ -1,20 +1,21 @@
 //#include "Arduino.h"
 #include "MCP3008.h"
 
+unsigned char send[3]={0x18,0x00,0x00};
 
 int initHardwareADC(int adcnum){
-
 
 	#ifdef __arm__
 	if(wiringPiSPISetup (adcnum, 300000)==-1){
 		//logString("initHardwareADC - wiringPiSPIDataRW FAIL\n");
+		printf("ERROR");
         return 1;
     }
 	#endif
 
-	unsigned char send[3]={0x18,0x00,0x00};
 	#ifdef __arm__
 	if(!wiringPiSPIDataRW (adcnum, send, 3)){
+		printf("ERROR");
 		//logString("initHardwareADC - wiringPiSPIDataRW FAIL\n");
 		return -1;
 	}
@@ -24,16 +25,18 @@ int initHardwareADC(int adcnum){
 
 int hardwareReadADC(int adcnum){
 
-	unsigned char send[3]={0x01,0x80,0x00};
-
+	int value=0;
 	#ifdef __arm__
 	if(!wiringPiSPIDataRW (adcnum, send, 3)){
 		//logString("hardwareReadADC - wiringPiSPIDataRW FAIL\n");
+		printf("ERROR");
 		return -1;
 	}
 	#endif
-
-	return ((send[1] & 0x03) <<8) | send[2];
+	value=((send[1] & 0x03) <<8) | send[2];
+	send[0]=0x01;
+	send[1]=0x80;
+	return value;
 
 }
 
@@ -177,17 +180,23 @@ int testMCP3008(int chanel,int modeFlag){
 
 	int val;
 	MCP3008 * mcp;
+	int hardwareMode=0;
 
 	if( modeFlag == FLAG_HARDWARE_MODE){
 		initHardwareADC(chanel);
+		hardwareMode=1;
+		printf("FLAG_HARDWARE_MODE"\n);
 	}else if(modeFlag == FLAG_SOFTWARE_MODE){
+		printf("FLAG_SOFTWARE_MODE"\n);
 		if (initMCP3008(&mcp, CLOCK_PIN, MOSI_PIN, MISO_PIN, CS_PIN)) {
 			return -1;
 		}
 	}
 
+
+
 	while (1) {
-		if(mcp==NULL){
+		if(hardwareMode){
 			val=getFiltredValue(chanel,NULL);
 		}else{
 			val=getFiltredValue(chanel,mcp);
