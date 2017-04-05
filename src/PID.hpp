@@ -4,7 +4,7 @@
 #include "concurrent.h"
 #include "motors.h"
 //#include "RTIMULib/RTIMULib.h"
-#include "capteur.hpp"
+#include "sensor.hpp"
 //#include "Calibrage/Calibration_ESC.h"
 #include "ADC/MCP3008.h"
 

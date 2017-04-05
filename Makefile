@@ -21,12 +21,12 @@ SRC_basic = src/concurrent.c src/network.c src/log.c
 
 SRC_drone = $(SRC_basic) src/serv.c src/Calibration/calibrate.c src/ADC/MCP3008.c src/motors.c
 
-SRC_drone_CPP = src/PID.cpp src/capteur.cpp 
+SRC_drone_CPP = src/PID.cpp src/sensor.cpp 
 
 SRC_client = $(SRC_basic)  src/client.c src/Controller/controller.c src/Controller/manette.c 
 
 OBJdroneMain= $(SRC_drone:.c=.o) $(SRC_drone_CPP:.cpp=.o)
-#src/capteur.o src/PID.o 
+#src/sensor.o src/PID.o 
 
 OBJclientRemote= $(SRC_client:.c=.o) 
 

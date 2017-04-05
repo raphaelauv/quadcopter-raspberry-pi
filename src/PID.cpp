@@ -14,7 +14,7 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll2 * m
     
 #ifdef __arm__
     RTIMU *imu;
-    imu = capteurInit();
+    imu = sensorInit();
     
     if(imu==NULL){
         logString("THREAD MAIN : ERROR NEW FAIL RTIMU ->imu");
