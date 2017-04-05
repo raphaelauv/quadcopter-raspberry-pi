@@ -4,6 +4,7 @@
 //#include "RTIMULib/RTIMULib.h"
 
 #include "RTIMULib.h"
+#include "log.h"
 
 RTIMU * sensorInit();
 

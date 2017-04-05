@@ -13,21 +13,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
- * Name        : PCA9685.h
- * Author      : Georgi Todorov
- * Version     :
- * Created on  : Dec 9, 2012
+ * Name        		: PCA9685.h
+ * Author      		: raphaelauv
+ * Original Author  : Georgi Todorov <terahz@geodar.com>
+ * Created on  		: Apr 3, 2017
  *
- * Copyright © 2012 Georgi Todorov  <terahz@geodar.com>
+ * Copyright © 2017 Raphaelauv
  */
 
 #ifndef _PCA9685_H
 #define _PCA9685_H
 #include <inttypes.h>
-#include "../log.h"
 #include "I2C_custom.h"
-// Register Definitions
 
+#include "../log.h"
+
+// Register Definitions
 #define MODE1 0x00			//Mode  register  1
 #define MODE2 0x01			//Mode  register  2
 #define SUBADR1 0x02		//I2C-bus subaddress 1
@@ -46,7 +47,6 @@
 #define ALLLED_OFF_H 0xFD	//load all the LEDn_OFF registers, byte 1 (turn 8-15 channels off)
 #define PRE_SCALE 0xFE		//prescaler for output frequency
 #define CLOCK_FREQ 25000000.0 //25MHz default osc clock
-//! Main class that exports features for PCA9685 chip
 
 typedef struct PCA9685 {
 	I2C_custom *i2c;
@@ -56,12 +56,11 @@ typedef struct PCA9685 {
 int initPCA9685(PCA9685 ** pca,int bus, int address);
 void cleanPCA9685(PCA9685 *pca);
 
-int custom_reset(PCA9685 *pca);
+int PCA9685_reset(PCA9685 *pca);
 
-int custom_setPWMFreq(PCA9685 *pca,int freq);
-int custom_setPWM_1(PCA9685 *pca,uint8_t led, int value);
-int custom_setPWM_2(PCA9685 *pca,uint8_t led, int on_value, int off_value);
-int custom_getPWM(PCA9685 *pca,uint8_t led);
+int PCA9685_setPWMFreq(PCA9685 *pca,int freq);
+int PCA9685_setPWM_1(PCA9685 *pca,uint8_t led, int value);
+int PCA9685_setPWM_2(PCA9685 *pca,uint8_t led, int on_value, int off_value);
+int PCA9685_getPWM(PCA9685 *pca,uint8_t led);
 
 #endif
-
