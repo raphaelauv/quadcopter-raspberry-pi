@@ -126,7 +126,7 @@ int PCA9685_setPWM_2(PCA9685 *pca,uint8_t led, int on_value, int off_value) {
 		result=I2C_custom_write_multiple_byte(pca->i2c,address_Array,data_Array,size);
 		*/
 
-		wiringPiI2CWriteReg8()
+		//wiringPiI2CWriteReg8()
 		result+=I2C_custom_write_byte(pca->i2c,LED0_ON_L + LED_MULTIPLYER * (led - 1), on_value & 0xFF);
 		result+=I2C_custom_write_byte(pca->i2c,LED0_ON_H + LED_MULTIPLYER * (led - 1), on_value >> 8);
 		result+=I2C_custom_write_byte(pca->i2c,LED0_OFF_L + LED_MULTIPLYER * (led - 1), off_value & 0xFF);
