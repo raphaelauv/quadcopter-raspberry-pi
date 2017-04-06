@@ -334,7 +334,7 @@ int logDataFreq(int * arrayLog,int size){
 		//showArrayData();
 		//sprintf(arrayStr,"DATAFREQ : FREQ=%d;%d;%d;%d;%d;%d;%d;%d",log_frequence,moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3],moyenneArray[4],moyenneArray[5],moyenneArray[6] );
 		//logString(arrayStr);
-		sprintf(arrayStr,"%d %d %d %d %d %d %d",moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3],moyenneArray[4],moyenneArray[5],moyenneArray[6] );
+		sprintf(arrayStr,"%d %d %d %d %d %d %d %d",moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3],moyenneArray[4],moyenneArray[5],moyenneArray[6],moyenneArray[7] );
 		logDataString(arrayStr);
 		lastDataIndex = 0;
 	}

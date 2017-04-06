@@ -15,6 +15,10 @@ name="ANGLE"
 set title name
 plot for [col=8:8:1] 'plotData.dat' using 0:col with lines title columnheader
 
+name="BATTERY"
+set title name
+plot for [col=9:9:1] 'plotData.dat' using 0:col with lines title columnheader
+
 
 unset multiplot
 
