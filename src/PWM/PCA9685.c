@@ -112,6 +112,7 @@ int PCA9685_setPWM_2(PCA9685 *pca,uint8_t led, int on_value, int off_value) {
 
 		int result=0;
 
+		/*
 		uint8_t val0=on_value & 0xFF;
 		uint8_t val1=on_value >> 8;
 		uint8_t val2=off_value & 0xFF;
@@ -121,15 +122,16 @@ int PCA9685_setPWM_2(PCA9685 *pca,uint8_t led, int on_value, int off_value) {
 		uint8_t address_Array[size]={LED0_ON_L + LED_MULTIPLYER,LED0_ON_H + LED_MULTIPLYER,LED0_OFF_L + LED_MULTIPLYER,LED0_OFF_H + LED_MULTIPLYER};
 		uint8_t data_Array[size]={val0,val1,val2,val3};
 
+
 		result=I2C_custom_write_multiple_byte(pca->i2c,address_Array,data_Array,size);
-		/*
+		*/
 
 		result+=I2C_custom_write_byte(pca->i2c,LED0_ON_L + LED_MULTIPLYER * (led - 1), on_value & 0xFF);
 		result+=I2C_custom_write_byte(pca->i2c,LED0_ON_H + LED_MULTIPLYER * (led - 1), on_value >> 8);
 		result+=I2C_custom_write_byte(pca->i2c,LED0_OFF_L + LED_MULTIPLYER * (led - 1), off_value & 0xFF);
 		result+=I2C_custom_write_byte(pca->i2c,LED0_OFF_H + LED_MULTIPLYER * (led - 1), off_value >> 8);
 
-		*/
+
 		if(result){
 			logString("PCA9685 FAIL : PCA9685_setPWM_2");
 			return -1;

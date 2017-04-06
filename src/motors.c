@@ -9,7 +9,7 @@ int init_MotorsAll3(MotorsAll3 ** motorsAll3){
 	}
 
 	PCA9685 * pcaMotors;
-	if (initPCA9685(&pcaMotors, 0, 0x40)) {
+	if (initPCA9685(&pcaMotors, CHANNEL_I2C, 0x40)) {
 		logString("initPCA9685 FAIL");
 		return -1;
 	}
