@@ -18,7 +18,7 @@ void input_test(char value_Wait) {
 		emptyBuffer();
 	} while (tmp != value_Wait);
 }
-void test_power(MotorsAll2  * motors){
+void test_power(MotorsAll3 * motorsAll3){
 /*
     int high_time=1000;
     while (high_time<=2000) {
@@ -35,7 +35,7 @@ void test_power(MotorsAll2  * motors){
 */
 }
 
-void calibrate_ESC(PCA9685 * pcaMotors,char verbose){
+void calibrate_ESC(MotorsAll3 * motorsAll3,char verbose){
 
 	int powerMax[4] = { MOTOR_HIGH_TIME, MOTOR_HIGH_TIME, MOTOR_HIGH_TIME, MOTOR_HIGH_TIME };
 	int powerMin[4] = { MOTOR_LOW_TIME, MOTOR_LOW_TIME, MOTOR_LOW_TIME, MOTOR_LOW_TIME };

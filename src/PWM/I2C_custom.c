@@ -54,6 +54,7 @@ void cleanI2C_custom(I2C_custom * i2c_cus) {
 	if(i2c_cus!=NULL){
 		close(i2c_cus->fd);
 		free(i2c_cus);
+		i2c_cus=NULL;
 	}
 }
 //! Read a single byte from I2C Bus

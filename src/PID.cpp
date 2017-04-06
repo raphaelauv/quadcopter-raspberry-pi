@@ -1,7 +1,7 @@
 #include "PID.hpp"
 
 
-int init_args_PID(args_PID ** argPID,DataController * dataControl,PCA9685 * pca){
+int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll3 * motorsAll3){
     
     *argPID =(args_PID *) malloc(sizeof(args_PID));
     if (*argPID == NULL) {
@@ -29,22 +29,16 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,PCA9685 * pca)
     	return EXIT_FAILURE;
     }
 
-	PCA9685_setPWMFreq(pca,FREQUENCY_MOTOR);
-	PCA9685_setPWM_1(pca,1, MOTOR_LOW_TIME);
-	PCA9685_setPWM_1(pca,2, MOTOR_LOW_TIME);
-	PCA9685_setPWM_1(pca,3, MOTOR_LOW_TIME);
-	PCA9685_setPWM_1(pca,4, MOTOR_LOW_TIME);
-
-	(*argPID)->motors=pca;
+	(*argPID)->motorsAll3=motorsAll3;
 
     return 0;
 }
 
 void clean_args_PID(args_PID * arg) {
     if (arg != NULL) {
-        clean_MotorsAll2(arg->motorsAll2);
+        clean_MotorsAll3(arg->motorsAll3);
         clean_DataController(arg->dataController);
-        cleanPCA9685(arg->motors);
+
 #ifdef __arm__
         if( arg->imu !=NULL){
             delete(arg->imu);
@@ -81,10 +75,6 @@ int init_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * a
     return result;
 }
 
-
-int set_power3(int * powers){
-
-}
 
 
 int absValue(int val){
@@ -228,11 +218,11 @@ void * thread_PID(void * args){
     	tmpFlag=data->flag;
     	pthread_mutex_unlock(&(mutexDataControler->mutex));
 		if (tmpFlag == 0) {
-			setMotorStop(controle_vol->motorsAll2);
+			setMotorStop(controle_vol->motorsAll3);
 			continuThread = 0;
 			break;
 		}
-		if (isMotorStop(controle_vol->motorsAll2)) {
+		if (isMotorStop(controle_vol->motorsAll3)) {
 			continuThread = 0;
 			continue;
 		}
@@ -275,7 +265,7 @@ void * thread_PID(void * args){
         gettimeofday(&tv, NULL);
         timeUsecStart= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
 
-        if(isMotorStop(controle_vol->motorsAll2)){
+        if(isMotorStop(controle_vol->motorsAll3)){
         	continuThread = 0;
         	continue;
         }
@@ -288,7 +278,7 @@ void * thread_PID(void * args){
             pthread_mutex_lock(&(mutexDataControler->mutex));
             if (data->flag== 0) {
                 pthread_mutex_unlock(&(mutexDataControler->mutex));
-                setMotorStop(controle_vol->motorsAll2);
+                setMotorStop(controle_vol->motorsAll3);
                 continuThread = 0;
                 continue;
             }
@@ -407,7 +397,7 @@ void * thread_PID(void * args){
             if(isCalibration()){
             	//nothing to apply because we are in a calibrate mode execution
             }else{
-            	set_power2(controle_vol->motorsAll2,powerTab);
+            	set_power3(controle_vol->motorsAll3,powerTab);
             }
             logDataFreq(logTab,nb_values_log);
 

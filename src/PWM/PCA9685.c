@@ -66,6 +66,7 @@ void cleanPCA9685(PCA9685 *pca){
 		cleanI2C_custom(pca->i2c);
 	}
 	free(pca);
+	pca = NULL;
 }
 
 //! Sets PCA9685 mode to 00

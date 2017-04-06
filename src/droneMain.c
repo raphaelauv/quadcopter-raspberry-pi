@@ -3,10 +3,14 @@
 #include "PID.hpp"
 #include "Calibration/calibrate.h"
 
+MotorsAll3 * GlobalMotorAll=NULL;
 volatile int * boolStopServ=NULL;
 
-void stopMotor(){
-	//TODO
+
+void stopMotor() {
+	if (GlobalMotorAll != NULL) {
+		setMotorStop(GlobalMotorAll);
+	}
 }
 
 void stopNetworkServ(){
@@ -23,7 +27,7 @@ void drone_stopAll(){
 
 void handler_SIGINT_Drone(int i){
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
-	drone_stopAll();
+	drone_stopAll();//TODO pas de prise de mutex dans signal
 }
 
 int main (int argc, char *argv[]){
@@ -46,17 +50,16 @@ int main (int argc, char *argv[]){
 	if(init_args_SERVER(&argServ)){
 		return EXIT_FAILURE;
 	}
-
 	boolStopServ = argServ->boolStopServ;
 
-	PCA9685 * pcaMotors;
-	if (initPCA9685(&pcaMotors, 0, 0x40)) {
-		logString("initPCA9685 FAIL");
+	MotorsAll3 * motorsAll3;
+	if (init_MotorsAll3(&motorsAll3)) {
 		return EXIT_FAILURE;
 	}
+	GlobalMotorAll=motorsAll3;
 
 	args_PID * argPID;
-	if (init_args_PID(&argPID,argServ->dataController,pcaMotors)) {
+	if (init_args_PID(&argPID,argServ->dataController,motorsAll3)) {
 		return EXIT_FAILURE;
 	}
 
@@ -86,8 +89,8 @@ int main (int argc, char *argv[]){
 	/**
 	 * AFTER THE CALIBRATION THE PROGRAM FINISH
 	 */
-	if(isCalibration()){
-		calibrate_ESC(pcaMotors,isVerbose());
+	if (isCalibration()) {
+		calibrate_ESC(motorsAll3, isVerbose());
 		drone_stopAll();
 	}
 
@@ -96,17 +99,17 @@ int main (int argc, char *argv[]){
 
 	int re=0;
 
-	if (pthread_join(threadPID, (void**) &returnValue)){
+	if (pthread_join(threadPID, (void**) &returnValue)) {
 		logString("THREAD MAIN : ERROR pthread_join PID");
 		drone_stopAll();
 		return EXIT_FAILURE;
 	}
 
 
-	if(!isNoControl()){
-		if ((re=pthread_join(threadServer,NULL))>0) {
-				logString("THREAD MAIN : ERROR pthread_join SERVER");
-				return EXIT_FAILURE;
+	if (!isNoControl()) {
+		if ((re = pthread_join(threadServer, NULL)) > 0) {
+			logString("THREAD MAIN : ERROR pthread_join SERVER");
+			return EXIT_FAILURE;
 		}
 	}
 
