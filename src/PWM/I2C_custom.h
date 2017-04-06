@@ -41,8 +41,9 @@ int initI2C_custom(I2C_custom ** i2c_cus,int bus, int address);
 void cleanI2C_custom(I2C_custom * i2c_cus);
 int I2C_custom_openfd(I2C_custom * i2c_cus);
 
-uint8_t I2C_custom_read_byte(I2C_custom * i2c_cus,uint8_t);
-uint8_t I2C_custom_write_byte(I2C_custom * i2c_cus,uint8_t, uint8_t);
+uint8_t I2C_custom_read_byte(I2C_custom * i2c_cus,uint8_t address);
+uint8_t I2C_custom_write_multiple_byte(I2C_custom * i2c_cus,uint8_t * address, uint8_t * data,uint8_t number);
+uint8_t I2C_custom_write_byte(I2C_custom * i2c_cus,uint8_t address, uint8_t data);
 
 
 #endif /* I2C_custom_H_ */

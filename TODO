@@ -8,12 +8,10 @@ Reste a faire :
 	-Test d’equilibrage avec la manette					(Andres)
 	-Filtre de Kalman (Barometre + accel) 				(Andres + ?)
 	-Lancement du script au boot du Raspberry 80%
-	-Choix composant recuperation valeur Voltage batterie
 	
-	-Traduire librairy de la carte PWM
-	-Interfacer code PID avec code PWM ( desactiver thread motor)
-	-Corriger code calibration
-	-Verifier PWM moteur à oscilloscope
+	-Corriger code calibration 90%
+	-comparer lib I2C avec WinringPiI2C
+	-Souder montage pour Valeur Battery
 
 	-Tester decharge de la batterie
 

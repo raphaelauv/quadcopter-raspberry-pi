@@ -21,17 +21,6 @@
  * Copyright © 2017 Raphaelauv
  */
 
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <linux/i2c.h>
-#include <linux/i2c-dev.h>
-#include <stdio.h>      /* Standard I/O functions */
-#include <fcntl.h>
-#include <syslog.h>		/* Syslog functionallity */
-#include <inttypes.h>
-#include <errno.h>
-#include <math.h>
 
 #include "PCA9685.h"
 
@@ -79,7 +68,7 @@ int PCA9685_reset(PCA9685 *pca) {
 		result+=I2C_custom_write_byte(pca->i2c,MODE1, 0x00); //Normal mode
 		result+=I2C_custom_write_byte(pca->i2c,MODE2, 0x04); //totem pole
 		if(result){
-			//logString("PCA9685 FAIL : PCA9685_reset");
+			logString("PCA9685 FAIL : PCA9685_reset");
 			return -1;
 		}
 		return 0;
@@ -99,7 +88,7 @@ int PCA9685_setPWMFreq(PCA9685 *pca,int freq) {
 		result+=I2C_custom_write_byte(pca->i2c,MODE2, 0x04); //totem pole (default)
 
 		if(result){
-			//logString("PCA9685 FAIL : PCA9685_setPWMFreq");
+			logString("PCA9685 FAIL : PCA9685_setPWMFreq");
 			return -1;
 		}
 		return 0;
@@ -122,12 +111,27 @@ int PCA9685_setPWM_1(PCA9685 *pca,uint8_t led, int value) {
 int PCA9685_setPWM_2(PCA9685 *pca,uint8_t led, int on_value, int off_value) {
 
 		int result=0;
+
+		uint8_t val0=on_value & 0xFF;
+		uint8_t val1=on_value >> 8;
+		uint8_t val2=off_value & 0xFF;
+		uint8_t val3=off_value >> 8;
+
+		uint8_t size=4;
+		uint8_t on_value_FOUR[size]={LED0_ON_L + LED_MULTIPLYER,LED0_ON_H + LED_MULTIPLYER,LED0_OFF_L + LED_MULTIPLYER,LED0_OFF_H + LED_MULTIPLYER};
+		uint8_t off_value_FOUR[size]={val0,val1,val2,val3};
+
+		result=I2C_custom_write_multiple_byte(pca->i2c,on_value_FOUR,off_value_FOUR,size);
+		/*
+
 		result+=I2C_custom_write_byte(pca->i2c,LED0_ON_L + LED_MULTIPLYER * (led - 1), on_value & 0xFF);
 		result+=I2C_custom_write_byte(pca->i2c,LED0_ON_H + LED_MULTIPLYER * (led - 1), on_value >> 8);
 		result+=I2C_custom_write_byte(pca->i2c,LED0_OFF_L + LED_MULTIPLYER * (led - 1), off_value & 0xFF);
 		result+=I2C_custom_write_byte(pca->i2c,LED0_OFF_H + LED_MULTIPLYER * (led - 1), off_value >> 8);
+
+		*/
 		if(result){
-			//logString("PCA9685 FAIL : PCA9685_setPWM_2");
+			logString("PCA9685 FAIL : PCA9685_setPWM_2");
 			return -1;
 		}
 		return 0;
@@ -141,14 +145,14 @@ int PCA9685_getPWM(PCA9685 *pca,uint8_t led){
 	int ledval = 0;
 	ledval = I2C_custom_read_byte(pca->i2c,LED0_OFF_H + LED_MULTIPLYER * (led-1));
 	if(ledval==-1){
-		//logString("PCA9685 FAIL : PCA9685_getPWM");
+		logString("PCA9685 FAIL : PCA9685_getPWM");
 		return -1;
 	}
 	ledval = ledval & 0xf;
 	ledval <<= 8;
 	int tmp =I2C_custom_read_byte(pca->i2c,LED0_OFF_L + LED_MULTIPLYER * (led-1));
 	if(tmp==-1){
-		//logString("PCA9685 FAIL : PCA9685_getPWM");
+		logString("PCA9685 FAIL : PCA9685_getPWM");
 		return -1;
 	}
 	ledval +=tmp;
