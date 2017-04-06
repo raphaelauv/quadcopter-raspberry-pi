@@ -54,8 +54,9 @@ int set_power3(MotorsAll3 * MotorsAll3, int * powers){
 	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
 
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+
 		#ifdef __arm__
-		PCA9685_setPWM_1(MotorsAll3->motors, i, powers[i]);
+		PCA9685_setPWM_1(MotorsAll3->motors, i + MINIMUM_LED_VALUE, powers[i]);
 		#endif
 	}
 

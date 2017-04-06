@@ -48,6 +48,8 @@
 #define PRE_SCALE 0xFE		//prescaler for output frequency
 #define CLOCK_FREQ 25000000.0 //25MHz default osc clock
 
+#define MINIMUM_LED_VALUE 1
+
 typedef struct PCA9685 {
 	I2C_custom *i2c;
 } PCA9685;
