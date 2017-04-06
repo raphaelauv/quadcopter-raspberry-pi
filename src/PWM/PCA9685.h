@@ -26,6 +26,8 @@
 #include <inttypes.h>
 #include "I2C_custom.h"
 
+#include <wiringPiI2C.h>
+
 #include "../log.h"
 
 // Register Definitions
@@ -47,6 +49,12 @@
 #define ALLLED_OFF_H 0xFD	//load all the LEDn_OFF registers, byte 1 (turn 8-15 channels off)
 #define PRE_SCALE 0xFE		//prescaler for output frequency
 #define CLOCK_FREQ 25000000.0 //25MHz default osc clock
+
+#define CHANNEL_I2C 1
+
+#define MINIMUM_LED_VALUE 1
+
+#define PCA9685_FREQUENCY 230
 
 typedef struct PCA9685 {
 	I2C_custom *i2c;

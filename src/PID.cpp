@@ -68,6 +68,7 @@ int init_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * a
     int result=pthread_create(threadPID, &attributs, thread_PID, argPID);
     if (result) {
         logString("THREAD MAIN : ERROR pthread_create PID");
+        perror("pthread_create");
     }
     
     pthread_attr_destroy(&attributs);

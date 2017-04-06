@@ -9,7 +9,7 @@ int init_MotorsAll3(MotorsAll3 ** motorsAll3){
 	}
 
 	PCA9685 * pcaMotors;
-	if (initPCA9685(&pcaMotors, 0, 0x40)) {
+	if (initPCA9685(&pcaMotors, CHANNEL_I2C, 0x40)) {
 		logString("initPCA9685 FAIL");
 		return -1;
 	}
@@ -26,7 +26,6 @@ int init_MotorsAll3(MotorsAll3 ** motorsAll3){
 	(*motorsAll3)->motorStop=0;
 
 	#ifdef __arm__
-	PCA9685_setPWMFreq(pcaMotors,FREQUENCY_MOTOR);
 	PCA9685_setPWM_1(pcaMotors,1, MOTOR_LOW_TIME);
 	PCA9685_setPWM_1(pcaMotors,2, MOTOR_LOW_TIME);
 	PCA9685_setPWM_1(pcaMotors,3, MOTOR_LOW_TIME);
@@ -54,8 +53,9 @@ int set_power3(MotorsAll3 * MotorsAll3, int * powers){
 	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
 
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+
 		#ifdef __arm__
-		PCA9685_setPWM_1(MotorsAll3->motors, i, powers[i]);
+		PCA9685_setPWM_1(MotorsAll3->motors, i + MINIMUM_LED_VALUE, powers[i]);
 		#endif
 	}
 

@@ -92,6 +92,47 @@ uint8_t I2C_custom_read_byte(I2C_custom * i2c_cus,uint8_t address) {
 	}
 
 }
+
+
+uint8_t I2C_custom_write_multiple_byte(I2C_custom * i2c_cus,uint8_t * address, uint8_t * data,uint8_t number) {
+
+	uint8_t buff[2*number];
+	for(int i=0;i<number;i++){
+		buff[i*2] = address[i];
+		buff[((i*2)+1)] = data[i];
+		i++;
+	}
+	if (i2c_cus->fd != -1) {
+
+		if (write(i2c_cus->fd, buff, sizeof(buff)) != 2*number) {
+
+			/*
+			char strArray[SIZE_MAX_LOG];
+			sprintf(strArray, "I2C_CUSTOM FAIL : Failed to write to I2C Slave 0x%x @ register 0x%x [write_byte():write %d]",
+					i2c_cus->_i2caddr, address, errno);
+			logString(array);
+			*/
+			return (-1);
+		} else {
+			/*
+			char strArray[SIZE_MAX_LOG];
+			sprintf(strArray, "I2C_CUSTOM SUCCES : Wrote to I2C Slave 0x%x @ register 0x%x [0x%x]",
+					i2c_cus->_i2caddr, address, data);
+			logString(array);
+			*/
+			return 0;
+		}
+	} else {
+		logString("I2C_CUSTOM Device File not available. Aborting write");
+		return (-1);
+	}
+
+
+}
+
+
+
+
 //! Write a single byte from a I2C Device
 /*!
  \param address register address to write to
@@ -121,7 +162,7 @@ uint8_t I2C_custom_write_byte(I2C_custom * i2c_cus,uint8_t address, uint8_t data
 			return 0;
 		}
 	} else {
-		//logString("I2C_CUSTOM Device File not available. Aborting write");
+		logString("I2C_CUSTOM Device File not available. Aborting write");
 		return (-1);
 	}
 	
