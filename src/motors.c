@@ -26,7 +26,6 @@ int init_MotorsAll3(MotorsAll3 ** motorsAll3){
 	(*motorsAll3)->motorStop=0;
 
 	#ifdef __arm__
-	PCA9685_setPWMFreq(pcaMotors,FREQUENCY_MOTOR);
 	PCA9685_setPWM_1(pcaMotors,1, MOTOR_LOW_TIME);
 	PCA9685_setPWM_1(pcaMotors,2, MOTOR_LOW_TIME);
 	PCA9685_setPWM_1(pcaMotors,3, MOTOR_LOW_TIME);
