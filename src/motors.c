@@ -67,6 +67,13 @@ void setMotorStop(MotorsAll3 * MotorsAll3){
 	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
 	MotorsAll3->motorStop=1;
 	pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
+
+	int tabMin[NUMBER_OF_MOTORS];
+	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+		tabMin[i] = 0;
+	}
+
+	set_power3(MotorsAll3,tabMin);
 }
 
 int isMotorStop(MotorsAll3 * MotorsAll3){
