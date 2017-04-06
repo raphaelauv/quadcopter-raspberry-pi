@@ -5,8 +5,8 @@
  * 2 milliseconde -> 100% de puissance
  * */
 
-#ifndef _MOTORS_H_
-#define _MOTORS_H_
+#ifndef _MonoThreadMotor_H_
+#define _MonoThreadMotor_H_
 
 #ifdef __arm__
 #include <wiringPi.h>

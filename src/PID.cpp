@@ -1,7 +1,7 @@
 #include "PID.hpp"
 
 
-int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll2 * motorsAll2){
+int init_args_PID(args_PID ** argPID,DataController * dataControl,PCA9685 * pca){
     
     *argPID =(args_PID *) malloc(sizeof(args_PID));
     if (*argPID == NULL) {
@@ -10,7 +10,6 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll2 * m
     }
     
     (*argPID)->dataController = dataControl;
-    (*argPID)->motorsAll2 = motorsAll2;
     
 #ifdef __arm__
     RTIMU *imu;
@@ -30,6 +29,14 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll2 * m
     	return EXIT_FAILURE;
     }
 
+	PCA9685_setPWMFreq(pca,FREQUENCY_MOTOR);
+	PCA9685_setPWM_1(pca,1, MOTOR_LOW_TIME);
+	PCA9685_setPWM_1(pca,2, MOTOR_LOW_TIME);
+	PCA9685_setPWM_1(pca,3, MOTOR_LOW_TIME);
+	PCA9685_setPWM_1(pca,4, MOTOR_LOW_TIME);
+
+	(*argPID)->motors=pca;
+
     return 0;
 }
 
@@ -37,6 +44,7 @@ void clean_args_PID(args_PID * arg) {
     if (arg != NULL) {
         clean_MotorsAll2(arg->motorsAll2);
         clean_DataController(arg->dataController);
+        cleanPCA9685(arg->motors);
 #ifdef __arm__
         if( arg->imu !=NULL){
             delete(arg->imu);
@@ -74,6 +82,11 @@ int init_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * a
 }
 
 
+int set_power3(int * powers){
+
+}
+
+
 int absValue(int val){
     if(val<0){
         val*=-1;
@@ -89,9 +102,9 @@ int absValue(int val){
     return val;
 }
 
-int batteryValue=0;
-int batteryTMPVALUE=0;
-int batteryVoltage=0;
+float batteryValue=0;
+float batteryTMPVALUE=0;
+float batteryVoltage=0;
 
 int getFiltredBatteryValue(){
 
@@ -110,16 +123,12 @@ int getFiltredBatteryValue(){
 void * thread_PID(void * args){
     
 	logString("THREAD PID : INITIALISATION");
-    //test();
-    //calibrate(args);
     args_PID  * controle_vol =(args_PID  *)args;
     DataController * data = controle_vol->dataController;
     PMutex * mutexDataControler =controle_vol->dataController->pmutex;
     RTIMU *imu =(RTIMU *)controle_vol->imu;
 
     int powerTab[NUMBER_OF_MOTORS];
-
-    
 
     int powerController[NUMBER_OF_MOTORS];
 
@@ -157,8 +166,7 @@ void * thread_PID(void * args){
     
     RTIMU_DATA imuData;
     
-
-    int nb_values_log=NUMBER_OF_MOTORS+3;
+    int nb_values_log=NUMBER_OF_MOTORS+4;
 
 	int logTab[nb_values_log];
 
@@ -167,7 +175,7 @@ void * thread_PID(void * args){
         //TODO
     }
     
-    setDataStringTitle("line Motor1 Motor2 Motor3 Motor4   INPUT  OUTPUT  ANGLE");
+    setDataStringTitle("line Motor1 Motor2 Motor3 Motor4   INPUT  OUTPUT  ANGLE  BATTERY");
 
     int continuThread=1;
 
@@ -394,6 +402,7 @@ void * thread_PID(void * args){
             logTab[4]=(int)input_pid_pitch;
             logTab[5]=(int)output_pid_pitch;
             logTab[6]=(int)log_angle;
+            logTab[7]=(int)(batteryValue*100);//TODO
 
             if(isCalibration()){
             	//nothing to apply because we are in a calibrate mode execution

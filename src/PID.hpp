@@ -7,6 +7,7 @@
 #include "sensor.hpp"
 //#include "Calibrage/Calibration_ESC.h"
 #include "ADC/MCP3008.h"
+#include "PWM/PCA9685.h"
 
 #define PID_SLEEP_TIME_SECURITE 10
 #define PID_SLEEP_VERIF_FREQUENCY 20
@@ -27,11 +28,12 @@
 typedef struct args_PID {
 	MotorsAll2 * motorsAll2;
 	DataController * dataController;
+	PCA9685 * motors;
 	RTIMU * imu; //	RTIMU *
 
 } args_PID;
 
-int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll2 * motorsAll);
+int init_args_PID(args_PID ** argPID,DataController * dataControl,PCA9685 * pca);
 
 int init_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * argPID);
 

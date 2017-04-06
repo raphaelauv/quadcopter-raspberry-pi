@@ -4,6 +4,6 @@
 #include "../motors.h"
 #include "../concurrent.h"
 
-void calibrate_ESC(MotorsAll2 * motors,char verbose);
+void calibrate_ESC(PCA9685 * pcaMotors,char verbose);
 
 #endif /* CALIBRATE_H */

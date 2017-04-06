@@ -1,6 +1,6 @@
 
-#ifndef _MOTORS_H_
-#define _MOTORS_H_
+#ifndef _MultiThreadMotor_H_
+#define _MultiThreadMotor_H_
 
 #ifdef __arm__
 #include <wiringPi.h>

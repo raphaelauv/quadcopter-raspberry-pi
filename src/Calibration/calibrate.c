@@ -35,7 +35,7 @@ void test_power(MotorsAll2  * motors){
 */
 }
 
-void calibrate_ESC(MotorsAll2 * motors,char verbose){
+void calibrate_ESC(PCA9685 * pcaMotors,char verbose){
 
 	int powerMax[4] = { MOTOR_HIGH_TIME, MOTOR_HIGH_TIME, MOTOR_HIGH_TIME, MOTOR_HIGH_TIME };
 	int powerMin[4] = { MOTOR_LOW_TIME, MOTOR_LOW_TIME, MOTOR_LOW_TIME, MOTOR_LOW_TIME };
@@ -47,7 +47,7 @@ void calibrate_ESC(MotorsAll2 * motors,char verbose){
 		printf("THE BATTERY OF ESC NEED TO BE DISCONNECT FIRST ,when it's done : press the key y and ENTER\n");
 		input_test('y');
 	}
-	set_power2(motors,powerMax);
+	//set_power2(motors,powerMax);
     if(verbose){
     	printf("\nNOW CONNECT THE BATTERY, when it's done : press the key y and ENTER\n");
     	input_test('y');
@@ -57,7 +57,7 @@ void calibrate_ESC(MotorsAll2 * motors,char verbose){
     	sleep(10);
     	system(SOUND_COMMAND"calibrationStart.mp3");usleep(SOUND_PAUSE_TIME);
     }
-    set_power2(motors,powerMin);
+    //set_power2(motors,powerMin);
 	if (verbose) {
 		input_test('y');
 		printf("\nCALIBRATION FINISH\n");
