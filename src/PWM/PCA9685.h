@@ -54,6 +54,8 @@
 
 #define MINIMUM_LED_VALUE 1
 
+#define PCA9685_FREQUENCY 230
+
 typedef struct PCA9685 {
 	I2C_custom *i2c;
 } PCA9685;
