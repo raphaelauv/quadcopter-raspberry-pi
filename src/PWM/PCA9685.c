@@ -44,10 +44,11 @@ int initPCA9685(PCA9685 ** pca,int bus, int address){
 
 	*pca = (PCA9685 *) malloc(sizeof(PCA9685));
 	if (*pca == NULL) {
-		//logString("MALLOC FAIL : PCA9685");
+		logString("MALLOC FAIL : PCA9685");
 		return -1;
 	}
 
+	#ifdef __arm__
 	I2C_custom * i2c_c;
 	if(initI2C_custom(&i2c_c,bus,address)){
 		return -1;
@@ -59,6 +60,9 @@ int initPCA9685(PCA9685 ** pca,int bus, int address){
 	if(PCA9685_setPWMFreq((*pca),1000)){
 		return -1;	
 	}
+	#endif
+
+	return 0;
 }
 
 void cleanPCA9685(PCA9685 *pca){

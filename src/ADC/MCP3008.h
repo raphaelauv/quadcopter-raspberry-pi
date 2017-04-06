@@ -1,6 +1,6 @@
 #ifndef MCP3008_h
 #define MCP3008_h
-//#include "../concurrent.h"
+
 #include "../log.h"
 
 #ifdef __arm__

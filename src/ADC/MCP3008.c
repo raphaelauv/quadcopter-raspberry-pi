@@ -7,16 +7,16 @@ int initHardwareADC(int adcnum){
 
 	#ifdef __arm__
 	if(wiringPiSPISetup (adcnum, 300000)==-1){
-		//logString("initHardwareADC - wiringPiSPIDataRW FAIL\n");
-		printf("ERROR");
-        return 1;
+		logString("initHardwareADC - wiringPiSPIDataRW FAIL\n");
+		//printf("ERROR");
+        return -1;
     }
 	#endif
 
 	#ifdef __arm__
 	if(!wiringPiSPIDataRW (adcnum, send, 3)){
-		printf("ERROR");
-		//logString("initHardwareADC - wiringPiSPIDataRW FAIL\n");
+
+		logString("initHardwareADC - wiringPiSPIDataRW FAIL\n");
 		return -1;
 	}
 	#endif
@@ -30,8 +30,7 @@ int hardwareReadADC(int adcnum){
 	int value=0;
 	#ifdef __arm__
 	if(!wiringPiSPIDataRW (adcnum, send, 3)){
-		//logString("hardwareReadADC - wiringPiSPIDataRW FAIL\n");
-		printf("ERROR");
+		logString("hardwareReadADC - wiringPiSPIDataRW FAIL\n");
 		return -1;
 	}
 	#endif

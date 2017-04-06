@@ -35,7 +35,7 @@ int initI2C_custom(I2C_custom ** i2c_cus,int bus, int address){
 
 	*i2c_cus = (I2C_custom *) malloc(sizeof(I2C_custom));
 	if (*i2c_cus == NULL) {
-		//logString("MALLOC FAIL : I2C_custom");
+		logString("MALLOC FAIL : I2C_custom");
 		return -1;
 	}
 
@@ -44,7 +44,7 @@ int initI2C_custom(I2C_custom ** i2c_cus,int bus, int address){
 
 	snprintf((*i2c_cus)->busfile, sizeof((*i2c_cus)->busfile), "/dev/i2c-%d", bus);
 	if(I2C_custom_openfd(*i2c_cus)){
-		//logString("I2C_custom FAIL : I2C_custom_openfd");
+		logString("I2C_custom FAIL : I2C_custom_openfd");
 		return -1;
 	}
 	return 0;

@@ -14,13 +14,24 @@ int init_MotorsAll3(MotorsAll3 ** motorsAll3){
 		return -1;
 	}
 
+	PMutex * mutexValues = (PMutex *) malloc(sizeof(PMutex));
+	if (mutexValues == NULL) {
+		logString("MALLOC FAIL : barrier");
+		return -1;
+	}
+	init_PMutex(mutexValues);
+
+	(*motorsAll3)->MutexSetValues=mutexValues;
+
 	(*motorsAll3)->motorStop=0;
 
+	#ifdef __arm__
 	PCA9685_setPWMFreq(pcaMotors,FREQUENCY_MOTOR);
 	PCA9685_setPWM_1(pcaMotors,1, MOTOR_LOW_TIME);
 	PCA9685_setPWM_1(pcaMotors,2, MOTOR_LOW_TIME);
 	PCA9685_setPWM_1(pcaMotors,3, MOTOR_LOW_TIME);
 	PCA9685_setPWM_1(pcaMotors,4, MOTOR_LOW_TIME);
+	#endif
 
 	(*motorsAll3)->motors=pcaMotors;
 
@@ -42,9 +53,12 @@ int set_power3(MotorsAll3 * MotorsAll3, int * powers){
 
 	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
 
-	for(int i =0;i<NUMBER_OF_MOTORS;i++){
-
+	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+		#ifdef __arm__
+		PCA9685_setPWM_1(MotorsAll3->motors, i, powers[i]);
+		#endif
 	}
+
 	pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
 }
 

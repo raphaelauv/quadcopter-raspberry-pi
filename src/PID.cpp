@@ -98,8 +98,10 @@ float batteryVoltage=0;
 
 int getFiltredBatteryValue(){
 
-
+	#ifdef __arm__
 	batteryVoltage=hardwareReadADC(DEFAULT_CHANNEL_ADCNUM);
+	#endif
+
 	if(batteryVoltage==-1){
 		return -1;
 	}
