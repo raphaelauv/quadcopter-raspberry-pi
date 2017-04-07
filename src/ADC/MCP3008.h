@@ -29,8 +29,6 @@ typedef struct MCP3008 {
 int initMCP3008(MCP3008 ** mcp,int clockpin, int mosipin, int misopin, int cspin);
 int softwareReadADC(MCP3008 * mcp, int adcnum);
 
-
-
 //HARDWARE
 #define BATTERY_DECALAGE 0.5
 #define CENVERTION_TO_VOLT 0.01

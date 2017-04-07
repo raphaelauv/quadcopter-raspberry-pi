@@ -1,6 +1,6 @@
 #include "client.h"
 
-int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController){
+int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController,volatile sig_atomic_t * boolStopClient){
 
 
 	* argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
@@ -14,7 +14,7 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 		logString("MALLOC FAIL : argClient->boolStopClient");
 		return -1;
 	}
-	*(*argClient)->boolStopClient=0;
+	(*argClient)->boolStopClient=boolStopClient;
 
 	(*argClient)->adresse=adresse;
 

@@ -26,7 +26,10 @@
 #include <inttypes.h>
 #include "I2C_custom.h"
 
+#ifdef __arm__
+#include <wiringPi.h>
 #include <wiringPiI2C.h>
+#endif
 
 #include "../log.h"
 
@@ -58,6 +61,7 @@
 
 typedef struct PCA9685 {
 	I2C_custom *i2c;
+	int WiringPiI2C_fd;
 } PCA9685;
 	
 

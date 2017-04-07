@@ -38,6 +38,13 @@ int initPCA9685(PCA9685 ** pca,int bus, int address){
 	}
 
 	#ifdef __arm__
+
+	(*pca)->WiringPiI2C_fd=wiringPiI2CSetup(address);
+	if((*pca)->WiringPiI2C_fd<0){
+		logString("wiringPiI2CSetup FAIL : PCA9685");
+		return -1;
+	}
+
 	I2C_custom * i2c_c;
 	if(initI2C_custom(&i2c_c,bus,address)){
 		return -1;
@@ -79,7 +86,6 @@ int PCA9685_reset(PCA9685 *pca) {
  */
 int PCA9685_setPWMFreq(PCA9685 *pca,int freq) {
 
-
 		uint8_t prescale_val = (CLOCK_FREQ / 4096 / freq)  - 1;
 		int result=0;
 		result+=I2C_custom_write_byte(pca->i2c,MODE1, 0x10); //sleep
@@ -112,21 +118,24 @@ int PCA9685_setPWM_2(PCA9685 *pca,uint8_t led, int on_value, int off_value) {
 
 		int result=0;
 
-		/*
+		/* NOT WORKING
 		uint8_t val0=on_value & 0xFF;
 		uint8_t val1=on_value >> 8;
 		uint8_t val2=off_value & 0xFF;
 		uint8_t val3=off_value >> 8;
-
 		uint8_t size=4;
 		uint8_t address_Array[size]={LED0_ON_L + LED_MULTIPLYER,LED0_ON_H + LED_MULTIPLYER,LED0_OFF_L + LED_MULTIPLYER,LED0_OFF_H + LED_MULTIPLYER};
 		uint8_t data_Array[size]={val0,val1,val2,val3};
-
-
 		result=I2C_custom_write_multiple_byte(pca->i2c,address_Array,data_Array,size);
 		*/
 
-		//wiringPiI2CWriteReg8()
+		/*
+		result+=wiringPiI2CWriteReg8(pca->WiringPiI2C_fd,LED0_ON_L + LED_MULTIPLYER * (led - 1), on_value & 0xFF);
+		result+=wiringPiI2CWriteReg8(pca->WiringPiI2C_fd,LED0_ON_H + LED_MULTIPLYER * (led - 1), on_value >> 8);
+		result+=wiringPiI2CWriteReg8(pca->WiringPiI2C_fd,LED0_OFF_L + LED_MULTIPLYER * (led - 1), off_value & 0xFF);
+		result+=wiringPiI2CWriteReg8(pca->WiringPiI2C_fd,LED0_OFF_H + LED_MULTIPLYER * (led - 1), off_value >> 8);
+		*/
+
 		result+=I2C_custom_write_byte(pca->i2c,LED0_ON_L + LED_MULTIPLYER * (led - 1), on_value & 0xFF);
 		result+=I2C_custom_write_byte(pca->i2c,LED0_ON_H + LED_MULTIPLYER * (led - 1), on_value >> 8);
 		result+=I2C_custom_write_byte(pca->i2c,LED0_OFF_L + LED_MULTIPLYER * (led - 1), off_value & 0xFF);

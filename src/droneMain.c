@@ -22,7 +22,7 @@ void drone_stopAll(){
 
 void handler_SIGINT_Drone(int i){
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
-	drone_stopAll();//TODO pas de prise de mutex dans signal
+	drone_stopAll();
 }
 
 int main (int argc, char *argv[]){
@@ -103,6 +103,7 @@ int main (int argc, char *argv[]){
 	if (!isNoControl()) {
 		if ((re = pthread_join(threadServer, NULL)) > 0) {
 			logString("THREAD MAIN : ERROR pthread_join SERVER");
+			stopNetworkServ();
 			return EXIT_FAILURE;
 		}
 	}

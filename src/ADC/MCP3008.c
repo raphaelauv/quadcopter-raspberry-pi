@@ -1,4 +1,3 @@
-//#include "Arduino.h"
 #include "MCP3008.h"
 
 unsigned char send[3]={0x18,0x00,0x00};
@@ -8,14 +7,12 @@ int initHardwareADC(int adcnum){
 	#ifdef __arm__
 	if(wiringPiSPISetup (adcnum, 300000)==-1){
 		logString("initHardwareADC - wiringPiSPIDataRW FAIL\n");
-		//printf("ERROR");
         return -1;
     }
 	#endif
 
 	#ifdef __arm__
 	if(!wiringPiSPIDataRW (adcnum, send, 3)){
-
 		logString("initHardwareADC - wiringPiSPIDataRW FAIL\n");
 		return -1;
 	}

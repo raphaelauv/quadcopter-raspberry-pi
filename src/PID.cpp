@@ -97,11 +97,9 @@ float batteryValue=0;
 float batteryTMPVALUE=0;
 float batteryVoltage=0;
 
-int getFiltredBatteryValue(){
+int applyFiltreBatteryValue(){
 
-	#ifdef __arm__
 	batteryVoltage=hardwareReadADC(DEFAULT_CHANNEL_ADCNUM);
-	#endif
 
 	if(batteryVoltage==-1){
 		return -1;
@@ -242,7 +240,10 @@ void * thread_PID(void * args){
     /*				BATTERY INIT VALUE						*/
 
     for(int i=0;i<FREQUENCY_PID;i++){
-		getFiltredBatteryValue(); //TODO test return value
+    	if(applyFiltreBatteryValue()){
+    		logString("THREAD PID : ERROR BATTERY VALUE");
+    		//TODO
+    	}
 
     }
     batteryValue=batteryTMPVALUE;
@@ -312,7 +313,10 @@ void * thread_PID(void * args){
 			batteryValue=batteryTMPVALUE;
 			iterBattery=0;
 		}
-		getFiltredBatteryValue(); //TODO test return value
+		if(applyFiltreBatteryValue()){
+			logString("THREAD PID : ERROR BATTERY VALUE");
+			//TODO
+		}
 
 		#ifdef __arm__
         if(imu->IMURead()){

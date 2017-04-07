@@ -1,15 +1,15 @@
 #include "client.h"
 #include "Controller/controller.h"
 
-volatile int * boolStopClient=NULL;
+volatile sig_atomic_t boolStopClient;
 
 void stopNetworkClient(){
-	*boolStopClient=1;
+	boolStopClient=1;
 }
 
 void handler_SIGINT_client(int i){
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
-	boolStopClient==NULL ? exit(EXIT_FAILURE) : stopNetworkClient();
+	stopNetworkClient();
 }
 
 
@@ -37,11 +37,9 @@ int main (int argc, char *argv[]){
 	}
 
 	args_CLIENT * argClient;	
-	if(init_args_CLIENT(&argClient,adresse,argController)){
+	if(init_args_CLIENT(&argClient,adresse,argController,&boolStopClient)){
 		return EXIT_FAILURE;
 	}
-
-	boolStopClient = argClient->boolStopClient;
 
 	pthread_t threadClient;
 	pthread_t threadController;
