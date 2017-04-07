@@ -15,6 +15,7 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 #include <sched.h>
+#include <signal.h>
 #include <sys/time.h>
 #include <sys/mman.h>
 #include <sys/signal.h>

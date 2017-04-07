@@ -1,6 +1,6 @@
 #include "serv.h"
 
-int init_args_SERVER(args_SERVER ** argServ){
+int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ){
 
 	PMutex * PmutexDataControler = (PMutex *) malloc(sizeof(PMutex));
 	if (PmutexDataControler == NULL) {
@@ -35,14 +35,7 @@ int init_args_SERVER(args_SERVER ** argServ){
 	(*argServ)->pmutexRemoteConnect = PmutexRemoteConnect;
 	(*argServ)->dataController = dataControl;
 
-	(*argServ)->boolStopServ =(volatile int *) malloc(sizeof(int));
-	if ((*argServ)->boolStopServ == NULL) {
-		logString("MALLOC FAIL : argServ->boolStopServ");
-		return -1;
-	}
-	*(*argServ)->boolStopServ=0;
-
-
+	(*argServ)->boolStopServ=boolStopServ;
 
 	int sock;
 	struct sockaddr_in adr_svr;

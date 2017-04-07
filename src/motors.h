@@ -14,9 +14,10 @@ typedef struct MotorsAll3 {
 	PCA9685 * motors;
 	PMutex * MutexSetValues;
 	int motorStop;
+	volatile sig_atomic_t * boolMotorStop;
 } MotorsAll3;
 
-int init_MotorsAll3(MotorsAll3 ** motorsAll3);
+int init_MotorsAll3(MotorsAll3 ** motorsAll3,volatile sig_atomic_t * boolMotorStop);
 int set_power3(MotorsAll3 * MotorsAll3, int * powers);
 void setMotorStop(MotorsAll3 * MotorsAll3);
 int isMotorStop(MotorsAll3 * MotorsAll3);

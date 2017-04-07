@@ -3,20 +3,15 @@
 #include "PID.hpp"
 #include "Calibration/calibrate.h"
 
-MotorsAll3 * GlobalMotorAll=NULL;
-volatile int * boolStopServ=NULL;
-
+volatile sig_atomic_t boolStopMotor;
+volatile sig_atomic_t boolStopServ;
 
 void stopMotor() {
-	if (GlobalMotorAll != NULL) {
-		setMotorStop(GlobalMotorAll);
-	}
+	boolStopMotor=1;
 }
 
 void stopNetworkServ(){
-	if(boolStopServ!=NULL){
-		*boolStopServ=1;
-	}
+	boolStopServ=1;
 }
 
 void drone_stopAll(){
@@ -46,17 +41,16 @@ int main (int argc, char *argv[]){
 		readIpAdresse(myIP, 64);
 	}
 
+
 	args_SERVER * argServ;
-	if(init_args_SERVER(&argServ)){
+	if(init_args_SERVER(&argServ,&boolStopServ)){
 		return EXIT_FAILURE;
 	}
-	boolStopServ = argServ->boolStopServ;
 
 	MotorsAll3 * motorsAll3;
-	if (init_MotorsAll3(&motorsAll3)) {
+	if (init_MotorsAll3(&motorsAll3,&boolStopMotor)) {
 		return EXIT_FAILURE;
 	}
-	GlobalMotorAll=motorsAll3;
 
 	args_PID * argPID;
 	if (init_args_PID(&argPID,argServ->dataController,motorsAll3)) {

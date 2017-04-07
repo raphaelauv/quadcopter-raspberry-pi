@@ -1,6 +1,6 @@
 #include "motors.h"
 
-int init_MotorsAll3(MotorsAll3 ** motorsAll3){
+int init_MotorsAll3(MotorsAll3 ** motorsAll3 , volatile sig_atomic_t * boolStopMotor){
 
 	*motorsAll3 = (MotorsAll3 *) malloc(sizeof(MotorsAll3));
 	if (*motorsAll3 == NULL) {
@@ -21,9 +21,9 @@ int init_MotorsAll3(MotorsAll3 ** motorsAll3){
 	}
 	init_PMutex(mutexValues);
 
-	(*motorsAll3)->MutexSetValues=mutexValues;
 
-	(*motorsAll3)->motorStop=0;
+	(*motorsAll3)->boolMotorStop=boolStopMotor;
+	(*motorsAll3)->MutexSetValues=mutexValues;
 
 	#ifdef __arm__
 	PCA9685_setPWM_1(pcaMotors,1, MOTOR_LOW_TIME);
@@ -50,16 +50,23 @@ void clean_MotorsAll3(MotorsAll3 * arg) {
 
 int set_power3(MotorsAll3 * MotorsAll3, int * powers){
 
+	int result=0;
+
 	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
 
-	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+	result= (MotorsAll3->motorStop);
+	if(result==0){
 
-		#ifdef __arm__
-		PCA9685_setPWM_1(MotorsAll3->motors, i + MINIMUM_LED_VALUE, powers[i]);
-		#endif
+		for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+
+				#ifdef __arm__
+				PCA9685_setPWM_1(MotorsAll3->motors, i + MINIMUM_LED_VALUE, powers[i]);
+				#endif
+			}
 	}
-
 	pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
+
+	return result;
 }
 
 void setMotorStop(MotorsAll3 * MotorsAll3){
@@ -78,9 +85,19 @@ void setMotorStop(MotorsAll3 * MotorsAll3){
 
 int isMotorStop(MotorsAll3 * MotorsAll3){
 
-	int value;
-	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
-	value= MotorsAll3->motorStop;
-	pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
-	return value;
+	//first look to glabal signal value
+	int value = *(MotorsAll3->boolMotorStop);
+	if(value){
+		pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
+		MotorsAll3->motorStop=1;
+		pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
+		return value;
+
+	//secondly look to the atomic value
+	}else{
+		pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
+		value=MotorsAll3->motorStop;
+		pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
+		return value;
+	}
 }

@@ -13,13 +13,14 @@ extern "C" {
 typedef struct args_SERVER {
 	char verbose;
 	int sock;
-	volatile int * boolStopServ;
+	volatile sig_atomic_t * boolStopServ;
+
 	PMutex * pmutexRemoteConnect;
 	DataController * dataController;
 
 } args_SERVER;
 
-int init_args_SERVER(args_SERVER ** argServ);
+int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ);
 void clean_args_SERVER(args_SERVER * arg);
 
 void *thread_UDP_SERVER(void *args);
