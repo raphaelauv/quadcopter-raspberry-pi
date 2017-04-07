@@ -4,18 +4,10 @@
 volatile sig_atomic_t boolStopClient;
 volatile sig_atomic_t boolStopController;
 
-void stopNetworkClient(){
-	boolStopClient=1;
-}
-
-void stopController(){
-	boolStopController=1;
-}
-
 void handler_SIGINT_client(int i){
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
-	stopNetworkClient();
-	stopController();
+	boolStopClient=1;
+	boolStopController=1;
 }
 
 
@@ -85,7 +77,6 @@ int main(int argc, char *argv[]){
 				return EXIT_FAILURE;
 			}
 	}
-
 
 	clean_args_CLIENT(argClient);
 	clean_args_CONTROLLER(argController);

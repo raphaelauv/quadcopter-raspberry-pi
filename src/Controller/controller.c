@@ -18,9 +18,7 @@ int is_Controller_Stop(args_CONTROLLER * argControler){
 	//first look to glabal signal value
 	int value=*(argControler->boolStopController);
 	if(value){
-		pthread_mutex_lock(&argControler->pmutexReadDataController->mutex);
-		argControler->controllerStop=1;
-		pthread_mutex_unlock(&argControler->pmutexReadDataController->mutex);
+		set_Controller_Stop(argControler);
 		return value;
 
 	//or look to the atomic value

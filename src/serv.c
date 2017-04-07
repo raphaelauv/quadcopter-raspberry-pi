@@ -1,5 +1,29 @@
 #include "serv.h"
 
+
+
+void set_Serv_Stop(args_SERVER * argServ){
+	pthread_mutex_lock(&argServ->pmutexServ->mutex);
+	argServ->servStop=1;
+	pthread_mutex_unlock(&argServ->pmutexServ->mutex);
+}
+int is_Serv_Stop(args_SERVER * argServ){
+
+	//first look to glabal signal value
+	int value=*(argServ->boolStopServ);
+	if(value){
+		set_Serv_Stop(argServ);
+		return value;
+
+	//or look to the atomic value
+	}else{
+		pthread_mutex_lock(&argServ->pmutexServ->mutex);
+		value=argServ->servStop;
+		pthread_mutex_unlock(&argServ->pmutexServ->mutex);
+		return value;
+	}
+}
+
 int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ){
 
 	PMutex * PmutexDataControler = (PMutex *) malloc(sizeof(PMutex));
@@ -18,7 +42,6 @@ int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ
 	dataControl->pmutex=PmutexDataControler;
 	dataControl->flag=2;
 
-
 	PMutex * PmutexRemoteConnect = (PMutex *) malloc(sizeof(PMutex));
 	if(PmutexRemoteConnect==NULL){
 		logString("MALLOC FAIL : PmutexRemoteConnect");
@@ -36,6 +59,16 @@ int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ
 	(*argServ)->dataController = dataControl;
 
 	(*argServ)->boolStopServ=boolStopServ;
+
+
+	(*argServ)->servStop=0;
+	PMutex * mutex = (PMutex *) malloc(sizeof(PMutex));
+	if (mutex == NULL) {
+		logString("MALLOC FAIL : barrier");
+		return -1;
+	}
+	init_PMutex(mutex);
+	(*argServ)->pmutexServ=mutex;
 
 	int sock;
 	struct sockaddr_in adr_svr;
@@ -62,6 +95,7 @@ int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ
 void clean_args_SERVER(args_SERVER * arg) {
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutexRemoteConnect);
+		clean_PMutex(arg->pmutexServ);
 		free(arg);
 		arg=NULL;
 	}

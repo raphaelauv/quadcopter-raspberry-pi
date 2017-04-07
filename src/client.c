@@ -18,7 +18,7 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 	(*argClient)->argController=argController;
 	(*argClient)->boolStopClient=boolStopClient;
 
-
+	(*argClient)->clientStop=0;
 	PMutex * mutex = (PMutex *) malloc(sizeof(PMutex));
 	if (mutex == NULL) {
 		logString("MALLOC FAIL : barrier");
@@ -98,9 +98,7 @@ int is_Client_Stop(args_CLIENT * argClient){
 	//first look to glabal signal value
 	int value=*(argClient->boolStopClient);
 	if(value){
-		pthread_mutex_lock(&argClient->pmutexClient->mutex);
-		argClient->clientStop=1;
-		pthread_mutex_unlock(&argClient->pmutexClient->mutex);
+		set_Client_Stop(argClient);
 		return value;
 
 	//or look to the atomic value
@@ -282,7 +280,7 @@ void *thread_UDP_CLIENT(void *args) {
 			}
 		}
 
-		if((*(argClient->boolStopClient))){
+		if(is_Client_Stop(argClient)){//TODO double prise de mutex
 			argClient->argController->manette->flag=0;
 		}
 

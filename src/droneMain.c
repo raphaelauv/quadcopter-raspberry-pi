@@ -6,23 +6,11 @@
 volatile sig_atomic_t boolStopMotor;
 volatile sig_atomic_t boolStopServ;
 
-void stopMotor() {
-	boolStopMotor=1;
-}
-
-void stopNetworkServ(){
-	boolStopServ=1;
-}
-
-void drone_stopAll(){
-	stopMotor();
-	stopNetworkServ();
-}
-
 
 void handler_SIGINT_Drone(int i){
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
-	drone_stopAll();
+	boolStopServ=1;
+	boolStopMotor=1;
 }
 
 int main (int argc, char *argv[]){
@@ -40,6 +28,7 @@ int main (int argc, char *argv[]){
 	if (isIpSound()) {	
 		readIpAdresse(myIP, 64);
 	}
+
 
 
 	args_SERVER * argServ;
@@ -76,7 +65,7 @@ int main (int argc, char *argv[]){
 	}
 
 	if(init_thread_PID(&threadPID,threadPID_stack_buf,argPID)){
-		stopNetworkServ();
+		set_Serv_Stop(argServ);
 		return EXIT_FAILURE;
 	}
 
@@ -85,7 +74,8 @@ int main (int argc, char *argv[]){
 	 */
 	if (isCalibration()) {
 		calibrate_ESC(motorsAll3, isVerbose());
-		drone_stopAll();
+		set_Motor_Stop(motorsAll3);
+		set_Serv_Stop(argServ);
 	}
 
 
@@ -95,7 +85,8 @@ int main (int argc, char *argv[]){
 
 	if (pthread_join(threadPID, (void**) &returnValue)) {
 		logString("THREAD MAIN : ERROR pthread_join PID");
-		drone_stopAll();
+		set_Motor_Stop(motorsAll3);
+		set_Serv_Stop(argServ);
 		return EXIT_FAILURE;
 	}
 
@@ -103,7 +94,7 @@ int main (int argc, char *argv[]){
 	if (!isNoControl()) {
 		if ((re = pthread_join(threadServer, NULL)) > 0) {
 			logString("THREAD MAIN : ERROR pthread_join SERVER");
-			stopNetworkServ();
+			set_Serv_Stop(argServ);
 			return EXIT_FAILURE;
 		}
 	}
