@@ -39,7 +39,7 @@ int initPCA9685(PCA9685 ** pca,int bus, int address){
 
 	#ifdef __arm__
 
-	(*pca)->WiringPiI2C_fd=wiringPiI2CSetup(address);
+	(*pca)->WiringPiI2C_fd=wiringPiI2CSetup(bus);
 	if((*pca)->WiringPiI2C_fd<0){
 		logString("wiringPiI2CSetup FAIL : PCA9685");
 		return -1;

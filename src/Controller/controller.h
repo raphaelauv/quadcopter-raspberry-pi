@@ -9,18 +9,22 @@
 
 typedef struct args_CONTROLLER {
 	char verbose;
-	volatile int endController;
+	int controllerStop;
 	volatile int newThing;
 	DataController * manette;
 	PMutex * pmutexReadDataController;
 	PMutex * pmutexControllerPlug;
+	volatile sig_atomic_t * boolStopController;
 } args_CONTROLLER;
 
 
-void *thread_CONTROLLER(void *args);
 
-void control( args_CONTROLLER * argsControl);
-int init_args_CONTROLLER(args_CONTROLLER ** argControler);
+void set_Controller_Stop(args_CONTROLLER * argControler);
+int is_Controller_Stop(args_CONTROLLER * argControler);
+
+
+void *thread_CONTROLLER(void *args);
+int init_args_CONTROLLER(args_CONTROLLER ** argControler,volatile sig_atomic_t * boolStopController);
 void clean_args_CONTROLLER(args_CONTROLLER * arg);
 
 

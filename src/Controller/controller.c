@@ -1,13 +1,38 @@
 #include "controller.h"
 
 
-void signalControllerReady(args_CONTROLLER * argsControl){
-
+void signalController(args_CONTROLLER * argsControl){
 	pthread_mutex_lock(&argsControl->pmutexControllerPlug->mutex);
 	pthread_cond_signal(&argsControl->pmutexControllerPlug->condition);
 	pthread_mutex_unlock(&argsControl->pmutexControllerPlug->mutex);
 
 }
+
+void set_Controller_Stop(args_CONTROLLER * argControler){
+	pthread_mutex_lock(&argControler->pmutexReadDataController->mutex);
+	argControler->controllerStop=1;
+	pthread_mutex_unlock(&argControler->pmutexReadDataController->mutex);
+}
+
+int is_Controller_Stop(args_CONTROLLER * argControler){
+	//first look to glabal signal value
+	int value=*(argControler->boolStopController);
+	if(value){
+		pthread_mutex_lock(&argControler->pmutexReadDataController->mutex);
+		argControler->controllerStop=1;
+		pthread_mutex_unlock(&argControler->pmutexReadDataController->mutex);
+		return value;
+
+	//or look to the atomic value
+	}else{
+		pthread_mutex_lock(&argControler->pmutexReadDataController->mutex);
+		value=argControler->controllerStop;
+		pthread_mutex_unlock(&argControler->pmutexReadDataController->mutex);
+		return value;
+	}
+}
+
+void control(args_CONTROLLER * argsControl);
 
 void *thread_CONTROLLER(void *args) {
 
@@ -15,16 +40,14 @@ void *thread_CONTROLLER(void *args) {
 
 	control( argController);
 
-	argController->endController=1;
-
-	signalControllerReady(argController);
+	signalController(argController);
 
 	logString("THREAD CONTROLLER : END");
 
 	return NULL;
 }
 
-int init_args_CONTROLLER(args_CONTROLLER ** argController){
+int init_args_CONTROLLER(args_CONTROLLER ** argController,volatile sig_atomic_t * boolStopController){
 
 	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
 	if (pmutexControllerPlug == NULL) {
@@ -47,7 +70,7 @@ int init_args_CONTROLLER(args_CONTROLLER ** argController){
 		return EXIT_FAILURE;
 	}
 	(*argController)->newThing=0;
-	(*argController)->endController=0;
+	(*argController)->controllerStop=0;
 	(*argController)->manette=(DataController *) malloc(sizeof( DataController));
 	if ((*argController)->manette == NULL) {
 		logString("MALLOC FAIL : argController->manette");
@@ -58,9 +81,10 @@ int init_args_CONTROLLER(args_CONTROLLER ** argController){
 	(*argController)->manette->axe_LeftRight=0;
 	(*argController)->manette->axe_Rotation=0;
 	(*argController)->manette->axe_UpDown=0;
-
 	(*argController)->pmutexReadDataController=pmutexRead;
 	(*argController)->pmutexControllerPlug=pmutexControllerPlug;
+
+	(*argController)->boolStopController=boolStopController;
 
 	return 0;
 }
@@ -156,7 +180,7 @@ void control(args_CONTROLLER * argsControl) {
 	float tmpM0, tmpM1, tmpM2, tmpM3;
 	while (!quitter) {
 
-		if(argsControl->endController==1){
+		if(is_Controller_Stop(argsControl)){
 			quitter=1;
 			break;
 		}
@@ -244,7 +268,7 @@ void control(args_CONTROLLER * argsControl) {
 				updateEvent(&input);
 			}
 			sleep(1);
-			signalControllerReady(argsControl);
+			signalController(argsControl);
 		}
 
 

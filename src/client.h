@@ -9,18 +9,19 @@ typedef struct args_CLIENT {
 	char verbose;
 	int sock;
 	char * adresse;
-	//volatile int * boolStopClient;
+	int clientStop;
+	PMutex * pmutexClient;
 	volatile sig_atomic_t * boolStopClient;
-	PMutex * pmutex;
 	struct sockaddr_in * adr_client;
 	args_CONTROLLER * argController;
 } args_CLIENT;
 
+
 int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController,volatile sig_atomic_t * boolStopClient);
 void clean_args_CLIENT(args_CLIENT * arg);
 
-void dataControllerToMessage(int sizeFloat,char * output,DataController * dataController);
-void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWithInfo);
+void set_Client_Stop(args_CLIENT * argClient);
+int is_Client_Stop(args_CLIENT * argClient);
 
 void *thread_UDP_CLIENT(void *args);
 

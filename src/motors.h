@@ -19,8 +19,8 @@ typedef struct MotorsAll3 {
 
 int init_MotorsAll3(MotorsAll3 ** motorsAll3,volatile sig_atomic_t * boolMotorStop);
 int set_power3(MotorsAll3 * MotorsAll3, int * powers);
-void setMotorStop(MotorsAll3 * MotorsAll3);
-int isMotorStop(MotorsAll3 * MotorsAll3);
+void set_Motor_Stop(MotorsAll3 * MotorsAll3);
+int is_Motor_Stop(MotorsAll3 * MotorsAll3);
 void clean_MotorsAll3(MotorsAll3 * arg);
 
 #endif

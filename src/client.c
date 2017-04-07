@@ -1,5 +1,10 @@
 #include "client.h"
 
+
+void dataControllerToMessage(int sizeFloat,char * output,DataController * dataController);
+void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWithInfo);
+
+
 int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController,volatile sig_atomic_t * boolStopClient){
 
 
@@ -9,17 +14,19 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 		return EXIT_FAILURE;
 	}
 
-	(*argClient)->boolStopClient =(volatile int *) malloc(sizeof(int));
-	if ((*argClient)->boolStopClient == NULL) {
-		logString("MALLOC FAIL : argClient->boolStopClient");
-		return -1;
-	}
+	(*argClient)->adresse=adresse;
+	(*argClient)->argController=argController;
 	(*argClient)->boolStopClient=boolStopClient;
 
-	(*argClient)->adresse=adresse;
 
+	PMutex * mutex = (PMutex *) malloc(sizeof(PMutex));
+	if (mutex == NULL) {
+		logString("MALLOC FAIL : barrier");
+		return -1;
+	}
+	init_PMutex(mutex);
 
-	(*argClient)->argController=argController;
+	(*argClient)->pmutexClient=mutex;
 
 	int sock;
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
@@ -74,13 +81,36 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 
 void clean_args_CLIENT(args_CLIENT * arg) {
 	if (arg != NULL) {
-		clean_PMutex(arg->pmutex);
+		clean_PMutex(arg->pmutexClient);
 		//clean_args_CONTROLER(arg->argControler);
 		free(arg);
 		arg = NULL;
 	}
 }
 
+
+void set_Client_Stop(args_CLIENT * argClient){
+	pthread_mutex_lock(&argClient->pmutexClient->mutex);
+	argClient->clientStop=1;
+	pthread_mutex_unlock(&argClient->pmutexClient->mutex);
+}
+int is_Client_Stop(args_CLIENT * argClient){
+	//first look to glabal signal value
+	int value=*(argClient->boolStopClient);
+	if(value){
+		pthread_mutex_lock(&argClient->pmutexClient->mutex);
+		argClient->clientStop=1;
+		pthread_mutex_unlock(&argClient->pmutexClient->mutex);
+		return value;
+
+	//or look to the atomic value
+	}else{
+		pthread_mutex_lock(&argClient->pmutexClient->mutex);
+		value=argClient->clientStop;
+		pthread_mutex_unlock(&argClient->pmutexClient->mutex);
+		return value;
+	}
+}
 
 void dataControllerToMessage(int sizeFloat,char * output,DataController * dataController){
 
@@ -172,7 +202,6 @@ int testCloseDrone(int sock,struct sockaddr_in * adr_client , char * message) {
 				return -1;
 			}
 			usleep(1000000);//TODO
-			//UsleepDuration(1000000);//TODO
 		}
 	}
 	return 0;
@@ -225,6 +254,8 @@ void *thread_UDP_CLIENT(void *args) {
 	int flag;
 	char messageReceve[SIZE_SOCKET_MESSAGE];
 	int resultMessageReceve=0;
+
+	int TMPvalueClientStop=0;
 	while (runClient) {
 
 

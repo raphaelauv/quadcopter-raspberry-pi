@@ -69,7 +69,7 @@ int set_power3(MotorsAll3 * MotorsAll3, int * powers){
 	return result;
 }
 
-void setMotorStop(MotorsAll3 * MotorsAll3){
+void set_Motor_Stop(MotorsAll3 * MotorsAll3){
 
 	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
 	MotorsAll3->motorStop=1;
@@ -83,7 +83,7 @@ void setMotorStop(MotorsAll3 * MotorsAll3){
 	set_power3(MotorsAll3,tabMin);
 }
 
-int isMotorStop(MotorsAll3 * MotorsAll3){
+int is_Motor_Stop(MotorsAll3 * MotorsAll3){
 
 	//first look to glabal signal value
 	int value = *(MotorsAll3->boolMotorStop);
@@ -93,7 +93,7 @@ int isMotorStop(MotorsAll3 * MotorsAll3){
 		pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
 		return value;
 
-	//secondly look to the atomic value
+	//or look to the atomic value
 	}else{
 		pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
 		value=MotorsAll3->motorStop;

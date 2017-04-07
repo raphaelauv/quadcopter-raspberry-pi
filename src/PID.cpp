@@ -219,11 +219,11 @@ void * thread_PID(void * args){
     	tmpFlag=data->flag;
     	pthread_mutex_unlock(&(mutexDataControler->mutex));
 		if (tmpFlag == 0) {
-			setMotorStop(controle_vol->motorsAll3);
+			set_Motor_Stop(controle_vol->motorsAll3);
 			continuThread = 0;
 			break;
 		}
-		if (isMotorStop(controle_vol->motorsAll3)) {
+		if (is_Motor_Stop(controle_vol->motorsAll3)) {
 			continuThread = 0;
 			continue;
 		}
@@ -269,7 +269,7 @@ void * thread_PID(void * args){
         gettimeofday(&tv, NULL);
         timeUsecStart= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
 
-        if(isMotorStop(controle_vol->motorsAll3)){
+        if(is_Motor_Stop(controle_vol->motorsAll3)){
         	continuThread = 0;
         	continue;
         }
@@ -282,7 +282,7 @@ void * thread_PID(void * args){
             pthread_mutex_lock(&(mutexDataControler->mutex));
             if (data->flag== 0) {
                 pthread_mutex_unlock(&(mutexDataControler->mutex));
-                setMotorStop(controle_vol->motorsAll3);
+                set_Motor_Stop(controle_vol->motorsAll3);
                 continuThread = 0;
                 continue;
             }

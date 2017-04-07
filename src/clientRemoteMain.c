@@ -2,18 +2,24 @@
 #include "Controller/controller.h"
 
 volatile sig_atomic_t boolStopClient;
+volatile sig_atomic_t boolStopController;
 
 void stopNetworkClient(){
 	boolStopClient=1;
 }
 
+void stopController(){
+	boolStopController=1;
+}
+
 void handler_SIGINT_client(int i){
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
 	stopNetworkClient();
+	stopController();
 }
 
 
-int main (int argc, char *argv[]){
+int main(int argc, char *argv[]){
 
 	init_mask(handler_SIGINT_client);
 
@@ -32,7 +38,7 @@ int main (int argc, char *argv[]){
 	logString(array);
 
 	args_CONTROLLER * argController;
-	if(init_args_CONTROLLER(&argController)){
+	if(init_args_CONTROLLER(&argController,&boolStopController)){
 		return EXIT_FAILURE;
 	}
 
@@ -58,7 +64,7 @@ int main (int argc, char *argv[]){
 
 	pthread_mutex_unlock(&argController->pmutexControllerPlug->mutex);
 
-	if((argController->endController)!=1){
+	if(is_Controller_Stop(argController)==0){
 
 			//CONTROLER IS ON , we can start the client socket thread
 			if (pthread_create(&threadClient, NULL, thread_UDP_CLIENT, argClient)) {
@@ -68,11 +74,11 @@ int main (int argc, char *argv[]){
 
 			if (pthread_join(threadClient, NULL)) {
 				logString("THREAD MAIN : ERROR pthread_join thread_UDP_CLIENT");
-				stopNetworkClient();
+				set_Client_Stop(argClient);
 				return EXIT_FAILURE;
 			}
 
-			argController->endController=1;
+			set_Controller_Stop(argController);
 
 			if (pthread_join(threadController, NULL)) {
 				logString("THREAD MAIN : ERROR pthread_join CONTROLER");
