@@ -38,6 +38,8 @@ void *thread_CONTROLLER(void *args) {
 
 	control( argController);
 
+	set_Controller_Stop(argController);
+
 	signalController(argController);
 
 	logString("THREAD CONTROLLER : END");

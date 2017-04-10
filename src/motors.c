@@ -56,7 +56,7 @@ int set_power3(MotorsAll3 * MotorsAll3, int * powers){
 
 	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
 
-	result= (MotorsAll3->motorStop);
+	//result= (MotorsAll3->motorStop);
 	if(result==0){
 
 		for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
@@ -79,7 +79,7 @@ void set_Motor_Stop(MotorsAll3 * MotorsAll3){
 
 	int tabMin[NUMBER_OF_MOTORS];
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
-		tabMin[i] = 0;
+		tabMin[i] = MOTOR_LOW_TIME;
 	}
 
 	set_power3(MotorsAll3,tabMin);

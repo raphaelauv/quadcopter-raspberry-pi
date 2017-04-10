@@ -60,14 +60,11 @@ int main (int argc, char *argv[]){
 		pthread_cond_wait(&argServ->pmutexRemoteConnect->condition, &argServ->pmutexRemoteConnect->mutex);
 
 		pthread_mutex_unlock(&argServ->pmutexRemoteConnect->mutex);
-	}
 
-	/* TODO
-	if(is_Serv_Stop(argServ)){
-		return EXIT_FAILURE;
-
+		if (is_Serv_Stop(argServ)) {
+			return EXIT_FAILURE;
+		}
 	}
-	*/
 
 	if(init_thread_PID(&threadPID,threadPID_stack_buf,argPID)){
 		set_Serv_Stop(argServ);

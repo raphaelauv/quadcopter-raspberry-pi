@@ -246,7 +246,6 @@ void * thread_PID(void * args){
 		}
 
     	else{
-			//usleep(USEC_TO_SEC / PID_SLEEP_VERIF_FREQUENCY);
 			nanoSleepSecure(nanoSleepTimeInterval);
 		}
     }
@@ -426,10 +425,7 @@ void * thread_PID(void * args){
         	sprintf(arrayLog,"THREAD PID : TIME : %d\n",local_period-timeBetween);
         	logString(arrayLog);
         }else{
-
-        	//usleep(local_period-timeBetween);
         	nanoSleepSecure( (local_period-timeBetween) * NSEC_TO_USEC_MULTIPLE);
-
         }
     }
     set_Motor_Stop(controle_vol->motorsAll3);

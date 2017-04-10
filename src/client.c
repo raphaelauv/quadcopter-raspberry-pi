@@ -210,6 +210,8 @@ void *thread_UDP_CLIENT(void *args) {
 
 	args_CLIENT * argClient = (args_CLIENT *) args;
 
+	int runClient = 1;
+
 	logString("THREAD CLIENT : START");
 
 	int sock=argClient->sock;
@@ -223,15 +225,19 @@ void *thread_UDP_CLIENT(void *args) {
 	char messageWithInfo[SIZE_SOCKET_MESSAGE];
 
 
-	getIP(myIP);
+	if(getIP(myIP)){
+		logString("THREAD CLIENT : IP error");
+		//TODO
+		runClient=0;
+	}
 	if(myIP!=NULL){//TODO
 		concat(STR_REMOTE,myIP,strPort,messageWithInfo);
 		messageWithInfo[SIZE_SOCKET_MESSAGE-1]='\0';
 
 		if(sendNetwork(sock,adr_client,messageWithInfo)==-1){
 			logString("THREAD CLIENT : SEND NETWORK error");
+			runClient=0;
 			//TODO
-			return (void*)EXIT_FAILURE;
 		}
 
 		//sendto(sock, messageWithInfo,SIZE_SOCKET_MESSAGE, 0, (struct sockaddr *) &adr_svr,sizeof(struct sockaddr_in));
@@ -241,9 +247,12 @@ void *thread_UDP_CLIENT(void *args) {
 
 	}else{
 		//TODO
+		logString("THREAD CLIENT : getIP null");
+		runClient=0;
+		//TODO
 	}
 
-	int runClient = 1;
+
 	const int sizeFLOAT=10;
 	//int sizeMessage=5*sizeFLOAT;
 	char message[SIZE_SOCKET_MESSAGE];
@@ -262,16 +271,18 @@ void *thread_UDP_CLIENT(void *args) {
 
 		int timeInMs=1;
 
-		gettimeofday(&now, NULL);
+		if(gettimeofday(&now, NULL)){
+			logString("THREAD CLIENT : gettimeofday Fail");
+			runClient=0;
+		}
 
 		timeToWait.tv_sec = now.tv_sec + 1;
-		timeToWait.tv_nsec = (now.tv_usec + 1000UL * timeInMs) * 1000UL;
+		timeToWait.tv_nsec = (now.tv_usec + 1000UL * timeInMs) * 1000UL;//TODO le temps mettre dans des macros
 
 
 		pthread_mutex_lock(&argClient->argController->pmutexReadDataController->mutex);
 
 		if(argClient->argController->newThing==0){
-
 			resultWait=pthread_cond_timedwait(&argClient->argController->pmutexReadDataController->condition,
 					&argClient->argController->pmutexReadDataController->mutex,&timeToWait);
 
@@ -297,15 +308,16 @@ void *thread_UDP_CLIENT(void *args) {
 		logString(array);
 
 		if(sendNetwork(sock,adr_client,message)==-1){
-			//TODO ERROR
+			logString("THREAD CLIENT : sendNetwork Fail");
+			runClient=0;
 		}
 		//ARRET
 		if (flag == 0) {
 
 			if (testCloseDrone(sock, adr_client, message)) {
-				logString("THREAD CLIENT :ERROR message STOP from DRONE NOT RECEVE");
+				logString("THREAD CLIENT : ERROR message STOP from DRONE NOT RECEVE");
 			} else {
-				logString("THREAD CLIENT STOP MSG RECEVE FROM DRONE");
+				logString("THREAD CLIENT : STOP MSG RECEVE FROM DRONE");
 			}
 			runClient = 0;
 			continue;
@@ -315,7 +327,7 @@ void *thread_UDP_CLIENT(void *args) {
 		if (recvfrom(sock, messageReceve, SIZE_SOCKET_MESSAGE, 0, NULL, NULL)> 0) {//NON BLOCKING
 
 			if (isMessageStop(messageReceve)) {
-				logString("THREAD CLIENT STOP MSG RECEVE FROM DRONE");
+				logString("THREAD CLIENT : STOP MSG RECEVE FROM DRONE");
 				runClient = 0;
 				continue;
 			}
@@ -330,6 +342,7 @@ void *thread_UDP_CLIENT(void *args) {
 	}
 
 	close(sock);
+	set_Client_Stop(argClient);
 	logString("THREAD CLIENT : END");
 	return NULL;
 }

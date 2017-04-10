@@ -56,7 +56,7 @@ int main(int argc, char *argv[]){
 
 	pthread_mutex_unlock(&argController->pmutexControllerPlug->mutex);
 
-	if(is_Controller_Stop(argController)==0){
+	if(!is_Controller_Stop(argController)){
 
 			//CONTROLER IS ON , we can start the client socket thread
 			if (pthread_create(&threadClient, NULL, thread_UDP_CLIENT, argClient)) {

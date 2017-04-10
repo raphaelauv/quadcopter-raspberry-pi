@@ -272,7 +272,7 @@ void *thread_UDP_SERVER(void *args) {
 	int freqConfirm=(int)FREQUENCY_CONTROLLER;
 
 	
-	while(runServ && !(*(argSERV->boolStopServ))){
+	while(runServ){
 
 		if(is_Serv_Stop(argSERV)){
 			break;
@@ -288,7 +288,6 @@ void *thread_UDP_SERVER(void *args) {
 			if (socketConnectionMade) {
 				logString("THREAD SERV : Timed out");
 				//TODO
-				//fini = 0;
 			}
 
 
@@ -305,6 +304,7 @@ void *thread_UDP_SERVER(void *args) {
 			}
 
 			if(manageNewMessage(argSERV,sock,buff,&cmpNumberMessage,&dataTmp)==0){
+				//flag 0 receve
 				runServ=0;
 			}
 

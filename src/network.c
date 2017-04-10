@@ -234,6 +234,7 @@ int getIP(char*  myIP) {
 		char array[SIZE_MAX_LOG];
 		sprintf(array,"Adresse IP :%s", myIP);
 		logString(array);
+		return 0;
 	}
 
 
