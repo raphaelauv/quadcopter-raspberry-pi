@@ -47,7 +47,7 @@ void calibrate_ESC(MotorsAll3 * motorsAll3,char verbose){
 		printf("THE BATTERY OF ESC NEED TO BE DISCONNECT FIRST ,when it's done : press the key y and ENTER\n");
 		input_test('y');
 	}
-	//set_power2(motors,powerMax);
+	set_power3(motorsAll3,powerMax);
     if(verbose){
     	printf("\nNOW CONNECT THE BATTERY, when it's done : press the key y and ENTER\n");
     	input_test('y');
@@ -57,7 +57,7 @@ void calibrate_ESC(MotorsAll3 * motorsAll3,char verbose){
     	sleep(10);
     	system(SOUND_COMMAND"calibrationStart.mp3");usleep(SOUND_PAUSE_TIME);
     }
-    //set_power2(motors,powerMin);
+    set_power3(motorsAll3,powerMin);
 	if (verbose) {
 		input_test('y');
 		printf("\nCALIBRATION FINISH\n");
