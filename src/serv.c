@@ -274,6 +274,10 @@ void *thread_UDP_SERVER(void *args) {
 	
 	while(runServ && !(*(argSERV->boolStopServ))){
 
+		if(is_Serv_Stop(argSERV)){
+			break;
+		}
+
 		FD_ZERO(&rdfs);
 		FD_SET(sock, &rdfs);
 		tv.tv_sec = UDP_TIME_SEC_TIMER;
