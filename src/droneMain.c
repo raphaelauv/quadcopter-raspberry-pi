@@ -29,8 +29,6 @@ int main (int argc, char *argv[]){
 		readIpAdresse(myIP, 64);
 	}
 
-
-
 	args_SERVER * argServ;
 	if(init_args_SERVER(&argServ,&boolStopServ)){
 		return EXIT_FAILURE;
@@ -63,6 +61,13 @@ int main (int argc, char *argv[]){
 
 		pthread_mutex_unlock(&argServ->pmutexRemoteConnect->mutex);
 	}
+
+	/* TODO
+	if(is_Serv_Stop(argServ)){
+		return EXIT_FAILURE;
+
+	}
+	*/
 
 	if(init_thread_PID(&threadPID,threadPID_stack_buf,argPID)){
 		set_Serv_Stop(argServ);

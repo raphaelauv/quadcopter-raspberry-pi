@@ -33,6 +33,9 @@
 
 #include "../log.h"
 
+#define FLAG_CUSTOM_I2C 1
+#define FLAG_WIRINGII2C 2
+
 // Register Definitions
 #define MODE1 0x00			//Mode  register  1
 #define MODE2 0x01			//Mode  register  2
@@ -64,6 +67,8 @@ typedef struct PCA9685 {
 	int WiringPiI2C_fd;
 } PCA9685;
 	
+
+void setMode_PCA9685(int flag);
 
 int initPCA9685(PCA9685 ** pca,int bus, int address);
 void cleanPCA9685(PCA9685 *pca);

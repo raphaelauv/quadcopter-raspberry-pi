@@ -197,6 +197,24 @@ void * thread_PID(void * args){
 	#endif
     */
 
+
+
+    /*********************************************************/
+    /*				BATTERY INIT VALUE						*/
+
+    for(int i=0;i<FREQUENCY_PID;i++){
+    	if(applyFiltreBatteryValue()){
+    		logString("THREAD PID : ERROR BATTERY VALUE");
+    		//TODO
+    	}
+
+    }
+    batteryValue=batteryTMPVALUE;
+
+    /*********************************************************/
+
+
+
     /*********************************************************/
     /*				START PID SECURITY SLEEP				*/
     int numberOfSecondSleep=0;
@@ -219,7 +237,6 @@ void * thread_PID(void * args){
     	tmpFlag=data->flag;
     	pthread_mutex_unlock(&(mutexDataControler->mutex));
 		if (tmpFlag == 0) {
-			set_Motor_Stop(controle_vol->motorsAll3);
 			continuThread = 0;
 			break;
 		}
@@ -233,21 +250,6 @@ void * thread_PID(void * args){
 			nanoSleepSecure(nanoSleepTimeInterval);
 		}
     }
-    /*********************************************************/
-
-
-    /*********************************************************/
-    /*				BATTERY INIT VALUE						*/
-
-    for(int i=0;i<FREQUENCY_PID;i++){
-    	if(applyFiltreBatteryValue()){
-    		logString("THREAD PID : ERROR BATTERY VALUE");
-    		//TODO
-    	}
-
-    }
-    batteryValue=batteryTMPVALUE;
-
     /*********************************************************/
 
 
@@ -282,28 +284,28 @@ void * thread_PID(void * args){
             pthread_mutex_lock(&(mutexDataControler->mutex));
             if (data->flag== 0) {
                 pthread_mutex_unlock(&(mutexDataControler->mutex));
-                set_Motor_Stop(controle_vol->motorsAll3);
-                continuThread = 0;
-                continue;
+                break;//TODO
+            }else{
+            	mutexDataControler->var = 0;
+				powerController[0] = data->axe_Rotation;
+				powerController[1] = data->axe_UpDown;
+				powerController[2] = data->axe_LeftRight;
+				powerController[3] = data->axe_FrontBack;
+				pthread_mutex_unlock(&(mutexDataControler->mutex));
+
+				/*
+				powerTab[0] =absValue(powerController[0]);
+				powerTab[1] =absValue(powerController[1]);
+				powerTab[2] =absValue(powerController[2]);
+				powerTab[3] =absValue(powerController[3]);
+
+				//printf("VALUES %d %d %d %d\n", powerTab[0],powerTab[1],powerTab[2],powerTab[3]);
+				set_power2(controle_vol->motorsAll2,powerTab);
+				logDataFreq(powerTab,NUMBER_OF_MOTORS);
+				*/
+
             }
             
-            mutexDataControler->var = 0;
-            powerController[0] = data->axe_Rotation;
-            powerController[1] = data->axe_UpDown;
-            powerController[2] = data->axe_LeftRight;
-            powerController[3] = data->axe_FrontBack;
-            pthread_mutex_unlock(&(mutexDataControler->mutex));
-            
-            /*
-            powerTab[0] =absValue(powerController[0]);
-            powerTab[1] =absValue(powerController[1]);
-            powerTab[2] =absValue(powerController[2]);
-            powerTab[3] =absValue(powerController[3]);
-
-            //printf("VALUES %d %d %d %d\n", powerTab[0],powerTab[1],powerTab[2],powerTab[3]);
-            set_power2(controle_vol->motorsAll2,powerTab);
-            logDataFreq(powerTab,NUMBER_OF_MOTORS);
-			*/
         }
 
         /*********************************************************/
@@ -430,6 +432,7 @@ void * thread_PID(void * args){
 
         }
     }
+    set_Motor_Stop(controle_vol->motorsAll3);
     logString("THREAD PID : END");
     return NULL;
 }

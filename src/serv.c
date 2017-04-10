@@ -332,6 +332,7 @@ void *thread_UDP_SERVER(void *args) {
 
 	close(sock);
 
+	set_Serv_Stop(argSERV);
 	//unlock Main
 	unlockWaitMain(argSERV);
 

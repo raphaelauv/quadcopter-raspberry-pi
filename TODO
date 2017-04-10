@@ -10,6 +10,7 @@ Reste a faire :
 	-Lancement du script au boot du Raspberry 80%
 	
 	-Corriger code calibration 90%
+	-Remettre a zero le PWD quand fermeture
 	-comparer lib I2C avec WinringPiI2C
 	-Souder montage pour Valeur Battery
 

@@ -8,6 +8,8 @@ int init_MotorsAll3(MotorsAll3 ** motorsAll3 , volatile sig_atomic_t * boolStopM
 		return -1;
 	}
 
+	setMode_PCA9685(FLAG_CUSTOM_I2C);
+
 	PCA9685 * pcaMotors;
 	if (initPCA9685(&pcaMotors, CHANNEL_I2C, 0x40)) {
 		logString("initPCA9685 FAIL");
