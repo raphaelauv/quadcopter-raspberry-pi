@@ -25,17 +25,6 @@ int init_PMutex(PMutex * arg) {
 	if (arg != NULL) {
 		arg->mutex = (pthread_mutex_t )PTHREAD_MUTEX_INITIALIZER;
 		arg->condition = (pthread_cond_t )PTHREAD_COND_INITIALIZER;
-
-		/*
-		arg->var =(volatile int *) malloc(sizeof(int));
-		if (arg->var == NULL) {
-			logString("MALLOC FAIL : init_PMutex->var");
-			return -1;
-		}
-		*arg->var=0;
-
-		*/
-
 		arg->var=0;
 	}else{
 		logString("PMutex not yet malloc\n");

@@ -56,16 +56,19 @@ int set_power3(MotorsAll3 * MotorsAll3, int * powers){
 
 	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
 
-	//result= (MotorsAll3->motorStop);
-	if(result==0){
+	result= (MotorsAll3->motorStop);
 
-		for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 
-				#ifdef __arm__
-				PCA9685_setPWM_1(MotorsAll3->motors, i + MINIMUM_LED_VALUE, powers[i]);
-				#endif
-			}
+		#ifdef __arm__
+		if(result==0){
+			PCA9685_setPWM_1(MotorsAll3->motors, i + MINIMUM_LED_VALUE, powers[i]);
+		}else{
+			PCA9685_setPWM_1(MotorsAll3->motors, i + MINIMUM_LED_VALUE, 0);
+		}
+		#endif
 	}
+
 	pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
 
 	return result;
@@ -76,13 +79,19 @@ void set_Motor_Stop(MotorsAll3 * MotorsAll3){
 	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
 	MotorsAll3->motorStop=1;
 	pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
+	set_power3(MotorsAll3,NULL);
 
+
+	//TODO -> to delete
+	/* 
 	int tabMin[NUMBER_OF_MOTORS];
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 		tabMin[i] = MOTOR_LOW_TIME;
 	}
 
 	set_power3(MotorsAll3,tabMin);
+	*/
+	
 }
 
 int is_Motor_Stop(MotorsAll3 * MotorsAll3){
