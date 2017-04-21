@@ -16,3 +16,5 @@ Reste a faire :
 
 	-Tester decharge de la batterie
 
+
+	-remplacer les gettimeofday par des clock_gettime 

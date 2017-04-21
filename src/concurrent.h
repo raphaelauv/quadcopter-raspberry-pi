@@ -45,6 +45,9 @@ void init_mask(void (*functionPtr)(int));
 
 #define NSEC_TO_SEC USEC_TO_SEC * 1000 //nanosecond
 
+#define MSEC_TO_NSEC 1000 * 1000
+
+#define SEC_TO_NSEC 1000 * 1000 * 1000
 
 #define CPU_CORE_PID 1
 #define CPU_CORE_MOTOR 0

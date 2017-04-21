@@ -25,6 +25,7 @@ int init_MotorsAll3(MotorsAll3 ** motorsAll3 , volatile sig_atomic_t * boolStopM
 
 
 	(*motorsAll3)->boolMotorStop=boolStopMotor;
+	(*motorsAll3)->motorStop=0;
 	(*motorsAll3)->MutexSetValues=mutexValues;
 
 	#ifdef __arm__
@@ -33,6 +34,7 @@ int init_MotorsAll3(MotorsAll3 ** motorsAll3 , volatile sig_atomic_t * boolStopM
 	PCA9685_setPWM_1(pcaMotors,3, MOTOR_LOW_TIME);
 	PCA9685_setPWM_1(pcaMotors,4, MOTOR_LOW_TIME);
 	#endif
+
 
 	(*motorsAll3)->motors=pcaMotors;
 

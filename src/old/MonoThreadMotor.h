@@ -39,18 +39,20 @@
 /* ONE THREAD SOLUTION */
 
 typedef struct MotorsAll2 {
-	volatile int * bool_arret_moteur;
+	volatile sig_atomic_t * boolMotorStop;
 	PMutex * MutexSetValues;
+	int motorStop;
 	int broche[NUMBER_OF_MOTORS];
 	int high_time[NUMBER_OF_MOTORS];
 } MotorsAll2;
 
-int init_MotorsAll2(MotorsAll2 ** motorsAll2);
-void clean_MotorsAll2(MotorsAll2 * arg);
+
+int init_MotorsAll2(MotorsAll2 ** motorsAll2,volatile sig_atomic_t * boolMotorStop);
 int init_thread_startMotorAll2(pthread_t * pthread,void * threadMotor2_stack_buf,MotorsAll2 * motorsAll2);
 int set_power2(MotorsAll2 * MotorsAll2, int * powers);
-void setMotorStop(MotorsAll2 * MotorsAll2);
-int isMotorStop(MotorsAll2 * MotorsAll2);
+void set_Motor_Stop(MotorsAll2 * MotorsAll2);
+int is_Motor_Stop(MotorsAll2 * MotorsAll2);
+void clean_MotorsAll2(MotorsAll2 * arg);
 
 #endif
 
