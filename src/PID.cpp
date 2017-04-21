@@ -133,19 +133,29 @@ void * thread_PID(void * args){
     //Consigne client
     float client_gaz = MOTOR_LOW_TIME + 50;
     float client_pitch = 0;
+    float client_roll=0;
+    float client_yaw=0;
+    
     //input PID
     float input_pid_pitch;
-    
+    float input_pid_roll;
+    float input_pid_yaw;
     //PID
     float output_pid_pitch = 0;
+    float output_pid_roll = 0;
+    float output_pid_yaw = 0;
     //erreur des PID
     float pid_erreur_tmp_pitch = 0;
-    
+    float pid_erreur_tmp_roll = 0;
+    float pid_erreur_tmp_yaw = 0;
     //erreur accu
     float pid_accu_erreur_pitch = 0;
-    
+    float pid_accu_erreur_roll = 0;
+    float pid_accu_erreur_yaw = 0;
     //last erreur
     float pid_last_pitch = 0;
+    float pid_last_roll = 0;
+    float pid_last_yaw = 0;
     
     // puissance des 4 moteur. (en microseconde)
     int puissance_motor0 = MOTOR_LOW_TIME;
@@ -249,7 +259,7 @@ void * thread_PID(void * args){
 			nanoSleepSecure(nanoSleepTimeInterval);
 		}
     }
-    /*********************************************************/
+    /****************END SECURITY SLEEP*************************/
 
 
     struct timeval tv;
@@ -318,11 +328,13 @@ void * thread_PID(void * args){
 			logString("THREAD PID : ERROR BATTERY VALUE");
 			//TODO
 		}
-
+        /************************END BATTERIE****************************/
+        
 		#ifdef __arm__
         if(imu->IMURead()){
         	readSensorSucces=1;
         }else{
+            printf("Capteur fail read.\n");
         	readSensorSucces=0;
         }
 		#endif
@@ -331,8 +343,12 @@ void * thread_PID(void * args){
 			#ifdef __arm__
             imuData = imu->getIMUData();
 			#endif
-            //input PID
-            input_pid_pitch=(input_pid_pitch*0.7) + ((imuData.gyro.y()-gyro_cal[1])*(180/M_PI)*0.3);
+            /*********************************************************/
+            /*					PID                                  */
+            
+            input_pid_pitch=(input_pid_pitch*0.7) + ((imuData.gyro.x()-gyro_cal[0])*(180/M_PI)*0.3);
+            input_pid_roll=(input_pid_pitch*0.7) + ((imuData.gyro.y()-gyro_cal[1])*(180/M_PI)*0.3);
+            input_pid_yaw=(input_pid_pitch*0.7) + ((imuData.gyro.z()-gyro_cal[2])*(180/M_PI)*0.3);
             
             if(powerController[1]>=0){
                 client_gaz=(powerController[1]*7)+1100;
@@ -341,14 +357,23 @@ void * thread_PID(void * args){
                 client_gaz=1100;
             }
             
-            client_pitch=powerController[2] * PID_ANGLE_PRECISION_MULTIPLE;
-
-            log_angle=imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE;
-
+            client_pitch=powerController[3] * PID_ANGLE_PRECISION_MULTIPLE;
+            client_roll=powerController[2] * PID_ANGLE_PRECISION_MULTIPLE;
+            client_yaw=powerController[1] * PID_ANGLE_PRECISION_MULTIPLE;
+            
+            log_angle=imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE;
+            
 
             client_pitch-= log_angle * PID_ANGLE_MULTIPLE;
-
             client_pitch/=3;
+            
+            //TODO mettre les log des axe Y et Z
+            client_roll-=(imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE)*PID_ANGLE_MULTIPLE;
+            client_roll/=3;
+            
+            client_yaw/=3;
+            
+            
 
             //calcule pitch PID
             pid_erreur_tmp_pitch=input_pid_pitch-client_pitch;
@@ -369,10 +394,56 @@ void * thread_PID(void * args){
                 output_pid_pitch=-PID_MAX_PITCH;
             }
             pid_last_pitch=pid_erreur_tmp_pitch;
+            //END PID PITCH
+            
+            //calcule roll PID
+            pid_erreur_tmp_roll=input_pid_roll-client_roll;
+            pid_accu_erreur_roll+=PID_GAIN_I_ROLL*pid_erreur_tmp_roll;
+            if (pid_accu_erreur_roll>PID_MAX_ROLL) {
+                pid_accu_erreur_roll=PID_MAX_ROLL;
+            }
+            else if (pid_accu_erreur_roll < -PID_MAX_ROLL){
+                pid_accu_erreur_roll=-PID_MAX_ROLL;
+            }
+            
+            output_pid_roll=PID_GAIN_P_ROLL*pid_erreur_tmp_roll+pid_accu_erreur_roll+PID_GAIN_D_ROLL*(pid_erreur_tmp_roll-pid_last_roll);
+
+            if (output_pid_roll>PID_MAX_ROLL) {
+                output_pid_roll=PID_MAX_ROLL;
+            }
+            else if (output_pid_roll < -PID_MAX_ROLL){
+                output_pid_roll=-PID_MAX_ROLL;
+            }
+            
+            pid_last_roll=pid_erreur_tmp_roll;
+            //END PID ROLL
+            
+            //PID YAW
+            pid_erreur_tmp_yaw=input_pid_yaw-client_yaw;
+            pid_accu_erreur_yaw+=PID_GAIN_I_YAW*pid_erreur_tmp_yaw;
+            
+            if (pid_accu_erreur_yaw>PID_MAX_YAW) {
+                pid_accu_erreur_yaw=PID_MAX_YAW;
+            }
+            else if (pid_accu_erreur_yaw < -PID_MAX_YAW){
+                pid_accu_erreur_yaw=-PID_MAX_YAW;
+            }
+            
+            output_pid_yaw=PID_GAIN_P_YAW*pid_erreur_tmp_yaw+pid_accu_erreur_yaw;
+            
+            if (output_pid_yaw>PID_MAX_YAW) {
+                output_pid_yaw=PID_MAX_YAW;
+            }
+            else if (output_pid_yaw < -PID_MAX_YAW){
+                output_pid_yaw=-PID_MAX_YAW;
+            }
             
             
-            puissance_motor0=client_gaz + output_pid_pitch;
-            puissance_motor1=client_gaz - output_pid_pitch;
+            
+            puissance_motor0=client_gaz  - output_pid_pitch + output_pid_roll - output_pid_yaw;
+            puissance_motor1=client_gaz + output_pid_pitch + output_pid_roll + output_pid_yaw;
+            puissance_motor2=client_gaz + output_pid_pitch - output_pid_roll - output_pid_yaw;
+            puissance_motor3=client_gaz - output_pid_pitch - output_pid_roll + output_pid_yaw;
             
             //Pour jamais mettre a l'arret les moteur.
             if(puissance_motor0<MOTOR_MIN_ROTATE_TIME) puissance_motor0=MOTOR_MIN_ROTATE_TIME;
@@ -386,13 +457,27 @@ void * thread_PID(void * args){
             if(puissance_motor2>MOTOR_HIGH_TIME) puissance_motor2=MOTOR_HIGH_TIME;
             if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
             
+            
+            
             powerTab[0] = puissance_motor0;
             powerTab[1] = puissance_motor1;
-            powerTab[2] = 1000;
-            powerTab[3] = 1000;
+            powerTab[2] = puissance_motor2;
+            powerTab[3] = puissance_motor3;
+            
             //powerTab[2] = puissance_motor2;
             //powerTab[3] = puissance_motor3;
-
+            
+            if(isCalibration()){
+            	//nothing to apply because we are in a calibrate mode execution
+            }else{
+            	set_power3(controle_vol->motorsAll3,powerTab);
+            }
+            
+             /**********************END PID******************************/
+            
+            
+            /*********************************************************/
+            /*					LOG                                */
             logTab[0]=powerTab[0];
             logTab[1]=powerTab[1];
             logTab[2]=powerTab[2];
@@ -401,13 +486,10 @@ void * thread_PID(void * args){
             logTab[5]=(int)output_pid_pitch;
             logTab[6]=(int)log_angle;
             logTab[7]=(int)(batteryValue*100);//TODO
-
-            if(isCalibration()){
-            	//nothing to apply because we are in a calibrate mode execution
-            }else{
-            	set_power3(controle_vol->motorsAll3,powerTab);
-            }
+            
             logDataFreq(logTab,nb_values_log);
+            /**************************END LOG***************************/
+            
 
         }
 
