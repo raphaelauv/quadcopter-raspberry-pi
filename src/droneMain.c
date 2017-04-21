@@ -54,6 +54,7 @@ int main (int argc, char *argv[]){
 
 		if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {
 			logString("THREAD MAIN : pthread_create SERVER\n");
+			set_Motor_Stop(motorsAll3);
 			return EXIT_FAILURE;
 		}
 
@@ -68,6 +69,7 @@ int main (int argc, char *argv[]){
 
 	if(init_thread_PID(&threadPID,threadPID_stack_buf,argPID)){
 		set_Serv_Stop(argServ);
+		set_Motor_Stop(motorsAll3);
 		return EXIT_FAILURE;
 	}
 

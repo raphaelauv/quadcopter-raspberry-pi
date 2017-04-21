@@ -127,7 +127,7 @@ void * thread_PID(void * args){
     	powerController[i]=0;
     }
 
-    long local_period=(1.0/FREQUENCY_MOTOR) *SEC_TO_NSEC;
+    long local_period=(1.0/FREQUENCY_PID) *SEC_TO_NSEC;
     //int local_period=(1.0/FREQUENCY_PID)*USEC_TO_SEC;
     
     
@@ -508,25 +508,31 @@ void * thread_PID(void * args){
         timeBetween=timeUsecEnd - timeUsecStart;
         */
         clock_gettime(CLOCK_MONOTONIC, &t1);
-        double timeSec= ((double)t1.tv_sec - t0.tv_sec);
-        
-        if(timeSec!=0){
-			logString("THREAD PID : ERROR PERIODE TOO SLOW , MORE THAN 1 SEC");
-        }else{
-			long timeBetween=t1.tv_nsec - t0.tv_nsec;
-			tim.tv_sec = 0;
-			tim.tv_nsec = local_period - timeBetween ;
-			if(timeBetween<0){
-
-			}
-			else if(timeBetween>=local_period){
-				sprintf(arrayLog,"THREAD PID : TIME : %ld\n",local_period-timeBetween);
-				logString(arrayLog);
-			}else{
-				//nanoSleepSecure( (local_period-timeBetween) * NSEC_TO_USEC_MULTIPLE);
-				clock_nanosleep(CLOCK_MONOTONIC,0,&tim,NULL);
-			}
+        long timeBetween=t1.tv_nsec - t0.tv_nsec;
+        time_t timeSec= t1.tv_sec - t0.tv_sec;
+        if(timeSec>0){
+        	timeSec *=SEC_TO_NSEC;
+        	timeBetween+=timeSec;
         }
+
+        //printf("TOTO\n");
+
+		//logString("THREAD PID : ERROR PERIODE TOO SLOW");
+
+
+		tim.tv_sec = 0;
+		tim.tv_nsec = local_period - timeBetween ;
+		if(timeBetween<0){
+
+		}
+		else if(timeBetween>=local_period){
+			sprintf(arrayLog,"THREAD PID : TIME : %ld\n",local_period-timeBetween);
+			logString(arrayLog);
+		}else{
+			//nanoSleepSecure( (local_period-timeBetween) * NSEC_TO_USEC_MULTIPLE);
+			clock_nanosleep(CLOCK_MONOTONIC,0,&tim,NULL);
+		}
+
     }
     set_Motor_Stop(controle_vol->motorsAll3);
     logString("THREAD PID : END");
