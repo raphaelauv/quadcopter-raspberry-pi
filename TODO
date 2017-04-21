@@ -15,6 +15,10 @@ Reste a faire :
 	-Souder montage pour Valeur Battery
 
 	-Tester decharge de la batterie
+<<<<<<< HEAD
 
 
 	-remplacer les gettimeofday par des clock_gettime 
+	-Doit t’on faire la calibration du gyroscope?
+	-faire le log sur les autre axe(roll and yaw.)
+

@@ -1,4 +1,15 @@
-* <017-03-22>
+* <2017-04-19>
+** Fait:
+   - intégrer la puissance de la batterie
+   - changement de communication hardware (passage de I2C à SPI)
+     et usage d'un DAC
+** À faire:
+   - Passer à 4 moteurs
+   - Finalement le montage
+   - Calibrer le tout
+   - Ne pas mourrir
+
+* <2017-03-22>
 ** Fait:
 ** À faire:
    - intégrer la puissance de la batterie dans les calculs

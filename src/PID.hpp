@@ -18,6 +18,17 @@
 #define PID_MAX_PITCH 400
 /*1.5, 0.002 220*/
 
+//PID roll
+#define PID_GAIN_P_ROLL 1.3
+#define PID_GAIN_I_ROLL 0.002
+#define PID_GAIN_D_ROLL 30
+#define PID_MAX_ROLL 400
+
+//PID yaw
+#define PID_GAIN_P_YAW 1.3
+#define PID_GAIN_I_YAW 0.002
+#define PID_MAX_YAW 400
+
 #define MAX_CONTROLLER_VALUE 100
 #define PID_MAX_ANGLE 35
 #define PID_ANGLE_PRECISION_MULTIPLE 5
