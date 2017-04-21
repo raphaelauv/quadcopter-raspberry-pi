@@ -127,7 +127,8 @@ void * thread_PID(void * args){
     	powerController[i]=0;
     }
 
-    int local_period=(1.0/FREQUENCY_PID)*USEC_TO_SEC;
+    long local_period=(1.0/FREQUENCY_MOTOR) *SEC_TO_NSEC;
+    //int local_period=(1.0/FREQUENCY_PID)*USEC_TO_SEC;
     
     
     //Consigne client
@@ -275,10 +276,14 @@ void * thread_PID(void * args){
     if(continuThread){
     	logString("THREAD PID : START");
     }
+
+    struct timespec t0, t1 ,tim;
+
     while (continuThread) {
 
-        gettimeofday(&tv, NULL);
-        timeUsecStart= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
+    	clock_gettime(CLOCK_MONOTONIC, &t0);
+        //gettimeofday(&tv, NULL);
+        //timeUsecStart= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
 
         if(is_Motor_Stop(controle_vol->motorsAll3)){
         	continuThread = 0;
@@ -497,17 +502,30 @@ void * thread_PID(void * args){
         /*********************************************************/
         /*			CODE FOR SLEEP PID FREQUENCY				*/
         
+        /*
         gettimeofday(&tv, NULL);
         timeUsecEnd= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
         timeBetween=timeUsecEnd - timeUsecStart;
+        */
+        clock_gettime(CLOCK_MONOTONIC, &t1);
+        double timeSec= ((double)t1.tv_sec - t0.tv_sec);
         
-        if(timeBetween<0){
-        }
-        else if(timeBetween>=local_period){
-        	sprintf(arrayLog,"THREAD PID : TIME : %d\n",local_period-timeBetween);
-        	logString(arrayLog);
+        if(timeSec!=0){
+			logString("THREAD PID : ERROR PERIODE TOO SLOW , MORE THAN 1 SEC");
         }else{
-        	nanoSleepSecure( (local_period-timeBetween) * NSEC_TO_USEC_MULTIPLE);
+			long timeBetween=t1.tv_nsec - t0.tv_nsec;
+			tim.tv_sec = 0;
+			tim.tv_nsec = local_period - timeBetween ;
+			if(timeBetween<0){
+
+			}
+			else if(timeBetween>=local_period){
+				sprintf(arrayLog,"THREAD PID : TIME : %ld\n",local_period-timeBetween);
+				logString(arrayLog);
+			}else{
+				//nanoSleepSecure( (local_period-timeBetween) * NSEC_TO_USEC_MULTIPLE);
+				clock_nanosleep(CLOCK_MONOTONIC,0,&tim,NULL);
+			}
         }
     }
     set_Motor_Stop(controle_vol->motorsAll3);
