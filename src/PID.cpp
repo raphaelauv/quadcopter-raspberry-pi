@@ -364,7 +364,7 @@ void * thread_PID(void * args){
             
             client_pitch=powerController[3] * PID_ANGLE_PRECISION_MULTIPLE;
             client_roll=powerController[2] * PID_ANGLE_PRECISION_MULTIPLE;
-            client_yaw=powerController[1] * PID_ANGLE_PRECISION_MULTIPLE;
+            client_yaw=powerController[0] * PID_ANGLE_PRECISION_MULTIPLE;
             
             log_angle=imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE;
             
