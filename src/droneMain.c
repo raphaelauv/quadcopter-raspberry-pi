@@ -53,7 +53,7 @@ int main (int argc, char *argv[]){
 		pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
 
 		if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {
-			logString("THREAD MAIN : pthread_create SERVER\n");
+			logString("THREAD MAIN : ERROR pthread_create SERVER\n");
 			set_Motor_Stop(motorsAll3);
 			return EXIT_FAILURE;
 		}
@@ -68,8 +68,9 @@ int main (int argc, char *argv[]){
 	}
 
 	if(init_thread_PID(&threadPID,threadPID_stack_buf,argPID)){
-		set_Serv_Stop(argServ);
+		logString("THREAD MAIN : ERROR pthread_create PID\n");
 		set_Motor_Stop(motorsAll3);
+		set_Serv_Stop(argServ);
 		return EXIT_FAILURE;
 	}
 
@@ -98,6 +99,7 @@ int main (int argc, char *argv[]){
 	if (!isNoControl()) {
 		if ((re = pthread_join(threadServer, NULL)) > 0) {
 			logString("THREAD MAIN : ERROR pthread_join SERVER");
+			set_Motor_Stop(motorsAll3);
 			set_Serv_Stop(argServ);
 			return EXIT_FAILURE;
 		}

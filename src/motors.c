@@ -45,10 +45,9 @@ int init_MotorsAll3(MotorsAll3 ** motorsAll3 , volatile sig_atomic_t * boolStopM
 
 void clean_MotorsAll3(MotorsAll3 * arg) {
 	if (arg != NULL) {
-		clean_PMutex(arg->MutexSetValues);
 		cleanPCA9685(arg->motors);
+		clean_PMutex(arg->MutexSetValues);
 		free(arg);
-		arg = NULL;
 	}
 }
 

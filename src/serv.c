@@ -97,7 +97,6 @@ void clean_args_SERVER(args_SERVER * arg) {
 		clean_PMutex(arg->pmutexRemoteConnect);
 		clean_PMutex(arg->pmutexServ);
 		free(arg);
-		arg=NULL;
 	}
 }
 

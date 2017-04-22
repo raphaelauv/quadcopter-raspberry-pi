@@ -46,7 +46,6 @@ void clean_args_PID(args_PID * arg) {
         }
 #endif
         free(arg);
-        arg = NULL;
     }
 }
 

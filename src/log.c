@@ -1,6 +1,5 @@
 #include "log.h"
 
-//int verbose_or_log=0;
 
 int LOG_verbose_ON=0;
 int LOG_file_ON=0;
@@ -17,10 +16,17 @@ int idFileLog=-1;
 int idFileData=-1;
 
 void closeLogFile(){
+
 	if(idFileLog!=-1){
+		fsync(idFileLog);
 		close(idFileLog);
 		idFileLog=-1;
-		//verbose_or_log=FLAG_VAL_VERBOSE;
+	}
+
+	if(idFileData!=-1){
+		fsync(idFileData);
+		close(idFileData);
+		idFileData=-1;
 	}
 }
 
@@ -40,9 +46,9 @@ void setLogFileName(char * str ,int flag){
 		tmp++;
 	}
 	if(flag==FLAG_LOG_FILE){
-		sprintf(str,"LOG_%s.%09ld_%d",buff, ts.tv_nsec,getpid());
+		sprintf(str,"LOG_%s_(%09ld-%d)",buff, ts.tv_nsec,getpid());
 	}else if(flag==FLAG_LOG_DATA){
-		sprintf(str,"DATA_%s.%09ld_%d",buff, ts.tv_nsec,getpid());
+		sprintf(str,"DATA_%s_(%09ld-%d)",buff, ts.tv_nsec,getpid());
 	}
 
 }
@@ -124,13 +130,11 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 		else if (strcmp(argvv, OPTION_VERBOSE) == 0) {
 			printf("verbose ON, ");
 			LOG_verbose_ON=1;
-			//verbose_or_log = FLAG_VAL_VERBOSE;
 
 		} else if (strcmp(argvv, OPTION_LOG) == 0) {
 
 			printf("logFile ON, ");
 			LOG_file_ON=1;
-			//verbose_or_log = FLAG_VAL_FILE;
 
 			char array[100];
 			setLogFileName(array,FLAG_LOG_FILE);
@@ -301,6 +305,8 @@ int setDataStringTitle(char * titles){
 int lastDataIndex=0;
 
 int logDataFreq(int * arrayLog,int size){
+
+	if(idFileData==-1){return -1;}
 
 	if(size>NB_VALUES_TO_LOG){return -1;}
 

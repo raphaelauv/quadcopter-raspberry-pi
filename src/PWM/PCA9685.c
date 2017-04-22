@@ -78,10 +78,11 @@ int initPCA9685(PCA9685 ** pca,int bus, int address){
 
 void cleanPCA9685(PCA9685 *pca){
 	if(pca!=NULL){
+		#ifdef __arm__
 		cleanI2C_custom(pca->i2c);
+		#endif
+		free(pca);
 	}
-	free(pca);
-	pca = NULL;
 }
 
 //! Sets PCA9685 mode to 00

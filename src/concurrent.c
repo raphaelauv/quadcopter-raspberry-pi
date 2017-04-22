@@ -38,7 +38,6 @@ void clean_PMutex(PMutex * arg) {
 		pthread_mutex_destroy(&arg->mutex);
 		pthread_cond_destroy(&arg->condition);
 		free(arg);
-		arg=NULL;
 	}
 }
 
