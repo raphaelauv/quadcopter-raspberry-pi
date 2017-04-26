@@ -12,8 +12,7 @@
 #include <wiringPi.h>
 #endif
 
-#include <stdarg.h>
-#include "concurrent.h"
+#include "../concurrent.h"
 
 #define TIME_LATENCY 5
 
@@ -38,21 +37,21 @@
 /**********************************************************************/
 /* ONE THREAD SOLUTION */
 
-typedef struct MotorsAll2 {
+typedef struct MotorsAll {
 	volatile sig_atomic_t * boolMotorStop;
 	PMutex * MutexSetValues;
 	int motorStop;
 	int broche[NUMBER_OF_MOTORS];
 	int high_time[NUMBER_OF_MOTORS];
-} MotorsAll2;
+} MotorsAll;
 
 
-int init_MotorsAll2(MotorsAll2 ** motorsAll2,volatile sig_atomic_t * boolMotorStop);
-int init_thread_startMotorAll2(pthread_t * pthread,void * threadMotor2_stack_buf,MotorsAll2 * motorsAll2);
-int set_power2(MotorsAll2 * MotorsAll2, int * powers);
-void set_Motor_Stop(MotorsAll2 * MotorsAll2);
-int is_Motor_Stop(MotorsAll2 * MotorsAll2);
-void clean_MotorsAll2(MotorsAll2 * arg);
+int init_MotorsAll(MotorsAll ** motorsAll2,volatile sig_atomic_t * boolMotorStop);
+int init_thread_startMotorAll(pthread_t * pthread,void * threadMotor2_stack_buf,MotorsAll * motorsAll2);
+int set_power(MotorsAll * MotorsAll2, int * powers);
+void set_Motor_Stop(MotorsAll * MotorsAll2);
+int is_Motor_Stop(MotorsAll * MotorsAll2);
+void clean_MotorsAll(MotorsAll * arg);
 
 #endif
 
@@ -60,14 +59,14 @@ void clean_MotorsAll2(MotorsAll2 * arg);
 /*
  Exemple of Use of API motor2
 
- MotorsAll2 * motorsAll2;
- if (init_MotorsAll2(&motorsAll2)) {
+ MotorsAll * motorsAll2;
+ if (init_MotorsAll(&motorsAll2)) {
  return EXIT_FAILURE;
  }
 
  void *threadMotor2_stack_buf=NULL;
 
- if(init_thread_startMotorAll2(&threadMotor2,threadMotor2_stack_buf,motorsAll2)){
+ if(init_thread_startMotorAll(&threadMotor2,threadMotor2_stack_buf,motorsAll2)){
  drone_stopAll();
  return EXIT_FAILURE;
  }

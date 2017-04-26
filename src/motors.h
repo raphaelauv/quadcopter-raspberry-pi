@@ -10,17 +10,17 @@
 #define NUMBER_OF_MOTORS 4
 
 
-typedef struct MotorsAll3 {
+typedef struct MotorsAll {
 	PCA9685 * motors;
 	PMutex * MutexSetValues;
 	int motorStop;
 	volatile sig_atomic_t * boolMotorStop;
-} MotorsAll3;
+} MotorsAll;
 
-int init_MotorsAll3(MotorsAll3 ** motorsAll3,volatile sig_atomic_t * boolMotorStop);
-int set_power3(MotorsAll3 * MotorsAll3, int * powers);
-void set_Motor_Stop(MotorsAll3 * MotorsAll3);
-int is_Motor_Stop(MotorsAll3 * MotorsAll3);
-void clean_MotorsAll3(MotorsAll3 * arg);
+int init_MotorsAll(MotorsAll ** motorsAll3,volatile sig_atomic_t * boolMotorStop);
+int set_power(MotorsAll * MotorsAll3, int * powers);
+void set_Motor_Stop(MotorsAll * MotorsAll3);
+int is_Motor_Stop(MotorsAll * MotorsAll3);
+void clean_MotorsAll(MotorsAll * arg);
 
 #endif

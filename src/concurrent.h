@@ -59,7 +59,6 @@ void init_mask(void (*functionPtr)(int));
 
 
 typedef struct PMutex {
-	//volatile int * var;
 	int var;
 	pthread_mutex_t mutex;
 	pthread_cond_t condition;

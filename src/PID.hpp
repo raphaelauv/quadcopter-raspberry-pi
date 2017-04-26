@@ -3,10 +3,13 @@
 
 #include "concurrent.h"
 #include "motors.h"
-//#include "RTIMULib/RTIMULib.h"
+//#include "old/MonoThreadMotor.h"
 #include "sensor.hpp"
-//#include "Calibrage/Calibration_ESC.h"
 #include "ADC/MCP3008.h"
+
+//#include "RTIMULib/RTIMULib.h"
+//#include "Calibrage/Calibration_ESC.h"
+
 
 #define PID_SLEEP_TIME_SECURITE 10
 #define PID_SLEEP_VERIF_FREQUENCY 20
@@ -36,13 +39,13 @@
 #define PID_ANGLE_MULTIPLE ( MAX_CONTROLLER_VALUE * PID_ANGLE_PRECISION_MULTIPLE ) / PID_MAX_ANGLE
 
 typedef struct args_PID {
-	MotorsAll3 * motorsAll3;
+	MotorsAll * motorsAll3;
 	DataController * dataController;
 	RTIMU * imu; //	RTIMU *
 
 } args_PID;
 
-int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll3 * motorsAll3);
+int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * motorsAll3);
 int init_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * argPID);
 void clean_args_PID(args_PID * arg);
 
