@@ -5,20 +5,10 @@ Reste a faire :
 
 	-Un schema des branchement du drone					(Andres)
 	-Monter le drone(90%)
-	-Test d’equilibrage avec la manette					(Andres)
-	-Filtre de Kalman (Barometre + accel) 				(Andres + ?)
 	-Lancement du script au boot du Raspberry 80%
-	
-	-Corriger code calibration 90%
-	-Remettre a zero le PWD quand fermeture
 	-comparer lib I2C avec WinringPiI2C
-	-Souder montage pour Valeur Battery
-
 	-Tester decharge de la batterie
-<<<<<<< HEAD
-
-
-	-remplacer les gettimeofday par des clock_gettime 
+	-Faire compensation Batterie dans PID
 	-Doit t’on faire la calibration du gyroscope?
 	-faire le log sur les autre axe(roll and yaw.)
 
