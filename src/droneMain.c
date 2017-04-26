@@ -1,5 +1,6 @@
 #include "serv.h"
 #include "motors.h"
+//#include "old/MonoThreadMotor.h"
 #include "PID.hpp"
 #include "Calibration/calibrate.h"
 
@@ -34,8 +35,8 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	MotorsAll3 * motorsAll3;
-	if (init_MotorsAll3(&motorsAll3,&boolStopMotor)) {
+	MotorsAll * motorsAll3;
+	if (init_MotorsAll(&motorsAll3,&boolStopMotor)) {
 		return EXIT_FAILURE;
 	}
 
@@ -116,4 +117,5 @@ int main (int argc, char *argv[]){
 	logString("THREAD MAIN : END");
 	closeLogFile();
 	return EXIT_SUCCESS;
+
 }

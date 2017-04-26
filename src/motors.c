@@ -1,8 +1,8 @@
 #include "motors.h"
 
-int init_MotorsAll3(MotorsAll3 ** motorsAll3 , volatile sig_atomic_t * boolStopMotor){
+int init_MotorsAll(MotorsAll ** motorsAll3 , volatile sig_atomic_t * boolStopMotor){
 
-	*motorsAll3 = (MotorsAll3 *) malloc(sizeof(MotorsAll3));
+	*motorsAll3 = (MotorsAll *) malloc(sizeof(MotorsAll));
 	if (*motorsAll3 == NULL) {
 		logString("MALLOC FAIL : motorsAll");
 		return -1;
@@ -43,7 +43,7 @@ int init_MotorsAll3(MotorsAll3 ** motorsAll3 , volatile sig_atomic_t * boolStopM
 }
 
 
-void clean_MotorsAll3(MotorsAll3 * arg) {
+void clean_MotorsAll(MotorsAll * arg) {
 	if (arg != NULL) {
 		cleanPCA9685(arg->motors);
 		clean_PMutex(arg->MutexSetValues);
@@ -51,7 +51,7 @@ void clean_MotorsAll3(MotorsAll3 * arg) {
 	}
 }
 
-int set_power3(MotorsAll3 * MotorsAll3, int * powers){
+int set_power(MotorsAll * MotorsAll3, int * powers){
 
 	int result=0;
 
@@ -75,12 +75,12 @@ int set_power3(MotorsAll3 * MotorsAll3, int * powers){
 	return result;
 }
 
-void set_Motor_Stop(MotorsAll3 * MotorsAll3){
+void set_Motor_Stop(MotorsAll * MotorsAll3){
 
 	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
 	MotorsAll3->motorStop=1;
 	pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
-	set_power3(MotorsAll3,NULL);
+	set_power(MotorsAll3,NULL);
 
 
 	//TODO -> to delete
@@ -95,7 +95,7 @@ void set_Motor_Stop(MotorsAll3 * MotorsAll3){
 	
 }
 
-int is_Motor_Stop(MotorsAll3 * MotorsAll3){
+int is_Motor_Stop(MotorsAll * MotorsAll3){
 
 	//first look to glabal signal value
 	int value = *(MotorsAll3->boolMotorStop);

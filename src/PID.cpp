@@ -1,7 +1,7 @@
 #include "PID.hpp"
 
 
-int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll3 * motorsAll3){
+int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * motorsAll3){
     
     *argPID =(args_PID *) malloc(sizeof(args_PID));
     if (*argPID == NULL) {
@@ -36,7 +36,7 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll3 * m
 
 void clean_args_PID(args_PID * arg) {
     if (arg != NULL) {
-        clean_MotorsAll3(arg->motorsAll3);
+        clean_MotorsAll(arg->motorsAll3);
         clean_DataController(arg->dataController);
 
 #ifdef __arm__
@@ -474,7 +474,7 @@ void * thread_PID(void * args){
             if(isCalibration()){
             	//nothing to apply because we are in a calibrate mode execution
             }else{
-            	set_power3(controle_vol->motorsAll3,powerTab);
+            	set_power(controle_vol->motorsAll3,powerTab);
             }
             
              /**********************END PID******************************/
@@ -513,11 +513,6 @@ void * thread_PID(void * args){
         	timeSec *=SEC_TO_NSEC;
         	timeBetween+=timeSec;
         }
-
-        //printf("TOTO\n");
-
-		//logString("THREAD PID : ERROR PERIODE TOO SLOW");
-
 
 		tim.tv_sec = 0;
 		tim.tv_nsec = local_period - timeBetween ;

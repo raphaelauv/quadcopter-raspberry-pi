@@ -1,6 +1,6 @@
 #include "MonoThreadMotor.h"
 
-int init_MotorsAll2(MotorsAll2 ** motorsAll2){
+int init_MotorsAll(MotorsAll ** motorsAll2,volatile sig_atomic_t * boolMotorStop){
 	#ifdef __arm__
 	if (wiringPiSetup () == -1){
 		return -1;
@@ -9,11 +9,11 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2){
 
 /*
 	if(NbMotors!=NUMBER_OF_MOTORS){
-		logString("init_MotorsAll2 FAIL : NbMotors arg different of MACRO NUMBER_OF_MOTORS");
+		logString("init_MotorsAll FAIL : NbMotors arg different of MACRO NUMBER_OF_MOTORS");
 		return -1;
 	}
 */
-	*motorsAll2 =(MotorsAll2 *) malloc(sizeof(MotorsAll2));
+	*motorsAll2 =(MotorsAll *) malloc(sizeof(MotorsAll));
 	if (*motorsAll2 == NULL) {
 		logString("MALLOC FAIL : motorsAll");
 		return -1;
@@ -26,9 +26,9 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2){
 	}
 	init_PMutex(mut);
 
-	(*motorsAll2)->MutexSetValues=barrier;
-	(*motorsAll3)->boolMotorStop=boolStopMotor;
-	(*motorsAll3)->motorStop=0;
+	(*motorsAll2)->MutexSetValues=mut;
+	(*motorsAll2)->boolMotorStop=boolMotorStop;
+	(*motorsAll2)->motorStop=0;
 
 	int arrayValuesBrocheMotor [8]={BROCHE_MOTOR_0 ,BROCHE_MOTOR_1,BROCHE_MOTOR_2,BROCHE_MOTOR_3,BROCHE_MOTOR_4,BROCHE_MOTOR_5,BROCHE_MOTOR_6,BROCHE_MOTOR_7};
 
@@ -47,7 +47,7 @@ int init_MotorsAll2(MotorsAll2 ** motorsAll2){
 
 }
 
-void clean_MotorsAll2(MotorsAll2 * arg) {
+void clean_MotorsAll(MotorsAll * arg) {
 	if (arg != NULL) {
 		clean_PMutex(arg->MutexSetValues);
 		free(arg);
@@ -73,7 +73,7 @@ int comp (const void * elem1, const void * elem2)
 }
 
 void * thread_startMotorAll(void * args){
-	MotorsAll2 * motors =(MotorsAll2*) args;
+	MotorsAll * motors =(MotorsAll*) args;
 
 	//int local_period=(1.0/FREQUENCY_MOTOR)*USEC_TO_SEC;
 	long local_period=(1.0/FREQUENCY_MOTOR) *SEC_TO_NSEC;
@@ -90,12 +90,12 @@ void * thread_startMotorAll(void * args){
 
 	int runMotor=1;
 	//srand(time(NULL));
-	int timeUsecStart=0;
-	int timeUsecEnd=0;
-	int timeBetween=0;
+	//int timeUsecStart=0;
+	//int timeUsecEnd=0;
+	//int timeBetween=0;
 	//struct timeval tv;
 
-	struct timespec t0, t1;
+	struct timespec t0, t1 ,tim;
 	
 	int i;
 	int sleepedTotalTime=0;
@@ -117,10 +117,13 @@ void * thread_startMotorAll(void * args){
 			valuesBrocheMotor[i][0] = motors->broche[i];
 		}
 
-		pthread_mutex_lock(&motors->MutexSetValues->mutex);
-		
-		if ((*(motors->bool_arret_moteur)) != 1) {
-			
+
+		if(is_Motor_Stop(motors)){
+			break;
+		}
+
+		else{
+			pthread_mutex_lock(&motors->MutexSetValues->mutex);
 			for(i =0;i<NUMBER_OF_MOTORS;i++){
 
 				valuesBrocheMotor[i][1]=motors->high_time[i];
@@ -145,10 +148,8 @@ void * thread_startMotorAll(void * args){
 			for (i = 0; i < NUMBER_OF_MOTORS; i++) {
 
 				dif=(valuesBrocheMotor[i][1])-sleepedTotalTime;
-				//printf("SLEEP %d : %d\n",i,dif);
 				if(dif>0){
 					if(sleepedTotalTime+dif<= MOTOR_HIGH_TIME){
-						//usleep(dif);
 						nanoSleepSecure(dif * NSEC_TO_USEC_MULTIPLE);
 						sleepedTotalTime+=dif;
 					}else{
@@ -164,43 +165,30 @@ void * thread_startMotorAll(void * args){
 				digitalWrite(valuesBrocheMotor[i][0],0);
 				#endif
 			}
-			//printf("SLEEP FINAL : %d\n",period-sleepedTotalTime);
 
-			//gettimeofday(&tv, NULL);
+
 			clock_gettime(CLOCK_MONOTONIC, &t1);
-
-			//timeUsecEnd = (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
-			//timeBetween = timeUsecEnd - timeUsecStart ;
-
-			double timeSec= ((double)t1.tv_sec - t0.tv_sec);
-      
-	      if(timeSec!=0){
-	      	logString("THREAD MOTORS : ERROR PERIODE TOO SLOW , MORE THAN 1 SEC");
-	      }else{
-	        long timeBetween=t1.tv_nsec - t0.tv_nsec;
-	      	tim2.tv_sec = 0;
-	      	tim2.tv_nsec = local_period - timeBetween ;
-	      	
-			if(timeBetween > local_period){
-				logString("THREAD MOTORS : ERROR PERIODE TOO SLOW");
-			}else{
-				/*
-				if(timeBetween > MOTOR_HIGH_TIME +100 ){
-					sprintf(arrayLog,"THREAD MOTOR : TIME : %d\n",timeBetween);
-					logString(arrayLog);
-				}
-				*/
-
-				//usleep(local_period - timeBetween);
-				//nanoSleepSecure((local_period - timeBetween)* NSEC_TO_USEC_MULTIPLE);
-				clock_nanosleep(CLOCK_MONOTONIC,NULL,&tim2,NULL);
+			long timeBetween=t1.tv_nsec - t0.tv_nsec;
+			time_t timeSec= t1.tv_sec - t0.tv_sec;
+			if(timeSec>0){
+				timeSec *=SEC_TO_NSEC;
+				timeBetween+=timeSec;
 			}
 
-	      }
+			tim.tv_sec = 0;
+			tim.tv_nsec = local_period - timeBetween ;
+			if(timeBetween<0){
 
-		} else {
-			pthread_mutex_unlock(&motors->MutexSetValues->mutex);
-			runMotor = 0;
+			}
+			else if(timeBetween>=local_period){
+				sprintf(arrayLog,"THREAD MOTORS : TIME : %ld\n",local_period-timeBetween);
+				logString(arrayLog);
+			}else{
+				//nanoSleepSecure( (local_period-timeBetween) * NSEC_TO_USEC_MULTIPLE);
+				clock_nanosleep(CLOCK_MONOTONIC,0,&tim,NULL);
+			}
+
+
 		}
 
 	}
@@ -212,7 +200,7 @@ void * thread_startMotorAll(void * args){
 /**
  * Return -1 if FAIL to open the thread , else 0 in SUCCES
  */
-int init_thread_startMotorAll2(pthread_t * pthread,void * threadMotor2_stack_buf,MotorsAll2 * motorsAll2){
+int init_thread_startMotorAll(pthread_t * pthread,void * threadMotor2_stack_buf,MotorsAll * motorsAll2){
 
     pthread_attr_t attributs;
     int error=0;
@@ -223,20 +211,17 @@ int init_thread_startMotorAll2(pthread_t * pthread,void * threadMotor2_stack_buf
     }
 
 	if (pthread_create(pthread, &attributs,thread_startMotorAll,motorsAll2)) {
-		error=-1;
+		motorsAll2->motorStop=1;
 		logString("FAIL pthread_create MOTORS");
+		error=-1;
 	}
-
-    if(error==-1){
-    	*(motorsAll2->bool_arret_moteur)=1;
-    }
 
     pthread_attr_destroy(&attributs);
 
 	return error;
 }
 
-int set_power2(MotorsAll2 * MotorsAll2, int * powers){
+int set_power(MotorsAll * MotorsAll2, int * powers){
 
 	pthread_mutex_lock(&MotorsAll2->MutexSetValues->mutex);
 
@@ -247,28 +232,28 @@ int set_power2(MotorsAll2 * MotorsAll2, int * powers){
 }
 
 
-void set_Motor_Stop(MotorsAll2 * MotorsAll2){
+void set_Motor_Stop(MotorsAll * MotorsAll2){
 
 	pthread_mutex_lock(&MotorsAll2->MutexSetValues->mutex);
-	MotorsAll3->motorStop=1;
+	MotorsAll2->motorStop=1;
 	pthread_mutex_unlock(&MotorsAll2->MutexSetValues->mutex);
-	set_power3(MotorsAll2,NULL);
+	set_power(MotorsAll2,NULL);
 }
 
-int is_Motor_Stop(MotorsAll2 * MotorsAll2){
+int is_Motor_Stop(MotorsAll * MotorsAll2){
 
 	//first look to glabal signal value
 	int value = *(MotorsAll2->boolMotorStop);
 	if(value){
 		pthread_mutex_lock(&MotorsAll2->MutexSetValues->mutex);
-		MotorsAll3->motorStop=1;
+		MotorsAll2->motorStop=1;
 		pthread_mutex_unlock(&MotorsAll2->MutexSetValues->mutex);
 		return value;
 
 	//or look to the atomic value
 	}else{
 		pthread_mutex_lock(&MotorsAll2->MutexSetValues->mutex);
-		value=MotorsAll3->motorStop;
+		value=MotorsAll2->motorStop;
 		pthread_mutex_unlock(&MotorsAll2->MutexSetValues->mutex);
 		return value;
 	}
