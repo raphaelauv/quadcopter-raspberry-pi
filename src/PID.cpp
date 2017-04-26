@@ -303,7 +303,7 @@ void * thread_PID(void * args){
 				powerController[0] = data->axe_Rotation;
 				powerController[1] = data->axe_UpDown;
 				powerController[2] = data->axe_LeftRight;
-				powerController[3] = data->axe_FrontBack;
+				powerController[3] =(-1) * data->axe_FrontBack;
 				pthread_mutex_unlock(&(mutexDataControler->mutex));
 
 				/*
@@ -350,8 +350,8 @@ void * thread_PID(void * args){
             /*********************************************************/
             /*					PID                                  */
             
-            input_pid_pitch=(input_pid_pitch*0.7) + ((imuData.gyro.x()-gyro_cal[0])*(180/M_PI)*0.3);
-            input_pid_roll=(input_pid_pitch*0.7) + ((imuData.gyro.y()-gyro_cal[1])*(180/M_PI)*0.3);
+            input_pid_pitch=(input_pid_pitch*0.7) + ((imuData.gyro.y()-gyro_cal[0])*(180/M_PI)*0.3);
+            input_pid_roll=(input_pid_pitch*0.7) + ((imuData.gyro.x()-gyro_cal[1])*(180/M_PI)*0.3);
             input_pid_yaw=(input_pid_pitch*0.7) + ((imuData.gyro.z()-gyro_cal[2])*(180/M_PI)*0.3);
             
             if(powerController[1]>=0){
@@ -365,14 +365,14 @@ void * thread_PID(void * args){
             client_roll=powerController[2] * PID_ANGLE_PRECISION_MULTIPLE;
             client_yaw=powerController[0] * PID_ANGLE_PRECISION_MULTIPLE;
             
-            log_angle=imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE;
+            log_angle=imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE;
             
 
             client_pitch-= log_angle * PID_ANGLE_MULTIPLE;
             client_pitch/=3;
             
             //TODO mettre les log des axe Y et Z
-            client_roll-=(imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE)*PID_ANGLE_MULTIPLE;
+            client_roll-=(imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE)*PID_ANGLE_MULTIPLE;
             client_roll/=3;
             
             client_yaw/=3;
