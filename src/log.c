@@ -5,7 +5,7 @@ int LOG_verbose_ON=0;
 int LOG_file_ON=0;
 int LOG_data_ON=0;
 
-char noControl=0;
+char control=1;
 char IP_Sound=0;
 char doCalibration=0;
 
@@ -30,7 +30,7 @@ void closeLogFile(){
 	}
 }
 
-void setLogFileName(char * str ,int flag){
+void setFilesName(char * str ,int flag){
 	struct timespec ts;
 	timespec_get(&ts, TIME_UTC);
 	char buff[100];
@@ -53,8 +53,8 @@ void setLogFileName(char * str ,int flag){
 
 }
 
-int isNoControl(){
-	return noControl;
+int isControl(){
+	return control;
 }
 
 int isIpSound(){
@@ -74,7 +74,6 @@ int isVerbose(){
  */
 int tokenAnalyse(int argc , char *argv[],int flag ){
 
-	noControl=0;
 	IP_Sound=0;
 
 	int SHOW_help=0;
@@ -111,12 +110,14 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 		}
 
 		else if (strcmp(argvv, OPTION_NO_CONTROL) == 0) {
+			/*
 			if (flag == FLAG_OPTIONS_CLIENT) {
 				unknow_option = 1;
 			} else {
+			*/
 				printf("No controller ON, ");
-				noControl = 1;
-			}
+				control = 0;
+			//}
 		}
 		else if (strcmp(argvv, OPTION_SOUND) == 0) {
 			if (flag == FLAG_OPTIONS_CLIENT) {
@@ -137,7 +138,7 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 			LOG_file_ON=1;
 
 			char array[100];
-			setLogFileName(array,FLAG_LOG_FILE);
+			setFilesName(array,FLAG_LOG_FILE);
 			array[99] = '\0';
 			printf("\nLOG FILE  NAME : %s\n", array);
 			idFileLog = open(array, O_CREAT | O_WRONLY, 0777);
@@ -156,7 +157,7 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 				LOG_data_ON=1;
 
 				char array[100];
-				setLogFileName(array,FLAG_LOG_DATA);
+				setFilesName(array,FLAG_LOG_DATA);
 				array[99] = '\0';
 				printf("\nDATA FILE NAME : %s\n", array);
 				idFileData = open(array, O_CREAT | O_WRONLY, 0777);
@@ -194,7 +195,7 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 	}
 
 
-	if( doCalibration && noControl){
+	if( doCalibration && !control){
 
 		printf("ERROR : --cali  and  --noC  | you need CONTROL activate for calibration to simulate the normal behavior\n");
 		return -1;
@@ -203,20 +204,11 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 }
 
 int log_frequence=0;
-
-//int ** arrayData=NULL;
 int * arrayData=NULL;
 
 
 void clean_log_data() {
 	if (arrayData != NULL) {
-		/*
-		for (int i = 0; i < log_frequence; i++) {
-			if (arrayData[i] == NULL) {
-				free(arrayData[i]);
-			}
-		}
-		*/
 		free(arrayData);
 	}
 }
@@ -229,19 +221,6 @@ int setDataFrequence(int freq,int nb_values){
 	}
 
 	clean_log_data();
-	/*
-
-	arrayData=(int**)malloc(sizeof(int*)*log_frequence);
-	if(arrayData==NULL){
-		return -1;
-	}
-	for(int i=0;i<log_frequence;i++){
-		arrayData[i]=(int*)malloc(sizeof(int)*NB_VALUES_TO_LOG);
-		if(arrayData[i]==NULL){
-			return -1;
-		}
-	}
-	*/
 
 	arrayData=(int*)malloc(sizeof(int)*NB_VALUES_TO_LOG);
 
@@ -256,12 +235,6 @@ int setDataFrequence(int freq,int nb_values){
 
 void showArrayData(){
 	for(int i=0;i<log_frequence;i++){
-		/*
-		for(int j=0;j<NB_VALUES_TO_LOG;j++){
-			printf("%d ",arrayData[i][j]);
-		}
-		*/
-
 		printf("%d ",arrayData[i]);
 		printf("\n");
 	}
@@ -294,7 +267,7 @@ void logDataString(char * str){
 int titleNeverGiveYet=1;
 int setDataStringTitle(char * titles){
 	if(titleNeverGiveYet==1 && cmpLogData==0){
-		dprintf(idFileData,"%s \n",titles);
+		dprintf(idFileData,"line %s \n",titles);
 		return 0;
 	}else{
 		return -1;
@@ -308,12 +281,11 @@ int logDataFreq(int * arrayLog,int size){
 
 	if(idFileData==-1){return -1;}
 
-	if(size>NB_VALUES_TO_LOG){return -1;}
+	if(size!=NB_VALUES_TO_LOG){return -1;}
 
 	if(arrayLog==NULL){return -1;}
 
 	for(int i=0;i<size;i++){
-		//arrayData[lastDataIndex][i]=arrayLog[i];
 		arrayData[i]+=arrayLog[i];
 	}
 
@@ -323,24 +295,27 @@ int logDataFreq(int * arrayLog,int size){
 		char arrayStr[SIZE_MAX_LOG];
 		int moyenneArray[NB_VALUES_TO_LOG];
 		int cmp=0;
+
+		int n = 0;
+		int tmp=0;
+
 		for(int i=0;i<NB_VALUES_TO_LOG;i++){
 			
-			/*
-			cmp=0;
-			for(int j=0;j<log_frequence;j++){
-				cmp+=arrayData[j][i];
-			}
-			
-			cmp=cmp/log_frequence;
-			*/
+
 			cmp=arrayData[i]/log_frequence;
 			moyenneArray[i]=cmp;
 			arrayData[i]=0;
+
+			 tmp= sprintf (&(arrayStr[n]), "%d ", moyenneArray[i]);
+			 if(tmp>=0){
+				 n+=tmp;
+			 }else{
+				 return -1;
+			 }
+
 		}
-		//showArrayData();
-		//sprintf(arrayStr,"DATAFREQ : FREQ=%d;%d;%d;%d;%d;%d;%d;%d",log_frequence,moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3],moyenneArray[4],moyenneArray[5],moyenneArray[6] );
-		//logString(arrayStr);
-		sprintf(arrayStr,"%d %d %d %d %d %d %d %d",moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3],moyenneArray[4],moyenneArray[5],moyenneArray[6],moyenneArray[7] );
+
+		//sprintf(arrayStr,"%d %d %d %d %d %d %d %d",moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3],moyenneArray[4],moyenneArray[5],moyenneArray[6],moyenneArray[7] );
 		logDataString(arrayStr);
 		lastDataIndex = 0;
 	}

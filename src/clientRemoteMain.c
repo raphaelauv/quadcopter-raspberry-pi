@@ -42,19 +42,22 @@ int main(int argc, char *argv[]){
 	pthread_t threadClient;
 	pthread_t threadController;
 
-	logString("THREAD MAIN : TEST CONTROLER");
+	if(isControl()){
 
-	pthread_mutex_lock(&argController->pmutexControllerPlug->mutex);
+		logString("THREAD MAIN : TEST CONTROLER");
 
-	if (pthread_create(&threadController, NULL, thread_CONTROLLER,argController)) {
-		logString("THREAD MAIN : ERROR pthread_create thread_CONTROLER");
-		return EXIT_FAILURE;
+		pthread_mutex_lock(&argController->pmutexControllerPlug->mutex);
+
+		if (pthread_create(&threadController, NULL, thread_CONTROLLER,argController)) {
+			logString("THREAD MAIN : ERROR pthread_create thread_CONTROLER");
+			return EXIT_FAILURE;
+		}
+
+		//wait for CONTROLER
+		pthread_cond_wait(&argController->pmutexControllerPlug->condition, &argController->pmutexControllerPlug->mutex);
+
+		pthread_mutex_unlock(&argController->pmutexControllerPlug->mutex);
 	}
-
-	//wait for CONTROLER
-	pthread_cond_wait(&argController->pmutexControllerPlug->condition, &argController->pmutexControllerPlug->mutex);
-
-	pthread_mutex_unlock(&argController->pmutexControllerPlug->mutex);
 
 	if(!is_Controller_Stop(argController)){
 
@@ -72,9 +75,11 @@ int main(int argc, char *argv[]){
 
 			set_Controller_Stop(argController);
 
-			if (pthread_join(threadController, NULL)) {
-				logString("THREAD MAIN : ERROR pthread_join CONTROLER");
-				return EXIT_FAILURE;
+			if (isControl()) {
+				if (pthread_join(threadController, NULL)) {
+					logString("THREAD MAIN : ERROR pthread_join CONTROLER");
+					return EXIT_FAILURE;
+				}
 			}
 	}
 

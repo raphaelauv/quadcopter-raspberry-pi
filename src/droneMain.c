@@ -50,7 +50,7 @@ int main (int argc, char *argv[]){
 
 	void *threadPID_stack_buf=NULL;
 
-	if(!isNoControl()){
+	if(isControl()){
 		pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
 
 		if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {
@@ -97,7 +97,7 @@ int main (int argc, char *argv[]){
 	}
 
 
-	if (!isNoControl()) {
+	if (isControl()) {
 		if ((re = pthread_join(threadServer, NULL)) > 0) {
 			logString("THREAD MAIN : ERROR pthread_join SERVER");
 			set_Motor_Stop(motorsAll3);

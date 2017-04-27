@@ -118,17 +118,12 @@ void * thread_PID(void * args){
     PMutex * mutexDataControler =controle_vol->dataController->pmutex;
     RTIMU *imu =(RTIMU *)controle_vol->imu;
 
-    int powerTab[NUMBER_OF_MOTORS];
+    int powerTab[NUMBER_OF_MOTORS]={0};
 
-    int powerController[NUMBER_OF_MOTORS];
-
-    for(int i=0;i<NUMBER_OF_MOTORS;i++){
-    	powerController[i]=0;
-    }
+    int powerController[NUMBER_OF_MOTORS]={0};
 
     long local_period=(1.0/FREQUENCY_PID) *SEC_TO_NSEC;
-    //int local_period=(1.0/FREQUENCY_PID)*USEC_TO_SEC;
-    
+
     
     //Consigne client
     float client_gaz = MOTOR_LOW_TIME + 50;
@@ -167,7 +162,7 @@ void * thread_PID(void * args){
     
     RTIMU_DATA imuData;
     
-    int nb_values_log=NUMBER_OF_MOTORS+4;
+    int nb_values_log=NUMBER_OF_MOTORS+(3*3)+1;//( motors -> 4 ) + ( (pitch roll yaw) * 3 ) + BatteryLevel
 
 	int logTab[nb_values_log];
 
@@ -176,7 +171,7 @@ void * thread_PID(void * args){
         //TODO
     }
     
-    setDataStringTitle("line Motor1 Motor2 Motor3 Motor4   INPUT  OUTPUT  ANGLE  BATTERY");
+    setDataStringTitle("Motor1 Motor2 Motor3 Motor4 log_angle client_pitch client_roll client_yaw input_pid_pitch input_pid_roll input_pid_yaw output_pid_pitch output_pid_roll output_pid_yaw Battery");
 
     int continuThread=1;
 
@@ -262,13 +257,8 @@ void * thread_PID(void * args){
     /****************END SECURITY SLEEP*************************/
 
 
-    struct timeval tv;
     int iterRemote=0;
     int iterBattery=0;
-    int timeUsecStart=0;
-    int timeUsecEnd=0;
-    int timeBetween=0;
-
     int readSensorSucces=0;
 
     char arrayLog[SIZE_MAX_LOG];
@@ -281,8 +271,6 @@ void * thread_PID(void * args){
     while (continuThread) {
 
     	clock_gettime(CLOCK_MONOTONIC, &t0);
-        //gettimeofday(&tv, NULL);
-        //timeUsecStart= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
 
         if(is_Motor_Stop(controle_vol->motorsAll3)){
         	continuThread = 0;
@@ -468,9 +456,6 @@ void * thread_PID(void * args){
             powerTab[2] = puissance_motor2;
             powerTab[3] = puissance_motor3;
             
-            //powerTab[2] = puissance_motor2;
-            //powerTab[3] = puissance_motor3;
-            
             if(isCalibration()){
             	//nothing to apply because we are in a calibrate mode execution
             }else{
@@ -486,10 +471,17 @@ void * thread_PID(void * args){
             logTab[1]=powerTab[1];
             logTab[2]=powerTab[2];
             logTab[3]=powerTab[3];
-            logTab[4]=(int)input_pid_pitch;
-            logTab[5]=(int)output_pid_pitch;
-            logTab[6]=(int)log_angle;
-            logTab[7]=(int)(batteryValue*100);//TODO
+            logTab[4]=(int)log_angle;
+            logTab[5]=(int)client_pitch;
+            logTab[6]=(int)client_roll;
+            logTab[7]=(int)client_yaw;
+            logTab[8]=(int)input_pid_pitch;
+            logTab[9]=(int)input_pid_roll;
+            logTab[10]=(int)input_pid_yaw;
+            logTab[11]=(int)output_pid_pitch;
+            logTab[12]=(int)output_pid_roll;
+            logTab[13]=(int)output_pid_yaw;
+            logTab[14]=(int)(batteryValue*100);//TODO
             
             logDataFreq(logTab,nb_values_log);
             /**************************END LOG***************************/
@@ -501,11 +493,6 @@ void * thread_PID(void * args){
         /*********************************************************/
         /*			CODE FOR SLEEP PID FREQUENCY				*/
         
-        /*
-        gettimeofday(&tv, NULL);
-        timeUsecEnd= (int)tv.tv_sec * USEC_TO_SEC + (int)tv.tv_usec;
-        timeBetween=timeUsecEnd - timeUsecStart;
-        */
         clock_gettime(CLOCK_MONOTONIC, &t1);
         long timeBetween=t1.tv_nsec - t0.tv_nsec;
         time_t timeSec= t1.tv_sec - t0.tv_sec;

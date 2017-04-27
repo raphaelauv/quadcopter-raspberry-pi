@@ -44,7 +44,7 @@ extern "C" {
 int tokenAnalyse(int argc , char *argv[],int flag );
 
 int isCalibration();
-int isNoControl();
+int isControl();
 int isIpSound();
 int isVerbose();
 
