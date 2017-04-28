@@ -18,6 +18,8 @@ int initHardwareADC(int adcnum){
 	}
 	#endif
 
+	send[0]=0x01;
+	send[1]=0x80;
 	return 0;
 
 }
@@ -25,6 +27,7 @@ int initHardwareADC(int adcnum){
 int hardwareReadADC(int adcnum){
 
 	int value=0;
+//	printf("VAL TAB : %x , %x , %x\n",send[0],send[1],send[2]);
 	#ifdef __arm__
 	if(!wiringPiSPIDataRW (adcnum, send, 3)){
 		logString("hardwareReadADC - wiringPiSPIDataRW FAIL\n");
@@ -32,6 +35,7 @@ int hardwareReadADC(int adcnum){
 	}
 	#endif
 	value=((send[1] & 0x03) <<8) | send[2];
+//	printf("VALUE : %d\n",value);
 	send[0]=0x01;
 	send[1]=0x80;
 	return value;

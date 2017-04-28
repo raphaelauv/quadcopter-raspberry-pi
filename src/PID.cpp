@@ -94,17 +94,16 @@ int absValue(int val){
 
 float batteryValue=0;
 float batteryTMPVALUE=0;
-float batteryVoltage=0;
+//int batteryVoltage=0;
 
 int applyFiltreBatteryValue(){
 
-	batteryVoltage=hardwareReadADC(DEFAULT_CHANNEL_ADCNUM);
-
+	int batteryVoltage=hardwareReadADC(DEFAULT_CHANNEL_ADCNUM);
 	if(batteryVoltage==-1){
 		return -1;
 	}
 	batteryTMPVALUE=batteryTMPVALUE* 0.92 + (batteryVoltage+60)* 0.09509;
-	batteryTMPVALUE=(batteryTMPVALUE * CENVERTION_TO_VOLT);
+	//	batteryTMPVALUE=(batteryTMPVALUE * CENVERTION_TO_VOLT);
 
 	return 0;
 
@@ -312,9 +311,10 @@ void * thread_PID(void * args){
         /*********************************************************/
 		/*					CODE BATTERY				*/
 		iterBattery++;
-		if(iterBattery>FREQUENCY_PID){
+		if(iterBattery>(FREQUENCY_PID*15)){
 			batteryValue=batteryTMPVALUE;
 			iterBattery=0;
+			printf("BATTERY : %f\n",batteryValue*0.01);
 		}
 		if(applyFiltreBatteryValue()){
 			logString("THREAD PID : ERROR BATTERY VALUE");
@@ -450,11 +450,11 @@ void * thread_PID(void * args){
             if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
             
             
-            
-            powerTab[0] = puissance_motor0;
-            powerTab[1] = puissance_motor1;
-            powerTab[2] = puissance_motor2;
-            powerTab[3] = puissance_motor3;
+            int po=1900;
+            powerTab[0] = po;// puissance_motor0;
+            powerTab[1] = po;//puissance_motor1;
+            powerTab[2] = po;//puissance_motor2;
+            powerTab[3] = po;//puissance_motor3;
             
             if(isCalibration()){
             	//nothing to apply because we are in a calibrate mode execution
@@ -481,8 +481,7 @@ void * thread_PID(void * args){
             logTab[11]=(int)output_pid_pitch;
             logTab[12]=(int)output_pid_roll;
             logTab[13]=(int)output_pid_yaw;
-            logTab[14]=(int)((batteryValue*100));
-            
+            logTab[14]=(int)((batteryValue));
             logDataFreq(logTab,nb_values_log);
             /**************************END LOG***************************/
             
