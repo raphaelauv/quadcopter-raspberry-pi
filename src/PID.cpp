@@ -103,7 +103,7 @@ int applyFiltreBatteryValue(){
 	if(batteryVoltage==-1){
 		return -1;
 	}
-	batteryTMPVALUE=batteryTMPVALUE* 0.92 + (batteryVoltage+65)* 0.09853;
+	batteryTMPVALUE=batteryTMPVALUE* 0.92 + (batteryVoltage+60)* 0.09853;
 	batteryTMPVALUE=(batteryTMPVALUE * CENVERTION_TO_VOLT) - BATTERY_DECALAGE;
 
 	return 0;
