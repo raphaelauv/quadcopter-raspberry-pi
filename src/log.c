@@ -8,6 +8,7 @@ int LOG_data_ON=0;
 char control=1;
 char IP_Sound=0;
 char doCalibration=0;
+char doTestPower=0;
 
 int NB_VALUES_TO_LOG=0;
 
@@ -51,6 +52,10 @@ void setFilesName(char * str ,int flag){
 		sprintf(str,"DATA_%s_(%09ld-%d)",buff, ts.tv_nsec,getpid());
 	}
 
+}
+
+int isTestpower(){
+	return doTestPower;
 }
 
 int isControl(){
@@ -105,6 +110,16 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 				unknow_option = 1;
 			} else {
 				printf("calibration ON, ");
+				doCalibration = 1;
+			}
+		}
+
+		else if(strcmp(argvv, OPTION_TESTPOWER) == 0 ){
+			if (flag == FLAG_OPTIONS_CLIENT) {
+				unknow_option = 1;
+			} else {
+				printf("testpower ON, ");
+				doTestPower = 1;
 				doCalibration = 1;
 			}
 		}
@@ -188,18 +203,21 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 		if(flag==FLAG_OPTIONS_DRONE){
 			printf(OPTION_DATA"	for dataExport\n");
 			printf(OPTION_CALIBRATION"	for calibration of the ESC\n");
+			printf(OPTION_TESTPOWER"	for testPower\n");
 			printf(OPTION_SOUND"	for SOUND\n");
 			printf(OPTION_NO_CONTROL"	for noController\n");
 		}
 		return -1;
 	}
 
-
+	/*
 	if( doCalibration && !control){
 
 		printf("ERROR : --cali  and  --noC  | you need CONTROL activate for calibration to simulate the normal behavior\n");
 		return -1;
 	}
+
+	*/
 	return 0;
 }
 

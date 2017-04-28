@@ -79,7 +79,12 @@ int main (int argc, char *argv[]){
 	 * AFTER THE CALIBRATION THE PROGRAM FINISH
 	 */
 	if (isCalibration()) {
-		calibrate_ESC(motorsAll3, isVerbose());
+
+		if(isTestpower()){
+			test_Power(motorsAll3);
+		}else{
+			calibrate_ESC(motorsAll3, isVerbose());
+		}
 		set_Motor_Stop(motorsAll3);
 		set_Serv_Stop(argServ);
 	}

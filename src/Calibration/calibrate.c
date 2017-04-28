@@ -6,10 +6,14 @@ void emptyBuffer(void){
     while((c=getchar()) != EOF && c != '\n');
 }
 
-void input_test(char value_Wait) {
+int input_test(char value_Wait) {
 	char tmp=255;
 	int first=1;
 	do {
+		if(tmp=='e'){
+			return -1;
+		}
+
 		if(!first){
 			printf("WRONG KEY !! push : %c  ",value_Wait);
 		}
@@ -17,6 +21,35 @@ void input_test(char value_Wait) {
 		scanf("%c", &tmp);
 		emptyBuffer();
 	} while (tmp != value_Wait);
+
+	return 0;
+}
+
+
+void test_Power(MotorsAll * motorsAll3){
+
+	int power[NUMBER_OF_MOTORS];
+	int valueAsk=MOTOR_LOW_TIME;
+
+	int palier=50;
+	sleep(3);
+	fflush(NULL);
+	printf("******************\nPOWER TEST\n******************\n");
+	do{
+		for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
+			power[i] = valueAsk;
+		}
+		fflush(NULL);
+		printf("\nEnter u , if you want upgrade of %d OR e for exit\n",palier);
+		if(input_test('u')){
+			return;
+		}
+		valueAsk+=palier;
+		printf("ACTUAL VALUE : %d",valueAsk);
+		set_power(motorsAll3,power);
+
+	}while(valueAsk<=MOTOR_HIGH_TIME);
+
 }
 
 void calibrate_ESC(MotorsAll * motorsAll3,char verbose){

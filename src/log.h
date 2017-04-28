@@ -18,6 +18,7 @@ extern "C" {
 
 #define OPTION_PREFIX "--"
 #define OPTION_CALIBRATION OPTION_PREFIX"cali"
+#define OPTION_TESTPOWER OPTION_PREFIX"testpower"
 #define OPTION_NO_CONTROL OPTION_PREFIX"noC"
 #define OPTION_VERBOSE OPTION_PREFIX"verb"
 #define OPTION_LOG OPTION_PREFIX"log"
@@ -43,6 +44,7 @@ extern "C" {
 
 int tokenAnalyse(int argc , char *argv[],int flag );
 
+int isTestpower();
 int isCalibration();
 int isControl();
 int isIpSound();
