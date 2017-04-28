@@ -36,17 +36,20 @@ void test_Power(MotorsAll * motorsAll3){
 	fflush(NULL);
 	printf("******************\nPOWER TEST\n******************\n");
 	do{
+
 		for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 			power[i] = valueAsk;
 		}
+		set_power(motorsAll3, power);
+
+		printf("\nACTUAL VALUE : %d\n",valueAsk);
+
 		fflush(NULL);
-		printf("\nEnter u , if you want upgrade of %d OR e for exit\n",palier);
-		if(input_test('u')){
+		printf("\nEnter u , if you want upgrade of %d OR e for exit\n", palier);
+		if (input_test('u')) {
 			return;
 		}
 		valueAsk+=palier;
-		printf("ACTUAL VALUE : %d",valueAsk);
-		set_power(motorsAll3,power);
 
 	}while(valueAsk<=MOTOR_HIGH_TIME);
 
