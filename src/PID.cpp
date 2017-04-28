@@ -103,8 +103,8 @@ int applyFiltreBatteryValue(){
 	if(batteryVoltage==-1){
 		return -1;
 	}
-	batteryTMPVALUE=batteryTMPVALUE* 0.92 + (batteryVoltage+60)* 0.09853;
-	batteryTMPVALUE=(batteryTMPVALUE * CENVERTION_TO_VOLT) - BATTERY_DECALAGE;
+	batteryTMPVALUE=batteryTMPVALUE* 0.92 + (batteryVoltage+60)* 0.09509;
+	batteryTMPVALUE=(batteryTMPVALUE * CENVERTION_TO_VOLT);
 
 	return 0;
 
@@ -481,7 +481,7 @@ void * thread_PID(void * args){
             logTab[11]=(int)output_pid_pitch;
             logTab[12]=(int)output_pid_roll;
             logTab[13]=(int)output_pid_yaw;
-            logTab[14]=(int)(batteryValue*100);//TODO
+            logTab[14]=(int)((batteryValue*100));
             
             logDataFreq(logTab,nb_values_log);
             /**************************END LOG***************************/
