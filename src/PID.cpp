@@ -259,6 +259,7 @@ void * thread_PID(void * args){
     int iterRemote=0;
     int iterBattery=0;
     int iterPrintPower=0;
+    int iterBatteryPrint=0;
     int readSensorSucces=0;
 
     char arrayLog[SIZE_MAX_LOG];
@@ -312,10 +313,17 @@ void * thread_PID(void * args){
         /*********************************************************/
 		/*					CODE BATTERY				*/
 		iterBattery++;
-		if(iterBattery>(FREQUENCY_PID*15)){
+		iterBatteryPrint++;
+
+		if(iterBatteryPrint>(FREQUENCY_PID*30)){
+			printf("BATTERY : %f\n",batteryValue*0.01);
+			iterBatteryPrint=0;
+		}
+
+		if(iterBattery>(FREQUENCY_PID)){
 			batteryValue=batteryTMPVALUE;
 			iterBattery=0;
-			printf("BATTERY : %f\n",batteryValue*0.01);
+//			printf("BATTERY : %f\n",batteryValue*0.01);
 		}
 		if(applyFiltreBatteryValue()){
 			logString("THREAD PID : ERROR BATTERY VALUE");
@@ -449,17 +457,17 @@ void * thread_PID(void * args){
             int a=10;
             int b=-20;
             if(batteryValue<=1200 && batteryValue>=1000){
-            	/*
-				puissance_motor0 +=  ((100 -   ((a*(batteryValue*0.01)) - b))  *puissance_motor0) / 100 ;
-				puissance_motor1 +=  ((100 -   ((a*(batteryValue*0.01)) - b))  *puissance_motor1) / 100 ;
-				puissance_motor2 +=  ((100 -   ((a*(batteryValue*0.01)) - b))  *puissance_motor2) / 100 ;
-				puissance_motor3 +=  ((100 -   ((a*(batteryValue*0.01)) - b))  *puissance_motor3) / 100 ;
+			/*            	
+				puissance_motor0 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor0) / 100 ;
+				puissance_motor1 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor1) / 100 ;
+				puissance_motor2 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor2) / 100 ;
+				puissance_motor3 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor3) / 100 ;
 				*/
 				puissance_motor0 += (1240 - batteryValue) /3500 * puissance_motor0 ;
 				puissance_motor1 += (1240 - batteryValue) /3500 * puissance_motor1 ;
 				puissance_motor2 += (1240 - batteryValue) /3500 * puissance_motor2 ;
 				puissance_motor3 += (1240 - batteryValue) /3500 * puissance_motor3 ;
-
+				
             }
 
 
