@@ -36,17 +36,11 @@ void init_mask(void (*functionPtr)(int));
 
 
 #define MSEC_TO_SEC_MULTIPLE 1000 //millisecond
-
 #define USEC_TO_MSEC_MULTIPLE 1000
-
 #define NSEC_TO_USEC_MULTIPLE 1000
-
 #define USEC_TO_SEC MSEC_TO_SEC_MULTIPLE * 1000 //microsecond
-
 #define NSEC_TO_SEC USEC_TO_SEC * 1000 //nanosecond
-
 #define MSEC_TO_NSEC 1000 * 1000
-
 #define SEC_TO_NSEC 1000 * 1000 * 1000
 
 #define CPU_CORE_PID 1

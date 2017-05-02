@@ -9,9 +9,9 @@ volatile sig_atomic_t boolStopServ;
 
 
 void handler_SIGINT_Drone(int i){
-	logString("THREAD MAIN : SIGINT catched -> process to stop");
 	boolStopServ=1;
 	boolStopMotor=1;
+	logString("THREAD MAIN : SIGINT catched -> process to stop");
 }
 
 int main (int argc, char *argv[]){

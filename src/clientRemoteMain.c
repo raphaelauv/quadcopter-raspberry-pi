@@ -5,9 +5,9 @@ volatile sig_atomic_t boolStopClient;
 volatile sig_atomic_t boolStopController;
 
 void handler_SIGINT_client(int i){
-	logString("THREAD MAIN : SIGINT catched -> process to stop");
 	boolStopClient=1;
 	boolStopController=1;
+	logString("THREAD MAIN : SIGINT catched -> process to stop");
 }
 
 

@@ -15,7 +15,7 @@ int input_test(char value_Wait) {
 		}
 
 		if(!first){
-			printf("WRONG KEY !! push : %c  ",value_Wait);
+			printf("WRONG KEY !! push : %c  OR e for exit",value_Wait);
 		}
 		first=0;
 		scanf("%c", &tmp);
@@ -45,7 +45,7 @@ void test_Power(MotorsAll * motorsAll3){
 		printf("\nACTUAL VALUE : %d\n",valueAsk);
 
 		fflush(NULL);
-		printf("\nEnter u , if you want upgrade of %d OR e for exit\n", palier);
+		printf("\nEnter u , if you want increase of %d OR e for exit\n", palier);
 		if (input_test('u')) {
 			return;
 		}
@@ -56,11 +56,6 @@ void test_Power(MotorsAll * motorsAll3){
 }
 
 void calibrate_ESC(MotorsAll * motorsAll3,char verbose){
-
-	/*
-	int powerMax[4] = { MOTOR_HIGH_TIME, MOTOR_HIGH_TIME, MOTOR_HIGH_TIME, MOTOR_HIGH_TIME };
-	int powerMin[4] = { MOTOR_LOW_TIME, MOTOR_LOW_TIME, MOTOR_LOW_TIME, MOTOR_LOW_TIME };
-	*/
 
 	int powerMax[NUMBER_OF_MOTORS];
 	int powerMin[NUMBER_OF_MOTORS];
@@ -75,12 +70,16 @@ void calibrate_ESC(MotorsAll * motorsAll3,char verbose){
 		fflush(NULL);
 		printf("******************\nESC CALIBRATION\n******************\n");
 		printf("THE BATTERY OF ESC NEED TO BE DISCONNECT FIRST ,when it's done : press the key y and ENTER\n");
-		input_test('y');
+		if(input_test('y')){
+			return;
+		}
 	}
 	set_power(motorsAll3,powerMax);
     if(verbose){
     	printf("\nNOW CONNECT THE BATTERY, when it's done : press the key y and ENTER\n");
-    	input_test('y');
+		if (input_test('y')) {
+			return;
+		}
     	printf("\nNOW WAIT FOR THE 3 BIP, when it's over : press the key y and ENTER\n");
     }else{
     	system(SOUND_COMMAND"connectTheBattery.mp3");
@@ -89,7 +88,9 @@ void calibrate_ESC(MotorsAll * motorsAll3,char verbose){
     }
     set_power(motorsAll3,powerMin);
 	if (verbose) {
-		input_test('y');
+		if (input_test('y')) {
+			return;
+		}
 		printf("\nCALIBRATION FINISH\n");
 	}else{
 		sleep(10);
