@@ -468,6 +468,10 @@ void * thread_PID(void * args){
             if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
             
 
+            if (iterBattery > (FREQUENCY_PID * 5)) {
+				printf("PUISSANCE : %d\n", puissance_motor0);
+			}
+
             powerTab[0] = puissance_motor0;
             powerTab[1] = puissance_motor1;
             powerTab[2] = puissance_motor2;
