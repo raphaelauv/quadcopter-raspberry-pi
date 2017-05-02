@@ -446,12 +446,19 @@ void * thread_PID(void * args){
             puissance_motor3=puissanceTestPowerGramme;
 
             //battery Compensation
+            int a=10;
+            int b=-20;
             if(batteryValue<=1200 && batteryValue>=1000){
-
-				puissance_motor0 +=  ((100 -   ((12.85*(batteryValue*0.01)) - 54.2))  *puissance_motor0) / 100 ;
-				puissance_motor1 +=  ((100 -   ((12.85*(batteryValue*0.01)) - 54.2))  *puissance_motor1) / 100 ;
-				puissance_motor2 +=  ((100 -   ((12.85*(batteryValue*0.01)) - 54.2))  *puissance_motor2) / 100 ;
-				puissance_motor3 +=  ((100 -   ((12.85*(batteryValue*0.01)) - 54.2))  *puissance_motor3) / 100 ;
+            	/*
+				puissance_motor0 +=  ((100 -   ((a*(batteryValue*0.01)) - b))  *puissance_motor0) / 100 ;
+				puissance_motor1 +=  ((100 -   ((a*(batteryValue*0.01)) - b))  *puissance_motor1) / 100 ;
+				puissance_motor2 +=  ((100 -   ((a*(batteryValue*0.01)) - b))  *puissance_motor2) / 100 ;
+				puissance_motor3 +=  ((100 -   ((a*(batteryValue*0.01)) - b))  *puissance_motor3) / 100 ;
+				*/
+				puissance_motor0 += (1240 - batteryValue) /3500 * puissance_motor0 ;
+				puissance_motor1 += (1240 - batteryValue) /3500 * puissance_motor1 ;
+				puissance_motor2 += (1240 - batteryValue) /3500 * puissance_motor2 ;
+				puissance_motor3 += (1240 - batteryValue) /3500 * puissance_motor3 ;
 
             }
 
@@ -468,7 +475,7 @@ void * thread_PID(void * args){
             if(puissance_motor2>MOTOR_HIGH_TIME) puissance_motor2=MOTOR_HIGH_TIME;
             if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
             
-		iterPrintPower++;
+            iterPrintPower++;
             if (iterPrintPower > (FREQUENCY_PID * 5)) {
 				iterPrintPower=0;
 				printf("PUISSANCE : %d\n", puissance_motor0);
