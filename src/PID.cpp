@@ -437,6 +437,17 @@ void * thread_PID(void * args){
             puissance_motor2=client_gaz + output_pid_pitch - output_pid_roll - output_pid_yaw;
             puissance_motor3=client_gaz - output_pid_pitch - output_pid_roll + output_pid_yaw;
             
+            //battery Compensation
+            if(batteryValue<=1200 && batteryValue>=1000){
+
+				puissance_motor0 +=  ((100 -   ((12.85*(batteryValue*0.01)) - 54.2))  *puissance_motor0) / 100 ;
+				puissance_motor1 +=  ((100 -   ((12.85*(batteryValue*0.01)) - 54.2))  *puissance_motor1) / 100 ;
+				puissance_motor2 +=  ((100 -   ((12.85*(batteryValue*0.01)) - 54.2))  *puissance_motor2) / 100 ;
+				puissance_motor3 +=  ((100 -   ((12.85*(batteryValue*0.01)) - 54.2))  *puissance_motor3) / 100 ;
+
+            }
+
+
             //Pour jamais mettre a l'arret les moteur.
             if(puissance_motor0<MOTOR_MIN_ROTATE_TIME) puissance_motor0=MOTOR_MIN_ROTATE_TIME;
             if(puissance_motor1<MOTOR_MIN_ROTATE_TIME) puissance_motor1=MOTOR_MIN_ROTATE_TIME;
