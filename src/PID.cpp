@@ -437,6 +437,13 @@ void * thread_PID(void * args){
             puissance_motor2=client_gaz + output_pid_pitch - output_pid_roll - output_pid_yaw;
             puissance_motor3=client_gaz - output_pid_pitch - output_pid_roll + output_pid_yaw;
             
+
+            int puissanceTestPowerGramme=1900;
+            puissance_motor0=puissanceTestPowerGramme;
+            puissance_motor1=puissanceTestPowerGramme;
+            puissance_motor2=puissanceTestPowerGramme;
+            puissance_motor3=puissanceTestPowerGramme;
+
             //battery Compensation
             if(batteryValue<=1200 && batteryValue>=1000){
 
@@ -460,12 +467,11 @@ void * thread_PID(void * args){
             if(puissance_motor2>MOTOR_HIGH_TIME) puissance_motor2=MOTOR_HIGH_TIME;
             if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
             
-            
-            int po=1900;
-            powerTab[0] = po;// puissance_motor0;
-            powerTab[1] = po;//puissance_motor1;
-            powerTab[2] = po;//puissance_motor2;
-            powerTab[3] = po;//puissance_motor3;
+
+            powerTab[0] = puissance_motor0;
+            powerTab[1] = puissance_motor1;
+            powerTab[2] = puissance_motor2;
+            powerTab[3] = puissance_motor3;
             
             if(isCalibration()){
             	//nothing to apply because we are in a calibrate mode execution
