@@ -258,6 +258,7 @@ void * thread_PID(void * args){
 
     int iterRemote=0;
     int iterBattery=0;
+    int iterPrintPower=0;
     int readSensorSucces=0;
 
     char arrayLog[SIZE_MAX_LOG];
@@ -438,7 +439,7 @@ void * thread_PID(void * args){
             puissance_motor3=client_gaz - output_pid_pitch - output_pid_roll + output_pid_yaw;
             
 
-            int puissanceTestPowerGramme=1900;
+            int puissanceTestPowerGramme=1400;
             puissance_motor0=puissanceTestPowerGramme;
             puissance_motor1=puissanceTestPowerGramme;
             puissance_motor2=puissanceTestPowerGramme;
@@ -467,8 +468,9 @@ void * thread_PID(void * args){
             if(puissance_motor2>MOTOR_HIGH_TIME) puissance_motor2=MOTOR_HIGH_TIME;
             if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
             
-
-            if (iterBattery > (FREQUENCY_PID * 5)) {
+		iterPrintPower++;
+            if (iterPrintPower > (FREQUENCY_PID * 5)) {
+				iterPrintPower=0;
 				printf("PUISSANCE : %d\n", puissance_motor0);
 			}
 
