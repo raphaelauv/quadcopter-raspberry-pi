@@ -8,6 +8,7 @@ void init_mask(void (*functionPtr)(int)){
   memset(&sa,0,sizeof(sa));
   sa.sa_flags = 0;
   sa.sa_handler = functionPtr;
+
   /* mask all the other signal while SIGINT signal is catched */
   sigset_t set;
   rc = sigfillset(&set);
