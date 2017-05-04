@@ -47,6 +47,7 @@ int main(int argc, char *argv[]){
 		logString("THREAD MAIN : TEST CONTROLER");
 
 		pthread_mutex_lock(&argController->pmutexControllerPlug->mutex);
+		//TODO verif
 
 		if (pthread_create(&threadController, NULL, thread_CONTROLLER,argController)) {
 			logString("THREAD MAIN : ERROR pthread_create thread_CONTROLER");
@@ -55,8 +56,10 @@ int main(int argc, char *argv[]){
 
 		//wait for CONTROLER
 		pthread_cond_wait(&argController->pmutexControllerPlug->condition, &argController->pmutexControllerPlug->mutex);
+		//TODO
 
 		pthread_mutex_unlock(&argController->pmutexControllerPlug->mutex);
+		//TODO
 	}
 
 	if(!is_Controller_Stop(argController)){

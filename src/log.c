@@ -47,9 +47,9 @@ void setFilesName(char * str ,int flag){
 		tmp++;
 	}
 	if(flag==FLAG_LOG_FILE){
-		sprintf(str,"LOG_%s_(%09ld-%d)",buff, ts.tv_nsec,getpid());
+		sprintf(str,ABSOLUTE_REFERENCE_FILE"/drone/LOG_%s_(%09ld-%d)",buff, ts.tv_nsec,getpid());
 	}else if(flag==FLAG_LOG_DATA){
-		sprintf(str,"DATA_%s_(%09ld-%d)",buff, ts.tv_nsec,getpid());
+		sprintf(str,ABSOLUTE_REFERENCE_FILE"/drone/DATA_%s_(%09ld-%d)",buff, ts.tv_nsec,getpid());
 	}
 
 }

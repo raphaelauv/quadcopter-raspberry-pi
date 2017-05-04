@@ -45,6 +45,13 @@ Frequence I2C -> sudo nano /etc/modprobe.d/i2c.conf :
 	options i2c_bcm2708 baudrate=400000
 ```
 
+Edit the boot file of raspberrypi :
+	
+	sudo nano /etc/rc.local
+
+	and add :  sh /home/pi/drone/startScript.sh &
+
+	
 
 
 ### Compilation
