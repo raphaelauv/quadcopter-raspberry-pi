@@ -5,21 +5,23 @@
 
 #Set sound volume to maximum
 sudo amixer sset 'PCM' 100%
-
 file="/home/pi/drone/droneMain"
 if [ -f "$file" ]
-
-then
-	#while true; do
-        	$var = sudo /home/pi/drone/droneMain --verb
-		echo $var
-		if ["$var" -ne 0];then break
+	then
+	while true; do
+        	result=$( sudo  /home/pi/drone/droneMain --verb  --log )
+		#wait
+		echo $result
+		if ["$result" -ne 0]
+			then
+				echo "PROGRAM FAIL";
+				break;
 		fi
-        	wait;
         	echo "\n---------------------\n"
-	#done
+		echo "\n relunch PROGRAM \n"
+	done
 
 
 else
-	echo "$file not found"
+	echo $file "FILE not found"
 fi
