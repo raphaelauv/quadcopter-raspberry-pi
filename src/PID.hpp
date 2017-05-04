@@ -14,24 +14,26 @@
 #define PID_SLEEP_TIME_SECURITE 10
 #define PID_SLEEP_VERIF_FREQUENCY 20
 
-
+#define P 1.8
+#define I 0.01
+#define D 80
 
 //PID pitch
-#define PID_GAIN_P_PITCH 1.5
-#define PID_GAIN_I_PITCH 0
-#define PID_GAIN_D_PITCH 22
+#define PID_GAIN_P_PITCH P
+#define PID_GAIN_I_PITCH I
+#define PID_GAIN_D_PITCH D
 #define PID_MAX_PITCH 400
 /*1.5, 0.002 220*/
 
 //PID roll
-#define PID_GAIN_P_ROLL 1.5
-#define PID_GAIN_I_ROLL 0
-#define PID_GAIN_D_ROLL 22
+#define PID_GAIN_P_ROLL P
+#define PID_GAIN_I_ROLL I
+#define PID_GAIN_D_ROLL D
 #define PID_MAX_ROLL 400
 
 //PID yaw
-#define PID_GAIN_P_YAW 4
-#define PID_GAIN_I_YAW 0
+#define PID_GAIN_P_YAW 5
+#define PID_GAIN_I_YAW 0.02
 #define PID_MAX_YAW 400
 
 #define MAX_CONTROLLER_VALUE 100

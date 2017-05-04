@@ -315,7 +315,7 @@ void * thread_PID(void * args){
 		iterBattery++;
 		iterBatteryPrint++;
 
-		if(iterBatteryPrint>(FREQUENCY_PID*30)){
+		if(iterBatteryPrint>(FREQUENCY_PID*2)){
 			printf("BATTERY : %f\n",batteryValue*0.01);
 			iterBatteryPrint=0;
 		}
@@ -352,10 +352,10 @@ void * thread_PID(void * args){
             input_pid_yaw=(input_pid_pitch*0.7) + ((imuData.gyro.z()-gyro_cal[2])*(180/M_PI)*0.3);
             
             if(powerController[1]>=0){
-                client_gaz=(powerController[1]*7)+1100;
+                client_gaz=(powerController[1]*4.5)+1050;
             }
             else{
-                client_gaz=1100;
+                client_gaz=1050;
             }
             
             client_pitch=powerController[3] * PID_ANGLE_PRECISION_MULTIPLE;

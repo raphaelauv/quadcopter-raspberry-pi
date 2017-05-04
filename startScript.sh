@@ -5,7 +5,7 @@
 
 #Set sound volume to maximum
 sudo amixer sset 'PCM' 100%
-file="/home/pi/drone/droneMain"
+file="/home/pi/drone/droneMain2"
 if [ -f "$file" ]
 	then
 	while true; do
