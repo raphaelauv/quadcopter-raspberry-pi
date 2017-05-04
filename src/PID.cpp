@@ -316,7 +316,7 @@ void * thread_PID(void * args){
 		iterBattery++;
 		iterBatteryPrint++;
 
-		if(iterBatteryPrint>(FREQUENCY_PID*2))
+		if(iterBatteryPrint>(FREQUENCY_PID*2)){
 			printf("BATTERY : %f\n",batteryValue*0.01);
 			iterBatteryPrint=0;
 		}
