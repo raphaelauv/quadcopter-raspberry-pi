@@ -178,6 +178,9 @@ void control(args_CONTROLLER * argsControl) {
 		logString("THREAD CONTROLLER : ERROR no Controller plug");
 	}
 	float tmpM0, tmpM1, tmpM2, tmpM3;
+
+	float manualTmpM1=0;
+
 	while (!quitter) {
 
 		if(is_Controller_Stop(argsControl)){
@@ -292,10 +295,21 @@ void control(args_CONTROLLER * argsControl) {
 					pourcent(input.axes[0], XBOX_CONTROLLER_MAX_VALUE) :
 					pourcent(input.axes[2], XBOX_CONTROLLER_MAX_VALUE);
 
+
 			//tmpM1 = monter ou descendre (UpDown)
 			tmpM1 = modele ?
 					pourcent(-1 * input.axes[1], XBOX_CONTROLLER_MAX_VALUE) :
 					(diff_axes(input.axes[5], input.axes[4], XBOX_CONTROLLER_MAX_VALUE));
+
+			/*
+			if(tmpM1>50){
+				manualTmpM1++;
+			}
+
+			if(tmpM1<-50){
+				manualTmpM1-=2;
+			}
+			*/
 
 			//tmpM2 = rotation axe roulis (LeftRight) (z)
 			tmpM2 = modele ?
@@ -312,6 +326,7 @@ void control(args_CONTROLLER * argsControl) {
 			argsControl->newThing = 1;
 			manette->axe_Rotation = tmpM0;
 			manette->axe_UpDown = tmpM1;
+			//manette->axe_UpDown = manualTmpM1;
 			manette->axe_LeftRight = tmpM2;
 			manette->axe_FrontBack = tmpM3;
 

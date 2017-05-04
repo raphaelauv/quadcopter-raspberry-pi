@@ -256,6 +256,7 @@ void * thread_PID(void * args){
     /****************END SECURITY SLEEP*************************/
 
 
+    int iterAccelPrint=0;
     int iterRemote=0;
     int iterBattery=0;
     int iterPrintPower=0;
@@ -315,7 +316,7 @@ void * thread_PID(void * args){
 		iterBattery++;
 		iterBatteryPrint++;
 
-		if(iterBatteryPrint>(FREQUENCY_PID*2)){
+		if(iterBatteryPrint>(FREQUENCY_PID*2))
 			printf("BATTERY : %f\n",batteryValue*0.01);
 			iterBatteryPrint=0;
 		}
@@ -344,6 +345,14 @@ void * thread_PID(void * args){
 			#ifdef __arm__
             imuData = imu->getIMUData();
 			#endif
+
+
+            iterAccelPrint++;
+            if (iterAccelPrint > (FREQUENCY_PID / 2)) {
+            	iterAccelPrint=0;
+				printf("ACCEL : X : %f  Y : %f  Z : %f \n", imuData.accel.x(),imuData.accel.y(),imuData.accel.z());
+			}
+
             /*********************************************************/
             /*					PID                                  */
             
@@ -369,7 +378,7 @@ void * thread_PID(void * args){
             client_pitch/=3;
             
             //TODO mettre les log des axe Y et Z
-            client_roll-=(imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE)*PID_ANGLE_MULTIPLE;
+            client_roll-= (imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE)*PID_ANGLE_MULTIPLE;
             client_roll/=3;
             
             client_yaw/=3;
