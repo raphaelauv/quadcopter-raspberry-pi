@@ -446,13 +446,13 @@ void * thread_PID(void * args){
             puissance_motor2=client_gaz + output_pid_pitch - output_pid_roll - output_pid_yaw;
             puissance_motor3=client_gaz - output_pid_pitch - output_pid_roll + output_pid_yaw;
             
-
+		/*
             int puissanceTestPowerGramme=1400;
             puissance_motor0=puissanceTestPowerGramme;
             puissance_motor1=puissanceTestPowerGramme;
             puissance_motor2=puissanceTestPowerGramme;
             puissance_motor3=puissanceTestPowerGramme;
-
+		*/
             //battery Compensation
             int a=10;
             int b=-20;
@@ -483,11 +483,14 @@ void * thread_PID(void * args){
             if(puissance_motor2>MOTOR_HIGH_TIME) puissance_motor2=MOTOR_HIGH_TIME;
             if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
             
+		/*
             iterPrintPower++;
             if (iterPrintPower > (FREQUENCY_PID * 5)) {
 				iterPrintPower=0;
 				printf("PUISSANCE : %d\n", puissance_motor0);
 			}
+
+		*/
 
             powerTab[0] = puissance_motor0;
             powerTab[1] = puissance_motor1;

@@ -1,13 +1,25 @@
 #!/bin/bash
 
 # who run the script:
-# pi@raspberry ~$ sh ./startScript.sh
+# pi@raspberry ~$ sh drone/startScript.sh
 
 #Set sound volume to maximum
 sudo amixer sset 'PCM' 100%
 
-while true; do
-	sudo ./droneMain --log
-	wait
-	echo "\n---------------------\n"
-done
+file="/home/pi/drone/droneMain"
+if [ -f "$file" ]
+
+then
+	#while true; do
+        	$var = sudo /home/pi/drone/droneMain --verb
+		echo $var
+		if ["$var" -ne 0];then break
+		fi
+        	wait;
+        	echo "\n---------------------\n"
+	#done
+
+
+else
+	echo "$file not found"
+fi
