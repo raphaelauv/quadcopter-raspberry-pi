@@ -30,9 +30,11 @@ extern "C" {
 #define FLAG_OPTIONS_DRONE 1
 #define FLAG_OPTIONS_CLIENT 2
 
-#define ABSOLUTE_REFERENCE_FILE "~"
+
 #ifdef __arm__
-#define ABSOLUTE_REFERENCE_FILE "/home/pi"
+	#define ABSOLUTE_REFERENCE_FILE "/home/pi"
+#else
+	#define ABSOLUTE_REFERENCE_FILE "~"
 #endif
 
 #define FLAG_LOG_FILE 1
