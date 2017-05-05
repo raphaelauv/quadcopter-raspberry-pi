@@ -372,6 +372,8 @@ void * thread_PID(void * args){
 
 
             if(testvibration){
+
+		float correction = 4.096;
                 acc_x=imuData.accel.x();
                 acc_y=imuData.accel.y();
                 acc_z=imuData.accel.z();
@@ -558,10 +560,10 @@ void * thread_PID(void * args){
 
 		*/
             if(testvibration){
-            	powerTab[0] = 1500;
-            	powerTab[1] = 1000;
-            	powerTab[2] = 1000;
-            	powerTab[3] = 1000;
+            	powerTab[0] = 1050;
+            	powerTab[1] = 1050;
+            	powerTab[2] = 1050;
+            	powerTab[3] = 1050;
             }else{
             	powerTab[0] = puissance_motor0;
 				powerTab[1] = puissance_motor1;
