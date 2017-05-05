@@ -191,7 +191,7 @@ int getIP(char*  myIP) {
 	status = getifaddrs(&myaddrs);
 	if (status != 0) {
 		logString("Probleme de recuperation d'adresse IP");
-		//TODO
+		return -1;
 	}
 	for (addrsTMP = myaddrs; addrsTMP != NULL; addrsTMP = addrsTMP->ifa_next) {
 		if (addrsTMP->ifa_addr == NULL) {
