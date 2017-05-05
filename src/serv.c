@@ -272,6 +272,8 @@ void *thread_UDP_SERVER(void *args) {
 
 	args_SERVER *argSERV = (args_SERVER*) args;
 
+	PID_INFO * pidInfo =argSERV->pidInfo;
+
 	logString("THREAD SERV : SERVEUR UDP");
 	int sock=argSERV->sock;
 
@@ -317,6 +319,14 @@ void *thread_UDP_SERVER(void *args) {
 
 			counterMsg++;
 			if(counterMsg%freqConfirm==0){
+
+				float voltageVale;
+
+				pthread_mutex_lock(&(pidInfo->pmutex->mutex));
+				voltageVale=pidInfo->battery;
+				pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
+
+				//TODO
 				char confirm[8] = "CONFIRM";
 				if (sendNetwork(sock, &adr_send, confirm) == -1) {
 					logString("THREAD SERV : NETWORK ERROR DURING -> SEND CONFIRM");

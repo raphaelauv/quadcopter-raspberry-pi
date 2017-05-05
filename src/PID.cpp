@@ -115,6 +115,7 @@ void * thread_PID(void * args){
     args_PID  * controle_vol =(args_PID  *)args;
     DataController * data = controle_vol->dataController;
     PMutex * mutexDataControler =controle_vol->dataController->pmutex;
+    PID_INFO * pidInfo =controle_vol->pidInfo;
 
 	#ifdef __arm__
     RTIMU *imu =(RTIMU *)controle_vol->imu;
@@ -213,9 +214,7 @@ void * thread_PID(void * args){
     		logString("THREAD PID : ERROR BATTERY VALUE");
     		//TODO
     	}
-
     }
-    batteryValue=batteryTMPVALUE;
 
     /*********************************************************/
 
@@ -334,11 +333,20 @@ void * thread_PID(void * args){
 		/*					CODE BATTERY				*/
 		iterBattery++;
 		iterBatteryPrint++;
+		if (iterBatteryPrint > (FREQUENCY_PID * 2)) {
 
-		if(iterBatteryPrint>(FREQUENCY_PID*2)){
-			printf("BATTERY : %f\n",batteryValue*0.01);
-			iterBatteryPrint=0;
+			float voltageVale=batteryValue * 0.01;
+
+			printf("BATTERY : %f\n",voltageVale );
+			iterBatteryPrint = 0;
+
+			pthread_mutex_lock(&(pidInfo->pmutex->mutex));
+
+			pidInfo->battery = voltageVale;
+
+			pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
 		}
+
 
 		if(applyFiltreBatteryValue()){
 			logString("THREAD PID : ERROR BATTERY VALUE");
