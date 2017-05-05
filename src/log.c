@@ -9,11 +9,11 @@ char control=1;
 char IP_Sound=0;
 char doCalibration=0;
 char doTestPower=0;
+char doTestVibration=0;
 
 int NB_VALUES_TO_LOG=0;
 
 int idFileLog=-1;
-
 int idFileData=-1;
 
 void closeLogFile(){
@@ -52,6 +52,10 @@ void setFilesName(char * str ,int flag){
 		sprintf(str,ABSOLUTE_REFERENCE_FILE"/drone/DATA_%s_(%09ld-%d)",buff, ts.tv_nsec,getpid());
 	}
 
+}
+
+int isTestVibration(){
+	return doTestVibration;
 }
 
 int isTestpower(){
@@ -121,6 +125,14 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 				printf("testpower ON, ");
 				doTestPower = 1;
 				doCalibration = 1;
+			}
+		}
+		else if(strcmp(argvv, OPTION_VIBRATION) == 0 ){
+			if (flag == FLAG_OPTIONS_CLIENT) {
+				unknow_option = 1;
+			} else {
+				printf("testVibration ON, ");
+				doTestVibration = 1;
 			}
 		}
 
@@ -197,15 +209,16 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 	}
 	else{
 
-		printf(OPTION_VERBOSE"	for verbose\n");
-		printf(OPTION_LOG"	for log\n");
+		printf(OPTION_VERBOSE"		for verbose\n");
+		printf(OPTION_LOG"		for log\n");
 
 		if(flag==FLAG_OPTIONS_DRONE){
-			printf(OPTION_DATA"	for dataExport\n");
-			printf(OPTION_CALIBRATION"	for calibration of the ESC\n");
+			printf(OPTION_DATA"		for dataExport\n");
+			printf(OPTION_CALIBRATION"		for calibration of the ESC\n");
 			printf(OPTION_TESTPOWER"	for testPower\n");
-			printf(OPTION_SOUND"	for SOUND\n");
-			printf(OPTION_NO_CONTROL"	for noController\n");
+			printf(OPTION_SOUND"		for SOUND\n");
+			printf(OPTION_VIBRATION"	for testVibration\n");
+			printf(OPTION_NO_CONTROL"		for noController\n");
 		}
 		return -1;
 	}

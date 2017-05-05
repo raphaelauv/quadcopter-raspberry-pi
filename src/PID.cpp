@@ -1,7 +1,7 @@
 #include "PID.hpp"
 
 
-int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * motorsAll3){
+int init_args_PID(args_PID ** argPID){
     
     *argPID =(args_PID *) malloc(sizeof(args_PID));
     if (*argPID == NULL) {
@@ -9,7 +9,6 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * mo
         return EXIT_FAILURE;
     }
     
-    (*argPID)->dataController = dataControl;
     
 #ifdef __arm__
     RTIMU *imu;
@@ -29,7 +28,6 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * mo
     	return EXIT_FAILURE;
     }
 
-	(*argPID)->motorsAll3=motorsAll3;
 
     return 0;
 }
@@ -113,13 +111,16 @@ int applyFiltreBatteryValue(){
 void * thread_PID(void * args){
     
 	logString("THREAD PID : INITIALISATION");
+
     args_PID  * controle_vol =(args_PID  *)args;
     DataController * data = controle_vol->dataController;
     PMutex * mutexDataControler =controle_vol->dataController->pmutex;
+
+	#ifdef __arm__
     RTIMU *imu =(RTIMU *)controle_vol->imu;
+	#endif
 
     int powerTab[NUMBER_OF_MOTORS]={0};
-
     int powerController[NUMBER_OF_MOTORS]={0};
 
     long local_period=(1.0/FREQUENCY_PID) *SEC_TO_NSEC;
@@ -257,7 +258,7 @@ void * thread_PID(void * args){
     /****************END SECURITY SLEEP*************************/
 
 
-    int iterAccelPrint=0;
+
     int iterRemote=0;
     int iterBattery=0;
     int iterPrintPower=0;
@@ -265,21 +266,25 @@ void * thread_PID(void * args){
     int readSensorSucces=0;
 
 
-    /**VIBRATION*/
+    /********VIBRATION******/
     float acc_total_vector[20];
     float acc_av_vector;
     float vibration_total_result;
     float acc_x;
     float acc_y;
     float acc_z;
+    int iterAccelPrint=0;
     int iterVibration;
-
+    int testvibration=isTestVibration();
     char arrayLog[SIZE_MAX_LOG];
+    /**********************/
+
     if(continuThread){
     	logString("THREAD PID : START");
     }
 
 
+    int modeCalibration=isCalibration();
 
 
     struct timespec t0, t1 ,tim;
@@ -357,38 +362,42 @@ void * thread_PID(void * args){
 			#endif
 
 
-            acc_x=imuData.accel.x();
-            acc_y=imuData.accel.y();
-            acc_z=imuData.accel.z();
+            if(testvibration){
+                acc_x=imuData.accel.x();
+                acc_y=imuData.accel.y();
+                acc_z=imuData.accel.z();
 
 
-			acc_total_vector[0] = sqrt((acc_x * acc_x) + (acc_y * acc_y) + (acc_z * acc_z));
+    			acc_total_vector[0] = sqrt((acc_x * acc_x) + (acc_y * acc_y) + (acc_z * acc_z));
 
-			acc_av_vector = acc_total_vector[0];
+    			acc_av_vector = acc_total_vector[0];
 
-			for (int start = 16; start > 0; start--) {
-				acc_total_vector[start] = acc_total_vector[start - 1];
-				acc_av_vector += acc_total_vector[start];
-			}
+    			for (int start = 16; start > 0; start--) {
+    				acc_total_vector[start] = acc_total_vector[start - 1];
+    				acc_av_vector += acc_total_vector[start];
+    			}
 
-			acc_av_vector /= 17;
+    			acc_av_vector /= 17;
 
-			if (iterVibration < 20) {
-				iterVibration++;
-				vibration_total_result += abs(acc_total_vector[0] - acc_av_vector);
-			} else {
-				iterVibration = 0;
-				printf("VIBRATION : %f\n",vibration_total_result / 50);
-				vibration_total_result = 0;
-			}
+    			if (iterVibration < 20) {
+    				iterVibration++;
+    				vibration_total_result += abs(acc_total_vector[0] - acc_av_vector);
+    			} else {
+    				iterVibration = 0;
+    				printf("VIBRATION : %f\n",vibration_total_result / 50);
+    				vibration_total_result = 0;
+    			}
 
-			/*
-			iterAccelPrint++;
-			if (iterAccelPrint > (FREQUENCY_PID / 2)) {
-				iterAccelPrint = 0;
-				printf("ACCEL : X : %f  Y : %f  Z : %f \n", acc_x, acc_y, acc_z);
-			}
-			*/
+    			/*
+    			iterAccelPrint++;
+    			if (iterAccelPrint > (FREQUENCY_PID / 2)) {
+    				iterAccelPrint = 0;
+    				printf("ACCEL : X : %f  Y : %f  Z : %f \n", acc_x, acc_y, acc_z);
+    			}
+    			*/
+            }
+
+
 
             /*********************************************************/
             /*					PID                                  */
@@ -500,10 +509,12 @@ void * thread_PID(void * args){
             puissance_motor3=puissanceTestPowerGramme;
 		*/
             //battery Compensation
-            int a=10;
-            int b=-20;
+
             if(batteryValue<=1200 && batteryValue>=1000){
-			/*            	
+			/*
+			int a=10;
+            int b=-20;
+
 				puissance_motor0 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor0) / 100 ;
 				puissance_motor1 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor1) / 100 ;
 				puissance_motor2 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor2) / 100 ;
@@ -537,23 +548,29 @@ void * thread_PID(void * args){
 			}
 
 		*/
+            if(testvibration){
+            	powerTab[0] = 1500;
+            	powerTab[1] = 1000;
+            	powerTab[2] = 1000;
+            	powerTab[3] = 1000;
+            }else{
+            	powerTab[0] = puissance_motor0;
+				powerTab[1] = puissance_motor1;
+				powerTab[2] = puissance_motor2;
+				powerTab[3] = puissance_motor3;
+            }
 
-            powerTab[0] = puissance_motor0;
-            powerTab[1] = puissance_motor1;
-            powerTab[2] = puissance_motor2;
-            powerTab[3] = puissance_motor3;
             
-            if(isCalibration()){
+            if(modeCalibration){
             	//nothing to apply because we are in a calibrate mode execution
             }else{
             	set_power(controle_vol->motorsAll3,powerTab);
             }
             
-             /**********************END PID******************************/
+            /*************************END PID****************************/
             
             
-            /*********************************************************/
-            /*					LOG                                */
+            /****************************LOG*****************************/
             logTab[0]=powerTab[0];
             logTab[1]=powerTab[1];
             logTab[2]=powerTab[2];

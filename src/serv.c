@@ -26,6 +26,24 @@ int is_Serv_Stop(args_SERVER * argServ){
 
 int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ){
 
+
+	PMutex * PmutexPID_INFO = (PMutex *) malloc(sizeof(PMutex));
+	if (PmutexPID_INFO == NULL) {
+		logString("MALLOC FAIL : PmutexPID_INFO");
+		return EXIT_FAILURE;
+	}
+
+	init_PMutex(PmutexPID_INFO);
+
+
+	PID_INFO * pidInfo =(PID_INFO *) malloc(sizeof(PID_INFO));
+	if (pidInfo == NULL) {
+		logString("MALLOC FAIL : pidInfo");
+		return EXIT_FAILURE;
+	}
+	pidInfo->pmutex=PmutexPID_INFO;
+
+
 	PMutex * PmutexDataControler = (PMutex *) malloc(sizeof(PMutex));
 	if (PmutexDataControler == NULL) {
 		logString("MALLOC FAIL : PmutexDataControler");
@@ -60,15 +78,18 @@ int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ
 
 	(*argServ)->boolStopServ=boolStopServ;
 
+	(*argServ)->pidInfo=pidInfo;
 
 	(*argServ)->servStop=0;
-	PMutex * mutex = (PMutex *) malloc(sizeof(PMutex));
-	if (mutex == NULL) {
+
+
+	PMutex * mutexServ = (PMutex *) malloc(sizeof(PMutex));
+	if (mutexServ == NULL) {
 		logString("MALLOC FAIL : barrier");
 		return -1;
 	}
-	init_PMutex(mutex);
-	(*argServ)->pmutexServ=mutex;
+	init_PMutex(mutexServ);
+	(*argServ)->pmutexServ=mutexServ;
 
 	int sock;
 	struct sockaddr_in adr_svr;
@@ -86,6 +107,7 @@ int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ
 		return EXIT_FAILURE;
 	}
 	(*argServ)->sock=sock;
+
 
 
 	return 0;

@@ -47,10 +47,10 @@ typedef struct args_PID {
 	MotorsAll * motorsAll3;
 	DataController * dataController;
 	RTIMU * imu; //	RTIMU *
-
+	PID_INFO * pidInfo;
 } args_PID;
 
-int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * motorsAll3);
+int init_args_PID(args_PID ** argPID);
 int init_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * argPID);
 void clean_args_PID(args_PID * arg);
 

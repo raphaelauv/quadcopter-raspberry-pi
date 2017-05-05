@@ -18,7 +18,7 @@ typedef struct args_SERVER {
 	volatile sig_atomic_t * boolStopServ;
 	PMutex * pmutexRemoteConnect;
 	DataController * dataController;
-
+	PID_INFO * pidInfo;
 } args_SERVER;
 
 int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ);
