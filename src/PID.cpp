@@ -276,6 +276,7 @@ void * thread_PID(void * args){
     int iterVibration;
     int testvibration=isTestVibration();
     char arrayLog[SIZE_MAX_LOG];
+    float lastVibration;
     /**********************/
 
     if(continuThread){
@@ -376,7 +377,7 @@ void * thread_PID(void * args){
                 acc_z=imuData.accel.z();
 
 
-    			acc_total_vector[0] = sqrt((acc_x * acc_x) + (acc_y * acc_y) + (acc_z * acc_z));
+    			acc_total_vector[0] = sqrtf((acc_x * acc_x) + (acc_y * acc_y) + (acc_z * acc_z));
 
     			acc_av_vector = acc_total_vector[0];
 
@@ -389,20 +390,20 @@ void * thread_PID(void * args){
 
     			if (iterVibration < 20) {
     				iterVibration++;
-    				vibration_total_result += abs(acc_total_vector[0] - acc_av_vector);
+    				vibration_total_result += fabsf(acc_total_vector[0] - acc_av_vector);
     			} else {
     				iterVibration = 0;
-    				printf("VIBRATION : %f\n",vibration_total_result / 50);
+    				//printf("VIBRATION : %f\n",vibration_total_result);
+				lastVibration = vibration_total_result/20;
     				vibration_total_result = 0;
     			}
-
-    			/*
+    			
     			iterAccelPrint++;
     			if (iterAccelPrint > (FREQUENCY_PID / 2)) {
     				iterAccelPrint = 0;
-    				printf("ACCEL : X : %f  Y : %f  Z : %f \n", acc_x, acc_y, acc_z);
+    				printf("ACCEL : X : %f  Y : %f  Z : %f | VECTEUR : %f | VIBRATION : %f \n", acc_x, acc_y, acc_z,acc_total_vector[0],lastVibration);
     			}
-    			*/
+    			
             }
 
 
