@@ -76,6 +76,14 @@ typedef struct DataController{
 
 }DataController;
 
+typedef struct PID_INFO{
+	float battery;
+	PMutex * pmutex;
+}PID_INFO;
+
+
+void clean_PID_INFO(PID_INFO * arg);
+
 void clean_DataController(DataController * arg);
 
 int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu,void *stack_buf);

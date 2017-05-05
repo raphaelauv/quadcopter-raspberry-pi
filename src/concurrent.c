@@ -62,7 +62,13 @@ void clean_DataController(DataController * arg){
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutex);
 		free(arg);
-		arg=NULL;
+	}
+}
+
+void clean_PID_INFO(PID_INFO * arg){
+	if (arg != NULL) {
+		clean_PMutex(arg->pmutex);
+		free(arg);
 	}
 }
 

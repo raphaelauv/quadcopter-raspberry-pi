@@ -41,9 +41,13 @@ int main (int argc, char *argv[]){
 	}
 
 	args_PID * argPID;
-	if (init_args_PID(&argPID,argServ->dataController,motorsAll3)) {
+	if (init_args_PID(&argPID)) {
 		return EXIT_FAILURE;
 	}
+
+	argPID->dataController=argServ->dataController;
+	argPID->pidInfo=argServ->pidInfo;
+	argPID->motorsAll3=motorsAll3;
 
 	pthread_t threadServer;
 	pthread_t threadPID;

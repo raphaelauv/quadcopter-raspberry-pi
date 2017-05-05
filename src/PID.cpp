@@ -1,7 +1,7 @@
 #include "PID.hpp"
 
 
-int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * motorsAll3){
+int init_args_PID(args_PID ** argPID){
     
     *argPID =(args_PID *) malloc(sizeof(args_PID));
     if (*argPID == NULL) {
@@ -9,7 +9,6 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * mo
         return EXIT_FAILURE;
     }
     
-    (*argPID)->dataController = dataControl;
     
 #ifdef __arm__
     RTIMU *imu;
@@ -29,7 +28,6 @@ int init_args_PID(args_PID ** argPID,DataController * dataControl,MotorsAll * mo
     	return EXIT_FAILURE;
     }
 
-	(*argPID)->motorsAll3=motorsAll3;
 
     return 0;
 }
@@ -94,7 +92,6 @@ int absValue(int val){
 
 float batteryValue=0;
 float batteryTMPVALUE=0;
-//int batteryVoltage=0;
 
 int applyFiltreBatteryValue(){
 
@@ -105,6 +102,8 @@ int applyFiltreBatteryValue(){
 	batteryTMPVALUE=batteryTMPVALUE* 0.92 + (batteryVoltage+60)* 0.09509;
 	//	batteryTMPVALUE=(batteryTMPVALUE * CENVERTION_TO_VOLT);
 
+	batteryValue=batteryTMPVALUE;
+
 	return 0;
 
 }
@@ -112,13 +111,17 @@ int applyFiltreBatteryValue(){
 void * thread_PID(void * args){
     
 	logString("THREAD PID : INITIALISATION");
+
     args_PID  * controle_vol =(args_PID  *)args;
     DataController * data = controle_vol->dataController;
     PMutex * mutexDataControler =controle_vol->dataController->pmutex;
+    PID_INFO * pidInfo =controle_vol->pidInfo;
+
+	#ifdef __arm__
     RTIMU *imu =(RTIMU *)controle_vol->imu;
+	#endif
 
     int powerTab[NUMBER_OF_MOTORS]={0};
-
     int powerController[NUMBER_OF_MOTORS]={0};
 
     long local_period=(1.0/FREQUENCY_PID) *SEC_TO_NSEC;
@@ -211,9 +214,7 @@ void * thread_PID(void * args){
     		logString("THREAD PID : ERROR BATTERY VALUE");
     		//TODO
     	}
-
     }
-    batteryValue=batteryTMPVALUE;
 
     /*********************************************************/
 
@@ -256,16 +257,34 @@ void * thread_PID(void * args){
     /****************END SECURITY SLEEP*************************/
 
 
+
     int iterRemote=0;
     int iterBattery=0;
     int iterPrintPower=0;
     int iterBatteryPrint=0;
     int readSensorSucces=0;
 
+
+    /********VIBRATION******/
+    float acc_total_vector[20];
+    float acc_av_vector;
+    float vibration_total_result;
+    float acc_x;
+    float acc_y;
+    float acc_z;
+    int iterAccelPrint=0;
+    int iterVibration;
+    int testvibration=isTestVibration();
     char arrayLog[SIZE_MAX_LOG];
+    /**********************/
+
     if(continuThread){
     	logString("THREAD PID : START");
     }
+
+
+    int modeCalibration=isCalibration();
+
 
     struct timespec t0, t1 ,tim;
 
@@ -314,21 +333,26 @@ void * thread_PID(void * args){
 		/*					CODE BATTERY				*/
 		iterBattery++;
 		iterBatteryPrint++;
+		if (iterBatteryPrint > (FREQUENCY_PID * 2)) {
 
-		if(iterBatteryPrint>(FREQUENCY_PID*30)){
-			printf("BATTERY : %f\n",batteryValue*0.01);
-			iterBatteryPrint=0;
+			float voltageVale=batteryValue * 0.01;
+
+			printf("BATTERY : %f\n",voltageVale );
+			iterBatteryPrint = 0;
+
+			pthread_mutex_lock(&(pidInfo->pmutex->mutex));
+
+			pidInfo->battery = voltageVale;
+
+			pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
 		}
 
-		if(iterBattery>(FREQUENCY_PID)){
-			batteryValue=batteryTMPVALUE;
-			iterBattery=0;
-//			printf("BATTERY : %f\n",batteryValue*0.01);
-		}
+
 		if(applyFiltreBatteryValue()){
 			logString("THREAD PID : ERROR BATTERY VALUE");
 			//TODO
 		}
+
         /************************END BATTERIE****************************/
         
 		#ifdef __arm__
@@ -344,6 +368,45 @@ void * thread_PID(void * args){
 			#ifdef __arm__
             imuData = imu->getIMUData();
 			#endif
+
+
+            if(testvibration){
+                acc_x=imuData.accel.x();
+                acc_y=imuData.accel.y();
+                acc_z=imuData.accel.z();
+
+
+    			acc_total_vector[0] = sqrt((acc_x * acc_x) + (acc_y * acc_y) + (acc_z * acc_z));
+
+    			acc_av_vector = acc_total_vector[0];
+
+    			for (int start = 16; start > 0; start--) {
+    				acc_total_vector[start] = acc_total_vector[start - 1];
+    				acc_av_vector += acc_total_vector[start];
+    			}
+
+    			acc_av_vector /= 17;
+
+    			if (iterVibration < 20) {
+    				iterVibration++;
+    				vibration_total_result += abs(acc_total_vector[0] - acc_av_vector);
+    			} else {
+    				iterVibration = 0;
+    				printf("VIBRATION : %f\n",vibration_total_result / 50);
+    				vibration_total_result = 0;
+    			}
+
+    			/*
+    			iterAccelPrint++;
+    			if (iterAccelPrint > (FREQUENCY_PID / 2)) {
+    				iterAccelPrint = 0;
+    				printf("ACCEL : X : %f  Y : %f  Z : %f \n", acc_x, acc_y, acc_z);
+    			}
+    			*/
+            }
+
+
+
             /*********************************************************/
             /*					PID                                  */
             
@@ -352,10 +415,10 @@ void * thread_PID(void * args){
             input_pid_yaw=(input_pid_pitch*0.7) + ((imuData.gyro.z()-gyro_cal[2])*(180/M_PI)*0.3);
             
             if(powerController[1]>=0){
-                client_gaz=(powerController[1]*7)+1100;
+                client_gaz=(powerController[1]*4.5)+1050;
             }
             else{
-                client_gaz=1100;
+                client_gaz=1050;
             }
             
             client_pitch=powerController[3] * PID_ANGLE_PRECISION_MULTIPLE;
@@ -369,7 +432,7 @@ void * thread_PID(void * args){
             client_pitch/=3;
             
             //TODO mettre les log des axe Y et Z
-            client_roll-=(imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE)*PID_ANGLE_MULTIPLE;
+            client_roll-= (imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE)*PID_ANGLE_MULTIPLE;
             client_roll/=3;
             
             client_yaw/=3;
@@ -446,18 +509,20 @@ void * thread_PID(void * args){
             puissance_motor2=client_gaz + output_pid_pitch - output_pid_roll - output_pid_yaw;
             puissance_motor3=client_gaz - output_pid_pitch - output_pid_roll + output_pid_yaw;
             
-
+		/*
             int puissanceTestPowerGramme=1400;
             puissance_motor0=puissanceTestPowerGramme;
             puissance_motor1=puissanceTestPowerGramme;
             puissance_motor2=puissanceTestPowerGramme;
             puissance_motor3=puissanceTestPowerGramme;
-
+		*/
             //battery Compensation
-            int a=10;
-            int b=-20;
+
             if(batteryValue<=1200 && batteryValue>=1000){
-			/*            	
+			/*
+			int a=10;
+            int b=-20;
+
 				puissance_motor0 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor0) / 100 ;
 				puissance_motor1 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor1) / 100 ;
 				puissance_motor2 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor2) / 100 ;
@@ -483,28 +548,37 @@ void * thread_PID(void * args){
             if(puissance_motor2>MOTOR_HIGH_TIME) puissance_motor2=MOTOR_HIGH_TIME;
             if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
             
+		/*
             iterPrintPower++;
             if (iterPrintPower > (FREQUENCY_PID * 5)) {
 				iterPrintPower=0;
-				printf("PUISSANCE : %d\n", puissance_motor0);
+				printf("PUISSANCE : %d %d %d %d \n", puissance_motor0,puissance_motor1,puissance_motor2,puissance_motor3);
 			}
 
-            powerTab[0] = puissance_motor0;
-            powerTab[1] = puissance_motor1;
-            powerTab[2] = puissance_motor2;
-            powerTab[3] = puissance_motor3;
+		*/
+            if(testvibration){
+            	powerTab[0] = 1500;
+            	powerTab[1] = 1000;
+            	powerTab[2] = 1000;
+            	powerTab[3] = 1000;
+            }else{
+            	powerTab[0] = puissance_motor0;
+				powerTab[1] = puissance_motor1;
+				powerTab[2] = puissance_motor2;
+				powerTab[3] = puissance_motor3;
+            }
+
             
-            if(isCalibration()){
+            if(modeCalibration){
             	//nothing to apply because we are in a calibrate mode execution
             }else{
             	set_power(controle_vol->motorsAll3,powerTab);
             }
             
-             /**********************END PID******************************/
+            /*************************END PID****************************/
             
             
-            /*********************************************************/
-            /*					LOG                                */
+            /****************************LOG*****************************/
             logTab[0]=powerTab[0];
             logTab[1]=powerTab[1];
             logTab[2]=powerTab[2];

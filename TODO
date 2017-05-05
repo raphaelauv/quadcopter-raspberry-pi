@@ -4,11 +4,10 @@
 Reste a faire :
 
 	-Un schema des branchement du drone					(Andres)
-	-Monter le drone(90%)
-	-Lancement du script au boot du Raspberry 80%
+	-Lancement du script au boot du Raspberry 99%
 	-comparer lib I2C avec WinringPiI2C
-	-Tester decharge de la batterie
-	-Faire compensation Batterie dans PID
-	-Doit t’on faire la calibration du gyroscope?
-	-faire le log sur les autre axe(roll and yaw.)
 
+
+	-Doit t’on faire la calibration du gyroscope?
+
+	-Calibrer vibration avec accelorometre

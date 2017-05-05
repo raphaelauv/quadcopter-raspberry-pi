@@ -24,12 +24,19 @@ extern "C" {
 #define OPTION_LOG OPTION_PREFIX"log"
 #define OPTION_DATA OPTION_PREFIX"data"
 #define OPTION_SOUND OPTION_PREFIX"s"
+#define OPTION_VIBRATION OPTION_PREFIX"vibration"
 #define OPTION_HELP OPTION_PREFIX"help"
 
 
 #define FLAG_OPTIONS_DRONE 1
 #define FLAG_OPTIONS_CLIENT 2
 
+
+#ifdef __arm__
+	#define ABSOLUTE_REFERENCE_FILE "/home/pi"
+#else
+	#define ABSOLUTE_REFERENCE_FILE "~"
+#endif
 
 #define FLAG_LOG_FILE 1
 #define FLAG_LOG_DATA 2
@@ -49,6 +56,7 @@ int isCalibration();
 int isControl();
 int isIpSound();
 int isVerbose();
+int isTestVibration();
 
 void closeLogFile();
 void logString(char * str);
