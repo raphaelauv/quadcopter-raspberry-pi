@@ -1,6 +1,7 @@
 #ifndef PID_HPP_
 #define PID_HPP_
 
+#include <math.h>
 #include "concurrent.h"
 #include "motors.h"
 //#include "old/MonoThreadMotor.h"

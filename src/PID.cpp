@@ -94,7 +94,6 @@ int absValue(int val){
 
 float batteryValue=0;
 float batteryTMPVALUE=0;
-//int batteryVoltage=0;
 
 int applyFiltreBatteryValue(){
 
@@ -104,6 +103,8 @@ int applyFiltreBatteryValue(){
 	}
 	batteryTMPVALUE=batteryTMPVALUE* 0.92 + (batteryVoltage+60)* 0.09509;
 	//	batteryTMPVALUE=(batteryTMPVALUE * CENVERTION_TO_VOLT);
+
+	batteryValue=batteryTMPVALUE;
 
 	return 0;
 
@@ -263,10 +264,23 @@ void * thread_PID(void * args){
     int iterBatteryPrint=0;
     int readSensorSucces=0;
 
+
+    /**VIBRATION*/
+    float acc_total_vector[20];
+    float acc_av_vector;
+    float vibration_total_result;
+    float acc_x;
+    float acc_y;
+    float acc_z;
+    int iterVibration;
+
     char arrayLog[SIZE_MAX_LOG];
     if(continuThread){
     	logString("THREAD PID : START");
     }
+
+
+
 
     struct timespec t0, t1 ,tim;
 
@@ -316,20 +330,16 @@ void * thread_PID(void * args){
 		iterBattery++;
 		iterBatteryPrint++;
 
-		if(iterBatteryPrint>(FREQUENCY_PID*2))
+		if(iterBatteryPrint>(FREQUENCY_PID*2)){
 			printf("BATTERY : %f\n",batteryValue*0.01);
 			iterBatteryPrint=0;
 		}
 
-		if(iterBattery>(FREQUENCY_PID)){
-			batteryValue=batteryTMPVALUE;
-			iterBattery=0;
-//			printf("BATTERY : %f\n",batteryValue*0.01);
-		}
 		if(applyFiltreBatteryValue()){
 			logString("THREAD PID : ERROR BATTERY VALUE");
 			//TODO
 		}
+
         /************************END BATTERIE****************************/
         
 		#ifdef __arm__
@@ -347,11 +357,38 @@ void * thread_PID(void * args){
 			#endif
 
 
-            iterAccelPrint++;
-            if (iterAccelPrint > (FREQUENCY_PID / 2)) {
-            	iterAccelPrint=0;
-				printf("ACCEL : X : %f  Y : %f  Z : %f \n", imuData.accel.x(),imuData.accel.y(),imuData.accel.z());
+            acc_x=imuData.accel.x();
+            acc_y=imuData.accel.y();
+            acc_z=imuData.accel.z();
+
+
+			acc_total_vector[0] = sqrt((acc_x * acc_x) + (acc_y * acc_y) + (acc_z * acc_z));
+
+			acc_av_vector = acc_total_vector[0];
+
+			for (int start = 16; start > 0; start--) {
+				acc_total_vector[start] = acc_total_vector[start - 1];
+				acc_av_vector += acc_total_vector[start];
 			}
+
+			acc_av_vector /= 17;
+
+			if (iterVibration < 20) {
+				iterVibration++;
+				vibration_total_result += abs(acc_total_vector[0] - acc_av_vector);
+			} else {
+				iterVibration = 0;
+				printf("VIBRATION : %f\n",vibration_total_result / 50);
+				vibration_total_result = 0;
+			}
+
+			/*
+			iterAccelPrint++;
+			if (iterAccelPrint > (FREQUENCY_PID / 2)) {
+				iterAccelPrint = 0;
+				printf("ACCEL : X : %f  Y : %f  Z : %f \n", acc_x, acc_y, acc_z);
+			}
+			*/
 
             /*********************************************************/
             /*					PID                                  */
@@ -496,7 +533,7 @@ void * thread_PID(void * args){
             iterPrintPower++;
             if (iterPrintPower > (FREQUENCY_PID * 5)) {
 				iterPrintPower=0;
-				printf("PUISSANCE : %d\n", puissance_motor0);
+				printf("PUISSANCE : %d %d %d %d \n", puissance_motor0,puissance_motor1,puissance_motor2,puissance_motor3);
 			}
 
 		*/
