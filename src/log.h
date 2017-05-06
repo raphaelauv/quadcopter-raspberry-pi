@@ -46,6 +46,8 @@ extern "C" {
 #define FLAG_VAL_FILE 1
 #define FLAG_VAL_VERBOSE 2
 
+
+#define LOG_FLOAT_MULTIPLIER 1000
 //int setVerboseOrLog(int argc, char * argv,int min);
 //void setNoControl(char * NoControl, int argc, char * argv, int min);
 

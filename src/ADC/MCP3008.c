@@ -62,7 +62,7 @@ float getFiltredValue(int adcnum,MCP3008 * mcp){
     		voltage=softwareReadADC(mcp,adcnum);
     	}
 
-        batterie_charge=batterie_charge* 0.92 + (voltage+65)* 0.09853;
+        batterie_charge=batterie_charge* 0.92 + (voltage+60)* 0.09509;
 
         if(j==EXPO_MOYEN_VAL){
             break;
@@ -70,7 +70,7 @@ float getFiltredValue(int adcnum,MCP3008 * mcp){
         j++;
     }
 
-    return (batterie_charge * CENVERTION_TO_VOLT) - BATTERY_DECALAGE;
+    return (batterie_charge * CONVERTION_TO_VOLT);
 
 }
 

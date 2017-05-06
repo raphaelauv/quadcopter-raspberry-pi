@@ -11,6 +11,7 @@
 //#include "RTIMULib/RTIMULib.h"
 //#include "Calibrage/Calibration_ESC.h"
 
+#define VIBRATION_Moving_average 20
 
 #define PID_SLEEP_TIME_SECURITE 10
 #define PID_SLEEP_VERIF_FREQUENCY 20
