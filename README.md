@@ -1,7 +1,6 @@
 # PROJET DRONE M1 INFORMATIQUE
 
 
-
 ### PREPARATION Raspberry Pi 2
 
 Install RASPBIAN JESSIE Kernel version : 4.4 on the Raspberry Pi 2
@@ -81,8 +80,16 @@ Emulate controller XBOX360 from DualShocks
 
 for the Drone on the Raspberry Pi 2 :
 
-	sudo ./droneMain
+	sudo ./droneMain --help
 
 for the Client/Controller :
 
 	./client 192.168.***.***
+
+
+
+##For calibration
+
+this for testing vibrations
+
+sudo ./droneMain --verb --testpower --data --noC --vibration
