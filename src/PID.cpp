@@ -160,7 +160,8 @@ void * thread_PID(void * args){
     int puissance_motor2 = MOTOR_LOW_TIME;
     int puissance_motor3 = MOTOR_LOW_TIME;
     
-    int log_angle;
+    int log_angle_pitch;
+    int log_angle_roll;
     
     RTIMU_DATA imuData;
     
@@ -428,14 +429,18 @@ void * thread_PID(void * args){
             client_roll=powerController[2] * PID_ANGLE_PRECISION_MULTIPLE;
             client_yaw=powerController[0] * PID_ANGLE_PRECISION_MULTIPLE;
             
-            log_angle=imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE;
+            log_angle_pitch=imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE;
             
 
-            client_pitch-= log_angle * PID_ANGLE_MULTIPLE;
+            client_pitch-= log_angle_pitch * PID_ANGLE_MULTIPLE;
             client_pitch/=3;
             
             //TODO mettre les log des axe Y et Z
-            client_roll-= (imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE)*PID_ANGLE_MULTIPLE;
+
+
+	    log_angle_roll = imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE;
+
+            client_roll-= log_angle_roll * PID_ANGLE_MULTIPLE;
             client_roll/=3;
             
             client_yaw/=3;
@@ -586,8 +591,10 @@ void * thread_PID(void * args){
             logTab[1]=powerTab[1];
             logTab[2]=powerTab[2];
             logTab[3]=powerTab[3];
-            logTab[4]=(int)log_angle;
-            logTab[5]=(int)client_pitch;
+            logTab[4]=(int)log_angle_pitch;
+    	    logTab[5]=(int)log_angle_roll;
+
+//            logTab[5]=(int)client_pitch;
             logTab[6]=(int)client_roll;
             logTab[7]=(int)client_yaw;
             logTab[8]=(int)input_pid_pitch;
