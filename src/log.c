@@ -299,6 +299,7 @@ int titleNeverGiveYet=1;
 int setDataStringTitle(char * titles){
 	if(titleNeverGiveYet==1 && cmpLogData==0){
 		dprintf(idFileData,"line %s \n",titles);
+		titleNeverGiveYet=0;
 		return 0;
 	}else{
 		return -1;
