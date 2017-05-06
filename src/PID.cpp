@@ -609,6 +609,7 @@ void * thread_PID(void * args){
             logTab[14]=(int) (output_pid_yaw * LOG_FLOAT_MULTIPLIER);
 
             logTab[15]=(int) batteryValue;
+            logDataFreq(logTab,nb_values_log);
             /**************************END LOG***************************/
             
 
