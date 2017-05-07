@@ -41,15 +41,19 @@ void setFilesName(char * str ,int flag){
 		if(buff[tmp]=='/'){
 			buff[tmp]='-';
 		}
+		if (buff[tmp] == ':') {
+			buff[tmp] = '_';
+		}
+
 		else if(buff[tmp]==' '){
 			buff[tmp]='-';
 		}
 		tmp++;
 	}
 	if(flag==FLAG_LOG_FILE){
-		sprintf(str,ABSOLUTE_REFERENCE_FILE"/drone/LOG_%s_(%09ld-%d)",buff, ts.tv_nsec,getpid());
+		sprintf(str,ABSOLUTE_REFERENCE_FILE"LOG_%s_%09ld-%d",buff, ts.tv_nsec,getpid());
 	}else if(flag==FLAG_LOG_DATA){
-		sprintf(str,ABSOLUTE_REFERENCE_FILE"/drone/DATA_%s_(%09ld-%d)",buff, ts.tv_nsec,getpid());
+		sprintf(str,ABSOLUTE_REFERENCE_FILE"DATA_%s_%09ld-%d",buff, ts.tv_nsec,getpid());
 	}
 
 }

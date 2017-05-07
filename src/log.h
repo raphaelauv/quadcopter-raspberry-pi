@@ -33,9 +33,9 @@ extern "C" {
 
 
 #ifdef __arm__
-	#define ABSOLUTE_REFERENCE_FILE "/home/pi"
+	#define ABSOLUTE_REFERENCE_FILE "/home/pi/drone/"
 #else
-	#define ABSOLUTE_REFERENCE_FILE "~"
+	#define ABSOLUTE_REFERENCE_FILE ""
 #endif
 
 #define FLAG_LOG_FILE 1

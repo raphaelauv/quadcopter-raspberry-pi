@@ -202,9 +202,9 @@ void * thread_PID(void * args){
     float lastVibration;
     /**********************/
 
-    int iterSecuritySleep=0;
-    int counterSecuSleep=PID_SLEEP_TIME_SECURITE_SECONDE;
-    int nanoSleepTimeIntervalOfSecuritySleep = NSEC_TO_SEC / PID_SLEEP_VERIF_FREQUENCY;
+    int iterSecurityTimer=0;
+    int counterSecuTimer=PID_TIMER_TIME_SECURITE_SECONDE;
+    int nanoSleepTimeIntervalOfSecurityTimer = NSEC_TO_SEC / PID_TIMER_VERIF_FREQUENCY;
     char tmpFlagRemoteMSG=0;
 
 
@@ -266,18 +266,18 @@ void * thread_PID(void * args){
 
 
     /*********************************************************/
-    /*				START PID SECURITY SLEEP				*/
+    /*				START PID SECURITY TIMER				*/
 
     if(isCalibration()){
-    	iterSecuritySleep=PID_SLEEP_TIME_SECURITE_SECONDE * PID_SLEEP_VERIF_FREQUENCY;
-    	//to skip security sleep
+    	iterSecurityTimer=PID_TIMER_TIME_SECURITE_SECONDE * PID_TIMER_VERIF_FREQUENCY;
+    	//to skip security timer
     }else{
-    	logString("THREAD PID : SECURITY SLEEP START");
+    	logString("THREAD PID : SECURITY TIMER START");
     }
 
-    while(iterSecuritySleep<PID_SLEEP_TIME_SECURITE_SECONDE * PID_SLEEP_VERIF_FREQUENCY){
+    while(iterSecurityTimer<PID_TIMER_TIME_SECURITE_SECONDE * PID_TIMER_VERIF_FREQUENCY){
 
-    	iterSecuritySleep++;
+    	iterSecurityTimer++;
     	pthread_mutex_lock(&(mutexDataControler->mutex));
     	tmpFlagRemoteMSG=data->flag;
     	pthread_mutex_unlock(&(mutexDataControler->mutex));
@@ -290,17 +290,17 @@ void * thread_PID(void * args){
 			break;
 		}
 
-		if(iterSecuritySleep%PID_SLEEP_VERIF_FREQUENCY==0){
-			counterSecuSleep--;
-			sprintf(arrayLog,"THREAD PID : SECURITY SLEEP  %d",counterSecuSleep);
+		if(iterSecurityTimer%PID_TIMER_VERIF_FREQUENCY==0){
+			counterSecuTimer--;
+			sprintf(arrayLog,"THREAD PID : SECURITY TIMER  %d",counterSecuTimer);
 			logString(arrayLog);
 		}
 
     	else{
-    		clockNanoSleepSecure(nanoSleepTimeIntervalOfSecuritySleep);
+    		clockNanoSleepSecure(nanoSleepTimeIntervalOfSecurityTimer);
 		}
     }
-    /****************END SECURITY SLEEP*************************/
+    /****************END SECURITY TIMER*************************/
 
 
     if(continuThread){

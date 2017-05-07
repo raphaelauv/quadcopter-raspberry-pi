@@ -125,6 +125,11 @@ inline int clockNanoSleepSecure(long nano) {
 	int result = 1;
 	//result = nanosleep(&tim, &tim2);
 	result= clock_nanosleep(CLOCK_MONOTONIC,0,&tim,&tim2);
+
+	if(result){
+		logString("NANOSLEEP ERROR");
+	}
+
 	/* TODO a tester
 	i++;
 	while (result != 0) {
