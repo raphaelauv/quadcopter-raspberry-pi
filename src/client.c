@@ -82,7 +82,6 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 void clean_args_CLIENT(args_CLIENT * arg) {
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutexClient);
-		//clean_args_CONTROLER(arg->argControler);
 		free(arg);
 		arg = NULL;
 	}
@@ -209,6 +208,8 @@ int testCloseDrone(int sock,struct sockaddr_in * adr_client , char * message) {
 void *thread_UDP_CLIENT(void *args) {
 
 	args_CLIENT * argClient = (args_CLIENT *) args;
+	//args_CONTROLLER * argController = argClient->argController;
+	DataController * dataControl =argClient->argController->dataControl;
 
 	int runClient = 1;
 
@@ -280,25 +281,24 @@ void *thread_UDP_CLIENT(void *args) {
 		timeToWait.tv_nsec = (now.tv_usec + 1000UL * timeInMs) * 1000UL;//TODO le temps mettre dans des macros
 
 
-		pthread_mutex_lock(&argClient->argController->pmutexReadDataController->mutex);
+		pthread_mutex_lock(&dataControl->pmutex->mutex);
 
-		if(argClient->argController->newThing==0){
-			resultWait=pthread_cond_timedwait(&argClient->argController->pmutexReadDataController->condition,
-					&argClient->argController->pmutexReadDataController->mutex,&timeToWait);
 
-			if(resultWait==ETIMEDOUT){
-				logString("THREAD CLIENT : TIMER LIMIT");
-			}
+		resultWait=pthread_cond_timedwait(&dataControl->pmutex->condition,
+					&dataControl->pmutex->mutex,&timeToWait);
+
+		if(resultWait==ETIMEDOUT){
+			logString("THREAD CLIENT : TIMER LIMIT");
 		}
 
-		if(is_Client_Stop(argClient)){//TODO double prise de mutex
-			argClient->argController->manette->flag=0;
+
+		if(is_Client_Stop(argClient)){
+			dataControl->flag=0;
 		}
 
-		argClient->argController->newThing = 0;
-		dataControllerToMessage(sizeFLOAT,message ,argClient->argController->manette);
-		flag=argClient->argController->manette->flag;
-		pthread_mutex_unlock(&argClient->argController->pmutexReadDataController->mutex);
+		dataControllerToMessage(sizeFLOAT,message ,dataControl);
+		flag=dataControl->flag;
+		pthread_mutex_unlock(&dataControl->pmutex->mutex);
 
 
 

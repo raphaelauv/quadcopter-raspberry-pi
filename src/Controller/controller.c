@@ -9,9 +9,9 @@ void signalController(args_CONTROLLER * argsControl){
 }
 
 void set_Controller_Stop(args_CONTROLLER * argControler){
-	pthread_mutex_lock(&argControler->pmutexReadDataController->mutex);
+	pthread_mutex_lock(&argControler->pmutex->mutex);
 	argControler->controllerStop=1;
-	pthread_mutex_unlock(&argControler->pmutexReadDataController->mutex);
+	pthread_mutex_unlock(&argControler->pmutex->mutex);
 }
 
 int is_Controller_Stop(args_CONTROLLER * argControler){
@@ -23,9 +23,9 @@ int is_Controller_Stop(args_CONTROLLER * argControler){
 
 	//or look to the atomic value
 	}else{
-		pthread_mutex_lock(&argControler->pmutexReadDataController->mutex);
+		pthread_mutex_lock(&argControler->pmutex->mutex);
 		value=argControler->controllerStop;
-		pthread_mutex_unlock(&argControler->pmutexReadDataController->mutex);
+		pthread_mutex_unlock(&argControler->pmutex->mutex);
 		return value;
 	}
 }
@@ -49,54 +49,79 @@ void *thread_CONTROLLER(void *args) {
 
 int init_args_CONTROLLER(args_CONTROLLER ** argController,volatile sig_atomic_t * boolStopController){
 
-	PMutex * pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
+
+	DataController * dataController;
+	PMutex * pmutexControllerPlug;
+	PMutex * pmutexArg_Controller;
+	PMutex * pmutexController;
+
+	*argController = (args_CONTROLLER *) malloc(sizeof(args_CONTROLLER));
+	if (*argController == NULL) {
+		logString("MALLOC FAIL : argController");
+		return -1;
+	}
+
+
+	(*argController)->controllerStop=0;
+	(*argController)->boolStopController=boolStopController;
+
+	pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
 	if (pmutexControllerPlug == NULL) {
 		logString("MALLOC FAIL : pmutexControllerPlug");
-		return EXIT_FAILURE;
+		goto cleanFail;
 	}
+	(*argController)->pmutexControllerPlug=pmutexControllerPlug;
 	init_PMutex(pmutexControllerPlug);
 
 
-	PMutex * pmutexRead =(PMutex *) malloc(sizeof(PMutex));
-	if (pmutexRead == NULL) {
+	pmutexArg_Controller =(PMutex *) malloc(sizeof(PMutex));
+	if (pmutexArg_Controller == NULL) {
 		logString("MALLOC FAIL : pmutexRead");
-		return EXIT_FAILURE;
+		goto cleanFail;
 	}
-	init_PMutex(pmutexRead);
+	(*argController)->pmutex=pmutexArg_Controller;
+	init_PMutex(pmutexArg_Controller);
 
-	*argController =(args_CONTROLLER *) malloc(sizeof(args_CONTROLLER));
-	if (*argController == NULL) {
-		logString("MALLOC FAIL : argController");
-		return EXIT_FAILURE;
+	dataController=(DataController *) malloc(sizeof( DataController));
+	if (dataController == NULL) {
+		logString("MALLOC FAIL : dataController");
+		goto cleanFail;
 	}
-	(*argController)->newThing=0;
-	(*argController)->controllerStop=0;
-	(*argController)->manette=(DataController *) malloc(sizeof( DataController));
-	if ((*argController)->manette == NULL) {
-		logString("MALLOC FAIL : argController->manette");
-		return EXIT_FAILURE;
-	}
-	(*argController)->manette->flag=0;
-	(*argController)->manette->axe_FrontBack=0;
-	(*argController)->manette->axe_LeftRight=0;
-	(*argController)->manette->axe_Rotation=0;
-	(*argController)->manette->axe_UpDown=0;
-	(*argController)->pmutexReadDataController=pmutexRead;
-	(*argController)->pmutexControllerPlug=pmutexControllerPlug;
+	(*argController)->dataControl=dataController;
 
-	(*argController)->boolStopController=boolStopController;
+	pmutexController = (PMutex *) malloc(sizeof(PMutex));
+	if (pmutexController == NULL) {
+		logString("MALLOC FAIL : pmutexController");
+		goto cleanFail;
+	}
+	dataController->pmutex = pmutexController;
+	init_PMutex(pmutexController);
+
+	pthread_mutex_lock(&dataController->pmutex->mutex);
+
+	dataController->flag=0;
+	dataController->axe_FrontBack=0;
+	dataController->axe_LeftRight=0;
+	dataController->axe_Rotation=0;
+	dataController->axe_UpDown=0;
+
+	pthread_mutex_unlock(&dataController->pmutex->mutex);
 
 	return 0;
+
+cleanFail:
+
+	clean_args_CONTROLLER(*argController);
+	return -1;
 }
 
 
 void clean_args_CONTROLLER(args_CONTROLLER * arg) {
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutexControllerPlug);
-		clean_PMutex(arg->pmutexReadDataController);
-		clean_DataController(arg->manette);
+		clean_PMutex(arg->pmutex);
+		clean_DataController(arg->dataControl);
 		free(arg);
-		arg = NULL;
 	}
 }
 
@@ -137,7 +162,7 @@ float diff_axes(int axe_down, int axe_up, int val_max) {
 }
 
 void control(args_CONTROLLER * argsControl) {
-	DataController * manette = argsControl->manette;
+	DataController * dataControl = argsControl->dataControl;
 	int local_period=(1.0/FREQUENCY_CONTROLLER)*USEC_TO_SEC;
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
 
@@ -192,23 +217,24 @@ void control(args_CONTROLLER * argsControl) {
 			char array[SIZE_MAX_LOG];
 
 			if (firstConnectMade) {
-				pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
-				manette->flag = 1;
-				argsControl->newThing = 1;
-				manette->axe_Rotation = 0;
-				manette->axe_UpDown = 0;
-				manette->axe_LeftRight = 0;
-				manette->axe_FrontBack = 0;
 
-				pthread_cond_signal(&argsControl->pmutexReadDataController->condition);
-				pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
+
+				pthread_mutex_lock(&dataControl->pmutex->mutex);
+				dataControl->flag = 1;
+				dataControl->axe_Rotation = 0;
+				dataControl->axe_UpDown = 0;
+				dataControl->axe_LeftRight = 0;
+				dataControl->axe_FrontBack = 0;
+
+				pthread_cond_signal(&dataControl->pmutex->condition);
+				pthread_mutex_unlock(&dataControl->pmutex->mutex);
 			}
 
 			if (isControllerConnect == 1) {
-				pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
-				manette->flag = 1;
-				pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
-				sprintf(array,"THREAD CONTROLLER : ERROR NO MORE Controller %d",manette->flag);
+				pthread_mutex_lock(&dataControl->pmutex->mutex);
+				dataControl->flag = 1;
+				pthread_mutex_unlock(&dataControl->pmutex->mutex);
+				sprintf(array,"THREAD CONTROLLER : ERROR NO MORE Controller %d",dataControl->flag);
 				logString(array);
 				isControllerConnect = 0;
 				printf("isControllerConnect : %d\n",isControllerConnect);
@@ -220,9 +246,9 @@ void control(args_CONTROLLER * argsControl) {
 
 		}else{
 			if(firstConnectMade){
-				pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
-				manette->flag = 2;
-				pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
+				pthread_mutex_lock(&dataControl->pmutex->mutex);
+				dataControl->flag = 2;
+				pthread_mutex_unlock(&dataControl->pmutex->mutex);
 			}
 		}
 
@@ -245,17 +271,17 @@ void control(args_CONTROLLER * argsControl) {
 
 			int tmpFlag;
 
-			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
+			pthread_mutex_lock(&dataControl->pmutex->mutex);
 
-			if (manette->flag == 2) {
-				manette->flag = 0;
+			if (dataControl->flag == 2) {
+				dataControl->flag = 0;
 			} else {
-				manette->flag = 2;
+				dataControl->flag = 2;
 				firstConnectMade=1;
 			}
 
-			tmpFlag=manette->flag;
-			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
+			tmpFlag=dataControl->flag;
+			pthread_mutex_unlock(&dataControl->pmutex->mutex);
 
 			input.boutons[4] = input.boutons[5] = input.boutons[6] =
 					input.boutons[7] = input.boutons[9] = input.boutons[10] = 0;
@@ -321,17 +347,17 @@ void control(args_CONTROLLER * argsControl) {
 					pourcent(-1 * input.axes[4], XBOX_CONTROLLER_MAX_VALUE) :
 					pourcent(-1 * input.axes[1], XBOX_CONTROLLER_MAX_VALUE);
 
-			pthread_mutex_lock(&argsControl->pmutexReadDataController->mutex);
+			pthread_mutex_lock(&dataControl->pmutex->mutex);
 
-			argsControl->newThing = 1;
-			manette->axe_Rotation = tmpM0;
-			manette->axe_UpDown = tmpM1;
+
+			dataControl->axe_Rotation = tmpM0;
+			dataControl->axe_UpDown = tmpM1;
 			//manette->axe_UpDown = manualTmpM1;
-			manette->axe_LeftRight = tmpM2;
-			manette->axe_FrontBack = tmpM3;
+			dataControl->axe_LeftRight = tmpM2;
+			dataControl->axe_FrontBack = tmpM3;
 
-			pthread_cond_signal(&argsControl->pmutexReadDataController->condition);
-			pthread_mutex_unlock(&argsControl->pmutexReadDataController->mutex);
+			pthread_cond_signal(&dataControl->pmutex->condition);
+			pthread_mutex_unlock(&dataControl->pmutex->mutex);
 
 			/*
 				printf(

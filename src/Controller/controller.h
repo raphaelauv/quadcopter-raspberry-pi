@@ -8,13 +8,15 @@
 #define XBOX_CONTROLLER_MAX_VALUE 32768
 
 typedef struct args_CONTROLLER {
-	char verbose;
-	int controllerStop;
-	volatile int newThing;
-	DataController * manette;
-	PMutex * pmutexReadDataController;
-	PMutex * pmutexControllerPlug;
+
 	volatile sig_atomic_t * boolStopController;
+	int controllerStop;
+	PMutex * pmutex;
+
+	PMutex * pmutexControllerPlug;
+	DataController * dataControl;
+
+
 } args_CONTROLLER;
 
 

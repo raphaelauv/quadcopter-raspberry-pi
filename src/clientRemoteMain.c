@@ -13,6 +13,10 @@ void handler_SIGINT_client(int i){
 
 int main(int argc, char *argv[]){
 
+	int exitValue=0;
+	pthread_t threadController;
+	pthread_t threadClient;
+
 	init_mask(handler_SIGINT_client);
 
 	if(argc<2){
@@ -36,11 +40,11 @@ int main(int argc, char *argv[]){
 
 	args_CLIENT * argClient;	
 	if(init_args_CLIENT(&argClient,adresse,argController,&boolStopClient)){
-		return EXIT_FAILURE;
+		exitValue=1;
+		goto cleanAndExit;
 	}
 
-	pthread_t threadClient;
-	pthread_t threadController;
+
 
 	if(isControl()){
 
@@ -51,7 +55,9 @@ int main(int argc, char *argv[]){
 
 		if (pthread_create(&threadController, NULL, thread_CONTROLLER,argController)) {
 			logString("THREAD MAIN : ERROR pthread_create thread_CONTROLER");
-			return EXIT_FAILURE;
+			pthread_mutex_unlock(&argController->pmutexControllerPlug->mutex);
+			exitValue=1;
+			goto cleanAndExit;
 		}
 
 		//wait for CONTROLER
@@ -67,13 +73,15 @@ int main(int argc, char *argv[]){
 			//CONTROLER IS ON , we can start the client socket thread
 			if (pthread_create(&threadClient, NULL, thread_UDP_CLIENT, argClient)) {
 				logString("THREAD MAIN : ERROR pthread_create thread_UDP_CLIENT");
-				return EXIT_FAILURE;
+				exitValue=1;
+				goto cleanAndExit;
 			}
 
 			if (pthread_join(threadClient, NULL)) {
 				logString("THREAD MAIN : ERROR pthread_join thread_UDP_CLIENT");
 				set_Client_Stop(argClient);
-				return EXIT_FAILURE;
+				exitValue=1;
+				goto cleanAndExit;
 			}
 
 			set_Controller_Stop(argController);
@@ -81,15 +89,18 @@ int main(int argc, char *argv[]){
 			if (isControl()) {
 				if (pthread_join(threadController, NULL)) {
 					logString("THREAD MAIN : ERROR pthread_join CONTROLER");
-					return EXIT_FAILURE;
+					exitValue=1;
+					goto cleanAndExit;
 				}
 			}
 	}
 
-	clean_args_CLIENT(argClient);
-	clean_args_CONTROLLER(argController);
-	logString("THREAD MAIN : END");
 
+
+cleanAndExit:
+	clean_args_CONTROLLER(argController);
+	clean_args_CLIENT(argClient);
+	logString("THREAD MAIN : END");
 	closeLogFile();
-	return EXIT_SUCCESS;
+	return exitValue;
 }

@@ -51,7 +51,7 @@ void init_mask(void (*functionPtr)(int));
 
 
 
-
+//Custom Mutex
 typedef struct PMutex {
 	int var;
 	pthread_mutex_t mutex;

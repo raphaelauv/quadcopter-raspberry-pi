@@ -17,6 +17,9 @@ void handler_SIGINT_Drone(int i){
 int main (int argc, char *argv[]){
 
 	int exitValue=0;
+	pthread_t threadServer;
+	pthread_t threadPID;
+	void *threadPID_stack_buf=NULL;
 
 	init_mask(handler_SIGINT_Drone);
 	
@@ -39,22 +42,21 @@ int main (int argc, char *argv[]){
 
 	MotorsAll * motorsAll;
 	if (init_MotorsAll(&motorsAll,&boolStopMotor)) {
-		return EXIT_FAILURE;
+		exitValue=1;
+		goto cleanAndExit;
 	}
 
 	args_PID * argPID;
 	if (init_args_PID(&argPID)) {
-		return EXIT_FAILURE;
+		exitValue=1;
+		goto cleanAndExit;
 	}
 
 	argPID->dataController=argServ->dataController;
 	argPID->pidInfo=argServ->pidInfo;
 	argPID->motorsAll=motorsAll;
 
-	pthread_t threadServer;
-	pthread_t threadPID;
 
-	void *threadPID_stack_buf=NULL;
 
 	if(isControl()){
 		if(pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex)){

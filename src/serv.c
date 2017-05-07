@@ -267,6 +267,7 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 			argSERV->dataController->pmutex->var=1;
 
 			pthread_cond_signal(&(argSERV->dataController->pmutex->condition));
+			//TODO
 
 			pthread_mutex_unlock(&(argSERV->dataController->pmutex->mutex));
 
