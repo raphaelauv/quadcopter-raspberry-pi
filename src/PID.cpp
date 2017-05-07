@@ -211,7 +211,7 @@ void * thread_PID(void * args){
     }
     
     if (setDataStringTitle(
-			"Motor1 Motor2 Motor3 Motor4 angle_pitch angle_roll client_pitch client_roll client_yaw input_pid_pitch input_pid_roll input_pid_yaw output_pid_pitch output_pid_roll output_pid_yaw Battery")) {
+			"Motor1 Motor2 Motor3 Motor4 anglePITCH angleROLL clientPITCH clientROLL clientYAW inputPidPITCH inputPidROLL inputPidYAW outputPidPITCH outputPidROLL outputPidYAW Battery")) {
     	logString("THREAD PID : ERROR setDataStringTitle");
     	goto endPid;
 	}
