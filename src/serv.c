@@ -1,7 +1,5 @@
 #include "serv.h"
 
-
-
 void set_Serv_Stop(args_SERVER * argServ){
 	pthread_mutex_lock(&argServ->pmutexServ->mutex);
 	argServ->servStop=1;

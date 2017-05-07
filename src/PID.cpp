@@ -102,7 +102,7 @@ int applyFiltreBatteryValue(){
 		return -1;
 	}
 
-	//PUT VALUES IN MACRO
+	//TODO PUT VALUES IN MACRO
 	batteryTMPVALUE=batteryTMPVALUE* 0.92 + (batteryVoltage+60)* 0.09509;
 	//	batteryTMPVALUE=(batteryTMPVALUE * CONVERTION_TO_VOLT);
 
@@ -203,8 +203,10 @@ void * thread_PID(void * args){
     /**********************/
 
     int iterSecuritySleep=0;
+    int counterSecuSleep=PID_SLEEP_TIME_SECURITE_SECONDE;
     int nanoSleepTimeIntervalOfSecuritySleep = NSEC_TO_SEC / PID_SLEEP_VERIF_FREQUENCY;
     char tmpFlagRemoteMSG=0;
+
 
 
     if(setDataFrequence(50,nb_values_log)){
@@ -270,8 +272,9 @@ void * thread_PID(void * args){
     	iterSecuritySleep=PID_SLEEP_TIME_SECURITE_SECONDE * PID_SLEEP_VERIF_FREQUENCY;
     	//to skip security sleep
     }else{
-    	logString("THREAD PID : SECURITY SLEEP");
+    	logString("THREAD PID : SECURITY SLEEP START");
     }
+
     while(iterSecuritySleep<PID_SLEEP_TIME_SECURITE_SECONDE * PID_SLEEP_VERIF_FREQUENCY){
 
     	iterSecuritySleep++;
@@ -285,6 +288,12 @@ void * thread_PID(void * args){
 		if (is_Motor_Stop(controle_vol->motorsAll)) {
 			continuThread=0;
 			break;
+		}
+
+		if(iterSecuritySleep%PID_SLEEP_VERIF_FREQUENCY==0){
+			counterSecuSleep--;
+			sprintf(arrayLog,"THREAD PID : SECURITY SLEEP  %d",counterSecuSleep);
+			logString(arrayLog);
 		}
 
     	else{
@@ -325,14 +334,13 @@ void * thread_PID(void * args){
 				pthread_mutex_unlock(&(mutexDataControler->mutex));
 
 				/*
+				Each motor is control directly by the pads of joystick
 				powerTab[0] =absValue(powerController[0]);
 				powerTab[1] =absValue(powerController[1]);
 				powerTab[2] =absValue(powerController[2]);
 				powerTab[3] =absValue(powerController[3]);
-
-				//printf("VALUES %d %d %d %d\n", powerTab[0],powerTab[1],powerTab[2],powerTab[3]);
-				set_power2(controle_vol->motorsAll2,powerTab);
-				logDataFreq(powerTab,NUMBER_OF_MOTORS);
+				printf("VALUES %d %d %d %d\n", powerTab[0],powerTab[1],powerTab[2],powerTab[3]);
+				set_power(controle_vol->motorsAll,powerTab);
 				*/
 
             }
@@ -347,7 +355,8 @@ void * thread_PID(void * args){
 
 			float voltageValue=batteryValue * 0.01;
 
-			printf("BATTERY : %f\n",voltageValue );
+			sprintf(arrayLog,"THREAD PID : Battery Value : %f",voltageValue);
+			logString(arrayLog);
 			iterBatteryPrint = 0;
 
 			pthread_mutex_lock(&(pidInfo->pmutex->mutex));
@@ -369,7 +378,7 @@ void * thread_PID(void * args){
         if(imu->IMURead()){
         	readSensorSucces=1;
         }else{
-            printf("Capteur fail read.\n");
+        	logString("THREAD PID : SENSOR FAIL READ");
         	readSensorSucces=0;
         }
 		#endif
