@@ -30,8 +30,12 @@ int initMCP3008(MCP3008 ** mcp,int clockpin, int mosipin, int misopin, int cspin
 int softwareReadADC(MCP3008 * mcp, int adcnum);
 
 //HARDWARE
-#define BATTERY_DECALAGE 0.5
-#define CENVERTION_TO_VOLT 0.01
+//#define BATTERY_DECALAGE 0.5
+#define CONVERTION_TO_VOLT 0.01
+#define BATTERY_HIGH_LIMIT 1200
+#define BATTERY_LOW_LIMIT 1000
+
+
 
 int initHardwareADC(int adcnum);
 int hardwareReadADC(int adcnum);

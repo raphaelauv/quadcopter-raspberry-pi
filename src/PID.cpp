@@ -99,8 +99,10 @@ int applyFiltreBatteryValue(){
 	if(batteryVoltage==-1){
 		return -1;
 	}
+
+	//PUT VALUES IN MACRO
 	batteryTMPVALUE=batteryTMPVALUE* 0.92 + (batteryVoltage+60)* 0.09509;
-	//	batteryTMPVALUE=(batteryTMPVALUE * CENVERTION_TO_VOLT);
+	//	batteryTMPVALUE=(batteryTMPVALUE * CONVERTION_TO_VOLT);
 
 	batteryValue=batteryTMPVALUE;
 
@@ -109,7 +111,9 @@ int applyFiltreBatteryValue(){
 }
 
 void * thread_PID(void * args){
-    
+	int continuThread=1;
+
+
 	logString("THREAD PID : INITIALISATION");
 
     args_PID  * controle_vol =(args_PID  *)args;
@@ -120,9 +124,6 @@ void * thread_PID(void * args){
 	#ifdef __arm__
     RTIMU *imu =(RTIMU *)controle_vol->imu;
 	#endif
-
-    int powerTab[NUMBER_OF_MOTORS]={0};
-    int powerController[NUMBER_OF_MOTORS]={0};
 
     long local_period=(1.0/FREQUENCY_PID) *SEC_TO_NSEC;
 
@@ -159,25 +160,65 @@ void * thread_PID(void * args){
     int puissance_motor1 = MOTOR_LOW_TIME;
     int puissance_motor2 = MOTOR_LOW_TIME;
     int puissance_motor3 = MOTOR_LOW_TIME;
+    int powerTab[NUMBER_OF_MOTORS]={0};
+    int powerController[NUMBER_OF_MOTORS]={0};
     
-    int log_angle;
     
     RTIMU_DATA imuData;
-    
-    int nb_values_log=NUMBER_OF_MOTORS+(3*3)+1;//( motors -> 4 ) + ( (pitch roll yaw) * 3 ) + BatteryLevel
+    float gyro_cal[3]={0,0,0};
 
+    
+    int nb_values_log=NUMBER_OF_MOTORS+2+(3*3)+1;//( motors -> 4 ) + 2 angles ( (pitch roll yaw) * 3 ) + BatteryLevel
 	int logTab[nb_values_log];
+	int log_angle_pitch;
+	int log_angle_roll;
+	char arrayLog[SIZE_MAX_LOG];
+
+
+
+    struct timespec t0, t1 ,tim;
+    int modeCalibration=isCalibration();
+
+    int iterRemote=0;
+    int iterBattery=0;
+    int iterPrintPower=0;
+    int iterBatteryPrint=0;
+    int readSensorSucces=0;
+
+
+    /********VIBRATION******/
+    float acc_total_vector[VIBRATION_Moving_average]={0};
+    float acc_av_vector;
+    float vibration_total_result;
+    float acc_x;
+    float acc_y;
+    float acc_z;
+    int iterAccelPrint=0;
+    int iterVibration;
+    int testvibration=isTestVibration();
+
+    float lastVibration;
+    /**********************/
+
+    int iterSecuritySleep=0;
+    int nanoSleepTimeIntervalOfSecuritySleep = NSEC_TO_SEC / PID_SLEEP_VERIF_FREQUENCY;
+    char tmpFlagRemoteMSG=0;
+
 
     if(setDataFrequence(50,nb_values_log)){
-        printf("ERROR setDataFrequence\n");
-        //TODO
+    	logString("THREAD PID : ERROR setDataFrequence");
+    	goto endPid;
     }
     
-    setDataStringTitle("Motor1 Motor2 Motor3 Motor4 log_angle client_pitch client_roll client_yaw input_pid_pitch input_pid_roll input_pid_yaw output_pid_pitch output_pid_roll output_pid_yaw Battery");
+    if (setDataStringTitle(
+			"Motor1 Motor2 Motor3 Motor4 anglePITCH angleROLL clientPITCH clientROLL clientYAW inputPidPITCH inputPidROLL inputPidYAW outputPidPITCH outputPidROLL outputPidYAW Battery")) {
+    	logString("THREAD PID : ERROR setDataStringTitle");
+    	goto endPid;
+	}
 
-    int continuThread=1;
 
-    float gyro_cal[3]={0,0,0};
+
+
 
     /*********************************************************/
     /*				CALIBRATION ACCEL						*/
@@ -212,7 +253,7 @@ void * thread_PID(void * args){
     for(int i=0;i<FREQUENCY_PID;i++){
     	if(applyFiltreBatteryValue()){
     		logString("THREAD PID : ERROR BATTERY VALUE");
-    		//TODO
+    		goto endPid;
     	}
     }
 
@@ -222,80 +263,43 @@ void * thread_PID(void * args){
 
     /*********************************************************/
     /*				START PID SECURITY SLEEP				*/
-    int numberOfSecondSleep=0;
-    char tmpFlag=0;
 
     if(isCalibration()){
-    	numberOfSecondSleep=PID_SLEEP_TIME_SECURITE * PID_SLEEP_VERIF_FREQUENCY;
+    	iterSecuritySleep=PID_SLEEP_TIME_SECURITE * PID_SLEEP_VERIF_FREQUENCY;
     	//to skip security sleep
     }else{
     	logString("THREAD PID : SECURITY SLEEP");
     }
+    while(iterSecuritySleep<PID_SLEEP_TIME_SECURITE * PID_SLEEP_VERIF_FREQUENCY){
 
-    int nanoSleepTimeInterval = NSEC_TO_SEC / PID_SLEEP_VERIF_FREQUENCY;
-
-    while(numberOfSecondSleep<PID_SLEEP_TIME_SECURITE * PID_SLEEP_VERIF_FREQUENCY){
-
-
-    	numberOfSecondSleep++;
+    	iterSecuritySleep++;
     	pthread_mutex_lock(&(mutexDataControler->mutex));
-    	tmpFlag=data->flag;
+    	tmpFlagRemoteMSG=data->flag;
     	pthread_mutex_unlock(&(mutexDataControler->mutex));
-		if (tmpFlag == 0) {
-			continuThread = 0;
-			break;
+		if (tmpFlagRemoteMSG == 0) {
+			continuThread=0;
 		}
 		if (is_Motor_Stop(controle_vol->motorsAll3)) {
-			continuThread = 0;
-			continue;
+			continuThread=0;
 		}
 
     	else{
-			nanoSleepSecure(nanoSleepTimeInterval);
+			nanoSleepSecure(nanoSleepTimeIntervalOfSecuritySleep);
 		}
     }
     /****************END SECURITY SLEEP*************************/
 
 
-
-    int iterRemote=0;
-    int iterBattery=0;
-    int iterPrintPower=0;
-    int iterBatteryPrint=0;
-    int readSensorSucces=0;
-
-
-    /********VIBRATION******/
-    float acc_total_vector[20];
-    float acc_av_vector;
-    float vibration_total_result;
-    float acc_x;
-    float acc_y;
-    float acc_z;
-    int iterAccelPrint=0;
-    int iterVibration;
-    int testvibration=isTestVibration();
-    char arrayLog[SIZE_MAX_LOG];
-    float lastVibration;
-    /**********************/
-
     if(continuThread){
     	logString("THREAD PID : START");
     }
 
-
-    int modeCalibration=isCalibration();
-
-
-    struct timespec t0, t1 ,tim;
-
     while (continuThread) {
 
-    	clock_gettime(CLOCK_MONOTONIC, &t0);
+    	clock_gettime(CLOCK_MONOTONIC, &t0);//TODO
 
         if(is_Motor_Stop(controle_vol->motorsAll3)){
-        	continuThread = 0;
-        	continue;
+        	break;
         }
         
         /*********************************************************/
@@ -306,7 +310,8 @@ void * thread_PID(void * args){
             pthread_mutex_lock(&(mutexDataControler->mutex));
             if (data->flag== 0) {
                 pthread_mutex_unlock(&(mutexDataControler->mutex));
-                break;//TODO
+                break;
+                //TODO
             }else{
             	mutexDataControler->var = 0;
 				powerController[0] = data->axe_Rotation;
@@ -336,14 +341,14 @@ void * thread_PID(void * args){
 		iterBatteryPrint++;
 		if (iterBatteryPrint > (FREQUENCY_PID * 2)) {
 
-			float voltageVale=batteryValue * 0.01;
+			float voltageValue=batteryValue * 0.01;
 
-			printf("BATTERY : %f\n",voltageVale );
+			printf("BATTERY : %f\n",voltageValue );
 			iterBatteryPrint = 0;
 
 			pthread_mutex_lock(&(pidInfo->pmutex->mutex));
 
-			pidInfo->battery = voltageVale;
+			pidInfo->battery = voltageValue;
 
 			pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
 		}
@@ -373,7 +378,6 @@ void * thread_PID(void * args){
 
             if(testvibration){
 
-		float correction = 4.096;
                 acc_x=imuData.accel.x();
                 acc_y=imuData.accel.y();
                 acc_z=imuData.accel.z();
@@ -390,13 +394,12 @@ void * thread_PID(void * args){
 
     			acc_av_vector /= 17;
 
-    			if (iterVibration < 20) {
+    			if (iterVibration < VIBRATION_Moving_average) {
     				iterVibration++;
     				vibration_total_result += fabsf(acc_total_vector[0] - acc_av_vector);
     			} else {
     				iterVibration = 0;
-    				//printf("VIBRATION : %f\n",vibration_total_result);
-				lastVibration = vibration_total_result/20;
+    				lastVibration = vibration_total_result/VIBRATION_Moving_average;
     				vibration_total_result = 0;
     			}
     			
@@ -417,25 +420,25 @@ void * thread_PID(void * args){
             input_pid_roll=(input_pid_pitch*0.7) + ((imuData.gyro.x()-gyro_cal[1])*(180/M_PI)*0.3);
             input_pid_yaw=(input_pid_pitch*0.7) + ((imuData.gyro.z()-gyro_cal[2])*(180/M_PI)*0.3);
             
+
+            //TODO MOTOR_LOW_TIME or MOTOR_MIN_ROTATE_TIME ??
             if(powerController[1]>=0){
-                client_gaz=(powerController[1]*4.5)+1050;
+                client_gaz=(powerController[1]*4.5) + MOTOR_MIN_ROTATE_TIME;
             }
             else{
-                client_gaz=1050;
+                client_gaz = MOTOR_MIN_ROTATE_TIME;
             }
             
             client_pitch=powerController[3] * PID_ANGLE_PRECISION_MULTIPLE;
             client_roll=powerController[2] * PID_ANGLE_PRECISION_MULTIPLE;
             client_yaw=powerController[0] * PID_ANGLE_PRECISION_MULTIPLE;
             
-            log_angle=imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE;
-            
-
-            client_pitch-= log_angle * PID_ANGLE_MULTIPLE;
+            log_angle_pitch=imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE;
+            client_pitch-= log_angle_pitch * PID_ANGLE_MULTIPLE;
             client_pitch/=3;
-            
-            //TODO mettre les log des axe Y et Z
-            client_roll-= (imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE)*PID_ANGLE_MULTIPLE;
+
+            log_angle_roll = imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE;
+            client_roll-= log_angle_roll * PID_ANGLE_MULTIPLE;
             client_roll/=3;
             
             client_yaw/=3;
@@ -519,13 +522,13 @@ void * thread_PID(void * args){
             puissance_motor2=puissanceTestPowerGramme;
             puissance_motor3=puissanceTestPowerGramme;
 		*/
-            //battery Compensation
 
-            if(batteryValue<=1200 && batteryValue>=1000){
+
+            /*******************BATTERY MOTOR CALIB**************/
+            if(batteryValue<=BATTERY_HIGH_LIMIT && batteryValue>=BATTERY_LOW_LIMIT){
 			/*
-			int a=10;
-            int b=-20;
-
+				int a=10;
+            	int b=-20;
 				puissance_motor0 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor0) / 100 ;
 				puissance_motor1 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor1) / 100 ;
 				puissance_motor2 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor2) / 100 ;
@@ -537,8 +540,10 @@ void * thread_PID(void * args){
 				puissance_motor3 += (1240 - batteryValue) /3500 * puissance_motor3 ;
 				
             }
+            /*****************END BATTERY MOTOR CALIB*************/
 
 
+            /*******************SECURITY VALUES MOTORS**************/
             //Pour jamais mettre a l'arret les moteur.
             if(puissance_motor0<MOTOR_MIN_ROTATE_TIME) puissance_motor0=MOTOR_MIN_ROTATE_TIME;
             if(puissance_motor1<MOTOR_MIN_ROTATE_TIME) puissance_motor1=MOTOR_MIN_ROTATE_TIME;
@@ -551,6 +556,7 @@ void * thread_PID(void * args){
             if(puissance_motor2>MOTOR_HIGH_TIME) puissance_motor2=MOTOR_HIGH_TIME;
             if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
             
+            /****************END SECURITY VALUES MOTORS************/
 		/*
             iterPrintPower++;
             if (iterPrintPower > (FREQUENCY_PID * 5)) {
@@ -586,17 +592,23 @@ void * thread_PID(void * args){
             logTab[1]=powerTab[1];
             logTab[2]=powerTab[2];
             logTab[3]=powerTab[3];
-            logTab[4]=(int)log_angle;
-            logTab[5]=(int)client_pitch;
-            logTab[6]=(int)client_roll;
-            logTab[7]=(int)client_yaw;
-            logTab[8]=(int)input_pid_pitch;
-            logTab[9]=(int)input_pid_roll;
-            logTab[10]=(int)input_pid_yaw;
-            logTab[11]=(int)output_pid_pitch;
-            logTab[12]=(int)output_pid_roll;
-            logTab[13]=(int)output_pid_yaw;
-            logTab[14]=(int)((batteryValue));
+
+            logTab[4]=(int)log_angle_pitch;
+            logTab[5]=(int)log_angle_roll;
+
+            logTab[6]=(int) (client_pitch * LOG_FLOAT_MULTIPLIER);
+            logTab[7]=(int) (client_roll * LOG_FLOAT_MULTIPLIER);
+            logTab[8]=(int) (client_yaw  * LOG_FLOAT_MULTIPLIER);
+
+            logTab[9]=(int) (input_pid_pitch  * LOG_FLOAT_MULTIPLIER);
+            logTab[10]=(int) (input_pid_roll * LOG_FLOAT_MULTIPLIER);
+            logTab[11]=(int) (input_pid_yaw * LOG_FLOAT_MULTIPLIER);
+
+            logTab[12]=(int) (output_pid_pitch * LOG_FLOAT_MULTIPLIER);
+            logTab[13]=(int) (output_pid_roll * LOG_FLOAT_MULTIPLIER);
+            logTab[14]=(int) (output_pid_yaw * LOG_FLOAT_MULTIPLIER);
+
+            logTab[15]=(int) batteryValue;
             logDataFreq(logTab,nb_values_log);
             /**************************END LOG***************************/
             
@@ -604,10 +616,9 @@ void * thread_PID(void * args){
         }
 
         
-        /*********************************************************/
-        /*			CODE FOR SLEEP PID FREQUENCY				*/
-        
-        clock_gettime(CLOCK_MONOTONIC, &t1);
+        /***********SLEEP PID FREQUENCY****************/
+
+        clock_gettime(CLOCK_MONOTONIC, &t1);//TODO
         long timeBetween=t1.tv_nsec - t0.tv_nsec;
         time_t timeSec= t1.tv_sec - t0.tv_sec;
         if(timeSec>0){
@@ -627,8 +638,13 @@ void * thread_PID(void * args){
 			//nanoSleepSecure( (local_period-timeBetween) * NSEC_TO_USEC_MULTIPLE);
 			clock_nanosleep(CLOCK_MONOTONIC,0,&tim,NULL);
 		}
+		/***********END SLEEP PID FREQUENCY***********/
 
     }
+
+
+endPid:
+
     set_Motor_Stop(controle_vol->motorsAll3);
     logString("THREAD PID : END");
     return NULL;

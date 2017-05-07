@@ -28,7 +28,7 @@ int input_test(char value_Wait) {
 
 void test_Power(MotorsAll * motorsAll3){
 
-	int power[NUMBER_OF_MOTORS];
+	int power[NUMBER_OF_MOTORS]={1000,1000,1000,1000};
 	int valueAsk=MOTOR_LOW_TIME;
 
 	int palier=50;

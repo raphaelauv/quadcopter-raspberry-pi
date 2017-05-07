@@ -11,13 +11,14 @@
 //#include "RTIMULib/RTIMULib.h"
 //#include "Calibrage/Calibration_ESC.h"
 
+#define VIBRATION_Moving_average 20
 
 #define PID_SLEEP_TIME_SECURITE 10
 #define PID_SLEEP_VERIF_FREQUENCY 20
 
-#define P 1.8
-#define I 0.01
-#define D 80
+#define P 1
+#define I 0
+#define D 15
 
 //PID pitch
 #define PID_GAIN_P_PITCH P
@@ -29,12 +30,12 @@
 //PID roll
 #define PID_GAIN_P_ROLL P
 #define PID_GAIN_I_ROLL I
-#define PID_GAIN_D_ROLL D
+#define PID_GAIN_D_ROLL 15
 #define PID_MAX_ROLL 400
 
 //PID yaw
-#define PID_GAIN_P_YAW 5
-#define PID_GAIN_I_YAW 0.02
+#define PID_GAIN_P_YAW 3
+#define PID_GAIN_I_YAW 0.01
 #define PID_MAX_YAW 400
 
 #define MAX_CONTROLLER_VALUE 100
