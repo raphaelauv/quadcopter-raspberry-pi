@@ -1,44 +1,55 @@
 #include "motors.h"
 
-int init_MotorsAll(MotorsAll ** motorsAll3 , volatile sig_atomic_t * boolStopMotor){
+int init_MotorsAll(MotorsAll ** motorsAll , volatile sig_atomic_t * boolStopMotor){
 
-	*motorsAll3 = (MotorsAll *) malloc(sizeof(MotorsAll));
-	if (*motorsAll3 == NULL) {
-		logString("MALLOC FAIL : motorsAll");
-		return -1;
+	int testError=0;
+	PCA9685 * pcaMotors;
+	PMutex * mutexValues;
+
+	*motorsAll = (MotorsAll *) malloc(sizeof(MotorsAll));
+	if (*motorsAll == NULL) {
+		logString("MALLOC FAIL : init_MotorsAll motorsAll");
+		goto cleanFail;
 	}
 
 	setMode_PCA9685(FLAG_CUSTOM_I2C);
 
-	PCA9685 * pcaMotors;
 	if (initPCA9685(&pcaMotors, CHANNEL_I2C, 0x40)) {
 		logString("initPCA9685 FAIL");
-		return -1;
+		goto cleanFail;
 	}
+	(*motorsAll)->motors=pcaMotors;
 
-	PMutex * mutexValues = (PMutex *) malloc(sizeof(PMutex));
+	mutexValues = (PMutex *) malloc(sizeof(PMutex));
 	if (mutexValues == NULL) {
-		logString("MALLOC FAIL : barrier");
-		return -1;
+		logString("MALLOC FAIL : init_MotorsAll mutexValues");
+		goto cleanFail;
 	}
+	(*motorsAll)->MutexSetValues=mutexValues;
 	init_PMutex(mutexValues);
 
 
-	(*motorsAll3)->boolMotorStop=boolStopMotor;
-	(*motorsAll3)->motorStop=0;
-	(*motorsAll3)->MutexSetValues=mutexValues;
+	(*motorsAll)->boolMotorStop=boolStopMotor;
+	(*motorsAll)->motorStop=0;
+
 
 	#ifdef __arm__
-	PCA9685_setPWM_1(pcaMotors,1, MOTOR_LOW_TIME);
-	PCA9685_setPWM_1(pcaMotors,2, MOTOR_LOW_TIME);
-	PCA9685_setPWM_1(pcaMotors,3, MOTOR_LOW_TIME);
-	PCA9685_setPWM_1(pcaMotors,4, MOTOR_LOW_TIME);
+	testError+=PCA9685_setPWM_1(pcaMotors,1, MOTOR_LOW_TIME);
+	testError+=PCA9685_setPWM_1(pcaMotors,2, MOTOR_LOW_TIME);
+	testError+=PCA9685_setPWM_1(pcaMotors,3, MOTOR_LOW_TIME);
+	testError+=PCA9685_setPWM_1(pcaMotors,4, MOTOR_LOW_TIME);
 	#endif
 
-
-	(*motorsAll3)->motors=pcaMotors;
+	if(testError){
+		logString("MALLOC FAIL : init_MotorsAll PCA9685_setPWM_1");
+		goto cleanFail;
+	}
 
 	return 0;
+
+cleanFail:
+	clean_MotorsAll(*motorsAll);
+	return -1;
 
 }
 
@@ -51,36 +62,36 @@ void clean_MotorsAll(MotorsAll * arg) {
 	}
 }
 
-int set_power(MotorsAll * MotorsAll3, int * powers){
+int set_power(MotorsAll * MotorsAll, int * powers){
 
 	int result=0;
 
-	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
+	pthread_mutex_lock(&MotorsAll->MutexSetValues->mutex);
 
-	result= (MotorsAll3->motorStop);
+	result= (MotorsAll->motorStop);
 
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 
 		#ifdef __arm__
 		if(result==0){
-			PCA9685_setPWM_1(MotorsAll3->motors, i + MINIMUM_LED_VALUE, powers[i]);
+			PCA9685_setPWM_1(MotorsAll->motors, i + MINIMUM_LED_VALUE, powers[i]);
 		}else{
-			PCA9685_setPWM_1(MotorsAll3->motors, i + MINIMUM_LED_VALUE, 0);
+			PCA9685_setPWM_1(MotorsAll->motors, i + MINIMUM_LED_VALUE, 0);
 		}
 		#endif
 	}
 
-	pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
+	pthread_mutex_unlock(&MotorsAll->MutexSetValues->mutex);
 
 	return result;
 }
 
-void set_Motor_Stop(MotorsAll * MotorsAll3){
+void set_Motor_Stop(MotorsAll * MotorsAll){
 
-	pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
-	MotorsAll3->motorStop=1;
-	pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
-	set_power(MotorsAll3,NULL);
+	pthread_mutex_lock(&MotorsAll->MutexSetValues->mutex);
+	MotorsAll->motorStop=1;
+	pthread_mutex_unlock(&MotorsAll->MutexSetValues->mutex);
+	set_power(MotorsAll,NULL);
 
 
 	//TODO -> to delete
@@ -95,21 +106,21 @@ void set_Motor_Stop(MotorsAll * MotorsAll3){
 	
 }
 
-int is_Motor_Stop(MotorsAll * MotorsAll3){
+int is_Motor_Stop(MotorsAll * MotorsAll){
 
 	//first look to glabal signal value
-	int value = *(MotorsAll3->boolMotorStop);
+	int value = *(MotorsAll->boolMotorStop);
 	if(value){
-		pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
-		MotorsAll3->motorStop=1;
-		pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
+		pthread_mutex_lock(&MotorsAll->MutexSetValues->mutex);
+		MotorsAll->motorStop=1;
+		pthread_mutex_unlock(&MotorsAll->MutexSetValues->mutex);
 		return value;
 
 	//or look to the atomic value
 	}else{
-		pthread_mutex_lock(&MotorsAll3->MutexSetValues->mutex);
-		value=MotorsAll3->motorStop;
-		pthread_mutex_unlock(&MotorsAll3->MutexSetValues->mutex);
+		pthread_mutex_lock(&MotorsAll->MutexSetValues->mutex);
+		value=MotorsAll->motorStop;
+		pthread_mutex_unlock(&MotorsAll->MutexSetValues->mutex);
 		return value;
 	}
 }

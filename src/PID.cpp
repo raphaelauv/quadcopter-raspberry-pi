@@ -6,7 +6,7 @@ int init_args_PID(args_PID ** argPID){
     *argPID =(args_PID *) malloc(sizeof(args_PID));
     if (*argPID == NULL) {
         logString("MALLOC FAIL : init_args_PID");
-        return EXIT_FAILURE;
+        return -1;
     }
     
     
@@ -15,34 +15,36 @@ int init_args_PID(args_PID ** argPID){
     imu = sensorInit();
     
     if(imu==NULL){
-        logString("THREAD MAIN : ERROR NEW FAIL RTIMU ->imu");
-        return EXIT_FAILURE;
+        logString("ERROR NEW FAIL RTIMU ->imu");
+        goto cleanFail;
     }else{
-        logString("THREAD MAIN : CAPTEUR INIT SUCCES");
+        logString("CAPTEUR INIT SUCCES");
         (*argPID)->imu=imu;
     }
 #endif
     
     if(initHardwareADC(DEFAULT_CHANNEL_ADCNUM)){
     	logString("initHardwareADC FAIL");
-    	return EXIT_FAILURE;
+    	goto cleanFail;
     }
 
-
     return 0;
+
+cleanFail:
+	clean_args_PID(*argPID);
+	return -1;
 }
 
 void clean_args_PID(args_PID * arg) {
     if (arg != NULL) {
-        clean_MotorsAll(arg->motorsAll3);
-        clean_DataController(arg->dataController);
 
-#ifdef __arm__
+
+		#ifdef __arm__
         if( arg->imu !=NULL){
             delete(arg->imu);
             arg->imu=NULL;
         }
-#endif
+		#endif
         free(arg);
     }
 }
@@ -265,12 +267,12 @@ void * thread_PID(void * args){
     /*				START PID SECURITY SLEEP				*/
 
     if(isCalibration()){
-    	iterSecuritySleep=PID_SLEEP_TIME_SECURITE * PID_SLEEP_VERIF_FREQUENCY;
+    	iterSecuritySleep=PID_SLEEP_TIME_SECURITE_SECONDE * PID_SLEEP_VERIF_FREQUENCY;
     	//to skip security sleep
     }else{
     	logString("THREAD PID : SECURITY SLEEP");
     }
-    while(iterSecuritySleep<PID_SLEEP_TIME_SECURITE * PID_SLEEP_VERIF_FREQUENCY){
+    while(iterSecuritySleep<PID_SLEEP_TIME_SECURITE_SECONDE * PID_SLEEP_VERIF_FREQUENCY){
 
     	iterSecuritySleep++;
     	pthread_mutex_lock(&(mutexDataControler->mutex));
@@ -278,13 +280,15 @@ void * thread_PID(void * args){
     	pthread_mutex_unlock(&(mutexDataControler->mutex));
 		if (tmpFlagRemoteMSG == 0) {
 			continuThread=0;
+			break;
 		}
-		if (is_Motor_Stop(controle_vol->motorsAll3)) {
+		if (is_Motor_Stop(controle_vol->motorsAll)) {
 			continuThread=0;
+			break;
 		}
 
     	else{
-			nanoSleepSecure(nanoSleepTimeIntervalOfSecuritySleep);
+    		clockNanoSleepSecure(nanoSleepTimeIntervalOfSecuritySleep);
 		}
     }
     /****************END SECURITY SLEEP*************************/
@@ -298,7 +302,7 @@ void * thread_PID(void * args){
 
     	clock_gettime(CLOCK_MONOTONIC, &t0);//TODO
 
-        if(is_Motor_Stop(controle_vol->motorsAll3)){
+        if(is_Motor_Stop(controle_vol->motorsAll)){
         	break;
         }
         
@@ -515,14 +519,6 @@ void * thread_PID(void * args){
             puissance_motor2=client_gaz + output_pid_pitch - output_pid_roll - output_pid_yaw;
             puissance_motor3=client_gaz - output_pid_pitch - output_pid_roll + output_pid_yaw;
             
-		/*
-            int puissanceTestPowerGramme=1400;
-            puissance_motor0=puissanceTestPowerGramme;
-            puissance_motor1=puissanceTestPowerGramme;
-            puissance_motor2=puissanceTestPowerGramme;
-            puissance_motor3=puissanceTestPowerGramme;
-		*/
-
 
             /*******************BATTERY MOTOR CALIB**************/
             if(batteryValue<=BATTERY_HIGH_LIMIT && batteryValue>=BATTERY_LOW_LIMIT){
@@ -544,13 +540,14 @@ void * thread_PID(void * args){
 
 
             /*******************SECURITY VALUES MOTORS**************/
-            //Pour jamais mettre a l'arret les moteur.
+
+            //NEVE STOP ROTATION OF PROPELLERS
             if(puissance_motor0<MOTOR_MIN_ROTATE_TIME) puissance_motor0=MOTOR_MIN_ROTATE_TIME;
             if(puissance_motor1<MOTOR_MIN_ROTATE_TIME) puissance_motor1=MOTOR_MIN_ROTATE_TIME;
             if(puissance_motor2<MOTOR_MIN_ROTATE_TIME) puissance_motor2=MOTOR_MIN_ROTATE_TIME;
             if(puissance_motor3<MOTOR_MIN_ROTATE_TIME) puissance_motor3=MOTOR_MIN_ROTATE_TIME;
             
-            //puissance max=MOTOR_HIGH_TIME donc il faut pas depasser.
+            //MAXIMUM TO ASK IS LIMIT OF MOTORS
             if(puissance_motor0>MOTOR_HIGH_TIME) puissance_motor0=MOTOR_HIGH_TIME;
             if(puissance_motor1>MOTOR_HIGH_TIME) puissance_motor1=MOTOR_HIGH_TIME;
             if(puissance_motor2>MOTOR_HIGH_TIME) puissance_motor2=MOTOR_HIGH_TIME;
@@ -565,23 +562,16 @@ void * thread_PID(void * args){
 			}
 
 		*/
-            if(testvibration){
-            	powerTab[0] = 1050;
-            	powerTab[1] = 1050;
-            	powerTab[2] = 1050;
-            	powerTab[3] = 1050;
-            }else{
-            	powerTab[0] = puissance_motor0;
-				powerTab[1] = puissance_motor1;
-				powerTab[2] = puissance_motor2;
-				powerTab[3] = puissance_motor3;
-            }
 
+			powerTab[0] = puissance_motor0;
+			powerTab[1] = puissance_motor1;
+			powerTab[2] = puissance_motor2;
+			powerTab[3] = puissance_motor3;
             
             if(modeCalibration){
             	//nothing to apply because we are in a calibrate mode execution
             }else{
-            	set_power(controle_vol->motorsAll3,powerTab);
+            	set_power(controle_vol->motorsAll,powerTab);
             }
             
             /*************************END PID****************************/
@@ -636,7 +626,8 @@ void * thread_PID(void * args){
 			logString(arrayLog);
 		}else{
 			//nanoSleepSecure( (local_period-timeBetween) * NSEC_TO_USEC_MULTIPLE);
-			clock_nanosleep(CLOCK_MONOTONIC,0,&tim,NULL);
+			//clock_nanosleep(CLOCK_MONOTONIC,0,&tim,NULL);
+			clockNanoSleepSecure(tim.tv_nsec);
 		}
 		/***********END SLEEP PID FREQUENCY***********/
 
@@ -645,7 +636,7 @@ void * thread_PID(void * args){
 
 endPid:
 
-    set_Motor_Stop(controle_vol->motorsAll3);
+    set_Motor_Stop(controle_vol->motorsAll);
     logString("THREAD PID : END");
     return NULL;
 }

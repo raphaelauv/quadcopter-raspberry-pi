@@ -26,91 +26,112 @@ int is_Serv_Stop(args_SERVER * argServ){
 
 int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ){
 
+	PMutex * PmutexPID_INFO;
+	PMutex * PmutexDataControler;
+	PMutex * PmutexRemoteConnect;
+	PMutex * mutexServ;
 
-	PMutex * PmutexPID_INFO = (PMutex *) malloc(sizeof(PMutex));
-	if (PmutexPID_INFO == NULL) {
-		logString("MALLOC FAIL : PmutexPID_INFO");
-		return EXIT_FAILURE;
-	}
-
-	init_PMutex(PmutexPID_INFO);
-
-
-	PID_INFO * pidInfo =(PID_INFO *) malloc(sizeof(PID_INFO));
-	if (pidInfo == NULL) {
-		logString("MALLOC FAIL : pidInfo");
-		return EXIT_FAILURE;
-	}
-	pidInfo->pmutex=PmutexPID_INFO;
-
-
-	PMutex * PmutexDataControler = (PMutex *) malloc(sizeof(PMutex));
-	if (PmutexDataControler == NULL) {
-		logString("MALLOC FAIL : PmutexDataControler");
-		return EXIT_FAILURE;
-	}
-	init_PMutex(PmutexDataControler);
-
-
-	DataController * dataControl =(DataController *) malloc(sizeof(DataController));
-	if (dataControl == NULL) {
-		logString("MALLOC FAIL : dataControl");
-		return EXIT_FAILURE;
-	}
-	dataControl->pmutex=PmutexDataControler;
-	dataControl->flag=2;
-
-	PMutex * PmutexRemoteConnect = (PMutex *) malloc(sizeof(PMutex));
-	if(PmutexRemoteConnect==NULL){
-		logString("MALLOC FAIL : PmutexRemoteConnect");
-		return EXIT_FAILURE;
-	}
-	init_PMutex(PmutexRemoteConnect);
-
-
-	*argServ =(args_SERVER *) malloc(sizeof(args_SERVER));
-	if (*argServ == NULL) {
-		logString("MALLOC FAIL : argServ");
-		return EXIT_FAILURE;
-	}
-	(*argServ)->pmutexRemoteConnect = PmutexRemoteConnect;
-	(*argServ)->dataController = dataControl;
-
-	(*argServ)->boolStopServ=boolStopServ;
-
-	(*argServ)->pidInfo=pidInfo;
-
-	(*argServ)->servStop=0;
-
-
-	PMutex * mutexServ = (PMutex *) malloc(sizeof(PMutex));
-	if (mutexServ == NULL) {
-		logString("MALLOC FAIL : barrier");
-		return -1;
-	}
-	init_PMutex(mutexServ);
-	(*argServ)->pmutexServ=mutexServ;
-
-	int sock;
+	PID_INFO * pidInfo;
+	DataController * dataControl;
+	int sockTmp=-1;
 	struct sockaddr_in adr_svr;
 	memset(&adr_svr, 0, sizeof(adr_svr));
 	adr_svr.sin_family 		= AF_INET;
 	adr_svr.sin_addr.s_addr = htonl(INADDR_ANY);
 	adr_svr.sin_port 		= htons(UDP_PORT_DRONE);
 
-	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
-		logString("THREAD SERV : Socket error");
-		return EXIT_FAILURE;
-	}
-    
-	if(bindUDPSock(&sock,&adr_svr) == -1){
-		return EXIT_FAILURE;
-	}
-	(*argServ)->sock=sock;
 
+
+	*argServ = (args_SERVER *) malloc(sizeof(args_SERVER));
+	if (*argServ == NULL) {
+		logString("MALLOC FAIL : argServ");
+		goto cleanFail;
+	}
+
+
+	if (((*argServ)->sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
+		logString("open Socket error");
+		goto cleanFail;
+	}
+
+
+	if(bindUDPSock(&((*argServ)->sock),&adr_svr) == -1){
+		goto cleanFail;
+	}
+
+
+
+	/****************************PID_INFO**********************************/
+
+	pidInfo = (PID_INFO *) malloc(sizeof(PID_INFO));
+	if (pidInfo == NULL) {
+		logString("MALLOC FAIL : pidInfo");
+		goto cleanFail;
+	}
+	(*argServ)->pidInfo=pidInfo;
+
+
+	PmutexPID_INFO = (PMutex *) malloc(sizeof(PMutex));
+	if (PmutexPID_INFO == NULL) {
+		logString("MALLOC FAIL : PmutexPID_INFO");
+		goto cleanFail;
+	}
+	init_PMutex(PmutexPID_INFO);
+	pidInfo->pmutex=PmutexPID_INFO;
+
+	/**********************************************************************/
+
+
+	/**************************DATA CONTROLLER*****************************/
+
+	dataControl = (DataController *) malloc(sizeof(DataController));
+	if (dataControl == NULL) {
+		logString("MALLOC FAIL : dataControl");
+		goto cleanFail;
+	}
+	(*argServ)->dataController = dataControl;
+
+
+	PmutexDataControler = (PMutex *) malloc(sizeof(PMutex));
+	if (PmutexDataControler == NULL) {
+		logString("MALLOC FAIL : PmutexDataControler");
+		goto cleanFail;
+	}
+	dataControl->pmutex=PmutexDataControler;
+	init_PMutex(PmutexDataControler);
+	dataControl->flag=2;
+
+	/**********************************************************************/
+
+
+
+	PmutexRemoteConnect = (PMutex *) malloc(sizeof(PMutex));
+	if (PmutexRemoteConnect == NULL) {
+		logString("MALLOC FAIL : PmutexRemoteConnect");
+		goto cleanFail;
+	}
+	(*argServ)->pmutexRemoteConnect = PmutexRemoteConnect;
+	init_PMutex(PmutexRemoteConnect);
+
+	(*argServ)->boolStopServ=boolStopServ;
+	(*argServ)->servStop=0;
+
+
+	mutexServ = (PMutex *) malloc(sizeof(PMutex));
+	if (mutexServ == NULL) {
+		logString("MALLOC FAIL : mutexServ");
+		goto cleanFail;
+	}
+	(*argServ)->pmutexServ=mutexServ;
+	init_PMutex(mutexServ);//TODO
 
 
 	return 0;
+
+cleanFail:
+	clean_args_SERVER(*argServ);
+	return -1;
+
 }
 
 
@@ -118,13 +139,15 @@ void clean_args_SERVER(args_SERVER * arg) {
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutexRemoteConnect);
 		clean_PMutex(arg->pmutexServ);
+		clean_DataController(arg->dataController);
+		clean_PID_INFO(arg->pidInfo);
 		free(arg);
 	}
 }
 
 void MessageToStruc(char * message,int sizeFloat,DataController * dataTmp){
 
-
+	//TODO write a real and good code for this
 	int tmp=SIZE_MSG_HEADER_DATA;
 
 	float a=strtof(message+tmp,NULL);

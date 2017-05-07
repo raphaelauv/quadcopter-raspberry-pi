@@ -16,6 +16,8 @@ void handler_SIGINT_Drone(int i){
 
 int main (int argc, char *argv[]){
 
+	int exitValue=0;
+
 	init_mask(handler_SIGINT_Drone);
 	
 	if(tokenAnalyse(argc,argv,FLAG_OPTIONS_DRONE)){
@@ -35,8 +37,8 @@ int main (int argc, char *argv[]){
 		return EXIT_FAILURE;
 	}
 
-	MotorsAll * motorsAll3;
-	if (init_MotorsAll(&motorsAll3,&boolStopMotor)) {
+	MotorsAll * motorsAll;
+	if (init_MotorsAll(&motorsAll,&boolStopMotor)) {
 		return EXIT_FAILURE;
 	}
 
@@ -47,7 +49,7 @@ int main (int argc, char *argv[]){
 
 	argPID->dataController=argServ->dataController;
 	argPID->pidInfo=argServ->pidInfo;
-	argPID->motorsAll3=motorsAll3;
+	argPID->motorsAll=motorsAll;
 
 	pthread_t threadServer;
 	pthread_t threadPID;
@@ -55,28 +57,37 @@ int main (int argc, char *argv[]){
 	void *threadPID_stack_buf=NULL;
 
 	if(isControl()){
-		pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex);
+		if(pthread_mutex_lock(&argServ->pmutexRemoteConnect->mutex)){
+			exitValue=1;
+			goto cleanAndExit;
+		}
 
 		if (pthread_create(&threadServer, NULL, thread_UDP_SERVER, argServ)) {
 			logString("THREAD MAIN : ERROR pthread_create SERVER\n");
-			set_Motor_Stop(motorsAll3);
-			return EXIT_FAILURE;
+			set_Motor_Stop(motorsAll);
+			exitValue=1;
+			goto cleanAndExit;
 		}
 
 		pthread_cond_wait(&argServ->pmutexRemoteConnect->condition, &argServ->pmutexRemoteConnect->mutex);
 
-		pthread_mutex_unlock(&argServ->pmutexRemoteConnect->mutex);
+		if(pthread_mutex_unlock(&argServ->pmutexRemoteConnect->mutex)){
+			exitValue=1;
+			goto cleanAndExit;
+		}
 
 		if (is_Serv_Stop(argServ)) {
-			return EXIT_FAILURE;
+			exitValue=1;
+			goto cleanAndExit;
 		}
 	}
 
 	if(init_thread_PID(&threadPID,threadPID_stack_buf,argPID)){
 		logString("THREAD MAIN : ERROR pthread_create PID\n");
-		set_Motor_Stop(motorsAll3);
+		set_Motor_Stop(motorsAll);
 		set_Serv_Stop(argServ);
-		return EXIT_FAILURE;
+		exitValue=1;
+		goto cleanAndExit;
 	}
 
 	/**
@@ -85,36 +96,37 @@ int main (int argc, char *argv[]){
 	if (isCalibration()) {
 
 		if(isTestpower()){
-			test_Power(motorsAll3);
+			test_Power(motorsAll);
 		}else{
-			calibrate_ESC(motorsAll3, isVerbose());
+			calibrate_ESC(motorsAll, isVerbose());
 		}
-		set_Motor_Stop(motorsAll3);
+		set_Motor_Stop(motorsAll);
 		set_Serv_Stop(argServ);
 	}
 
 
-	int * returnValue;
-
-	int re=0;
-
-	if (pthread_join(threadPID, (void**) &returnValue)) {
+	if (pthread_join(threadPID, NULL)) {
 		logString("THREAD MAIN : ERROR pthread_join PID");
-		set_Motor_Stop(motorsAll3);
+		set_Motor_Stop(motorsAll);
 		set_Serv_Stop(argServ);
-		return EXIT_FAILURE;
+		exitValue=1;
+		goto cleanAndExit;
 	}
 
 
 	if (isControl()) {
-		if ((re = pthread_join(threadServer, NULL)) > 0) {
+		if (pthread_join(threadServer, NULL)) {
 			logString("THREAD MAIN : ERROR pthread_join SERVER");
-			set_Motor_Stop(motorsAll3);
+			set_Motor_Stop(motorsAll);
 			set_Serv_Stop(argServ);
-			return EXIT_FAILURE;
+			exitValue=1;
+			goto cleanAndExit;
 		}
 	}
 
+
+
+cleanAndExit:
 
 	if(threadPID_stack_buf!=NULL){
 		//munmap(threadPID_stack_buf, PTHREAD_STACK_MIN);
@@ -122,9 +134,10 @@ int main (int argc, char *argv[]){
 
 	clean_args_SERVER(argServ);
 	clean_args_PID(argPID);
+	clean_MotorsAll(motorsAll);
 
 	logString("THREAD MAIN : END");
 	closeLogFile();
-	return EXIT_SUCCESS;
+	return exitValue;
 
 }

@@ -17,10 +17,10 @@ typedef struct MotorsAll {
 	volatile sig_atomic_t * boolMotorStop;
 } MotorsAll;
 
-int init_MotorsAll(MotorsAll ** motorsAll3,volatile sig_atomic_t * boolMotorStop);
-int set_power(MotorsAll * MotorsAll3, int * powers);
-void set_Motor_Stop(MotorsAll * MotorsAll3);
-int is_Motor_Stop(MotorsAll * MotorsAll3);
+int init_MotorsAll(MotorsAll ** motorsAll,volatile sig_atomic_t * boolMotorStop);
+int set_power(MotorsAll * MotorsAll, int * powers);
+void set_Motor_Stop(MotorsAll * MotorsAll);
+int is_Motor_Stop(MotorsAll * MotorsAll);
 void clean_MotorsAll(MotorsAll * arg);
 
 #endif

@@ -13,7 +13,7 @@
 
 #define VIBRATION_Moving_average 20
 
-#define PID_SLEEP_TIME_SECURITE 10
+#define PID_SLEEP_TIME_SECURITE_SECONDE 10
 #define PID_SLEEP_VERIF_FREQUENCY 20
 
 #define P 1
@@ -44,8 +44,10 @@
 
 #define PID_ANGLE_MULTIPLE ( MAX_CONTROLLER_VALUE * PID_ANGLE_PRECISION_MULTIPLE ) / PID_MAX_ANGLE
 
+
+
 typedef struct args_PID {
-	MotorsAll * motorsAll3;
+	MotorsAll * motorsAll;
 	DataController * dataController;
 	RTIMU * imu; //	RTIMU *
 	PID_INFO * pidInfo;

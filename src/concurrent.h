@@ -104,7 +104,7 @@ int init_Attr_Pthread(pthread_attr_t *attributs, int priority,int id_cpu,void *s
 
 
 //sleep nano seconde , if fail return -1 else return 0
-inline int nanoSleepSecure(int nano) {
+inline int clockNanoSleepSecure(long nano) {
 
 	struct timespec tim, tim2;
 
@@ -123,8 +123,8 @@ inline int nanoSleepSecure(int nano) {
 	int i=0;
 
 	int result = 1;
-	result = nanosleep(&tim, &tim2);
-	//result= clock_nanosleep(CLOCK_MONOTONIC,0,&tim,&tim2);
+	//result = nanosleep(&tim, &tim2);
+	result= clock_nanosleep(CLOCK_MONOTONIC,0,&tim,&tim2);
 	/* TODO a tester
 	i++;
 	while (result != 0) {

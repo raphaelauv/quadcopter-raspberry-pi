@@ -65,6 +65,17 @@ void clean_DataController(DataController * arg){
 	}
 }
 
+int init_PID_INFO(PID_INFO ** pidInfo) {
+
+	*pidInfo = (PID_INFO *) malloc(sizeof(PID_INFO));
+	if (*pidInfo == NULL) {
+		logString("MALLOC FAIL : PID_INFO");
+	}
+
+
+
+}
+
 void clean_PID_INFO(PID_INFO * arg){
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutex);
