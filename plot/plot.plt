@@ -11,6 +11,10 @@ set multiplot layout 6,1 rowsfirst
 		set title name
 		plot for [col=2:5:1] 'plotData.dat' using 0:col with lines title columnheader
 
+		name="ANGLE (pitch roll)"
+		set title name
+		plot for [col=6:7:1] 'plotData.dat' using 0:col with lines title columnheader
+
 		name="CLIENT (pitch roll yaw)"
 		set title name
 		plot for [col=8:10:1] 'plotData.dat' using 0:col with lines title columnheader
@@ -25,7 +29,7 @@ set multiplot layout 6,1 rowsfirst
 
 		name="BATTERY"
 		set title name
-		plot for [col=15:15:1] 'plotData.dat' using 0:col with lines title columnheader
+		plot for [col=16:16:1] 'plotData.dat' using 0:col with lines title columnheader
 
 		plot [][-1:1] NaN t"" # to force the minimal redraw of last plot of unset multiplot  ( weakness of GNUPLOT)
 
