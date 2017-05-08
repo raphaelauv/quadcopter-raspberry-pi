@@ -6,7 +6,6 @@
 #include "Controller/controller.h"
 
 typedef struct args_CLIENT {
-	char verbose;
 	int sock;
 	char * adresse;
 	int clientStop;

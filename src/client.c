@@ -7,14 +7,15 @@ void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWi
 
 int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController,volatile sig_atomic_t * signalClientStop){
 
+	struct sockaddr_in * adr_client;
 
 	* argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
 	if (*argClient == NULL) {
 		logString("MALLOC FAIL : argClient");
-		return EXIT_FAILURE;
+		return -1;
 	}
 
-	(*argClient)->adresse=adresse;
+	(*argClient)->adresse=adresse;//TODO
 	(*argClient)->argController=argController;
 	(*argClient)->signalClientStop=signalClientStop;
 
@@ -24,18 +25,17 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 		logString("MALLOC FAIL : barrier");
 		return -1;
 	}
+	(*argClient)->pmutexClient=mutex;
 	init_PMutex(mutex);
 
-	(*argClient)->pmutexClient=mutex;
-
-	int sock;
+	int sock=-1;
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
 		logString("args_CLIENT CLIENT : Socket error");
-		return EXIT_FAILURE;
+		goto cleanFail;
 	}
+	(*argClient)->sock=sock;
 
 	//adr_my is for reception from drone
-
 	struct sockaddr_in adr_my;
 	memset(&adr_my, 0, sizeof(adr_my));
 	adr_my.sin_family 		= AF_INET;
@@ -44,44 +44,50 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 
 
 	if(bindUDPSock(&sock,&adr_my)==-1){
-		logString("THREAD CLIENT : Socket BIND error");
-		close(sock);
-		return EXIT_FAILURE;
+		logString("SOCKET ERROR : Socket BIND error");
+		goto cleanFail;
 	}
 
 
 	if(fcntl(sock, F_SETFL, O_NONBLOCK) < 0) {
 		logString("THREAD CLIENT : Socket NONBLOCK error");
-		close(sock);
-		return EXIT_FAILURE;
+		goto cleanFail;
 	}
 
-	(*argClient)->sock=sock;
 
-	struct sockaddr_in * adr_client=(struct sockaddr_in *) calloc(1,sizeof(struct sockaddr_in));
+	adr_client=(struct sockaddr_in *) calloc(1,sizeof(struct sockaddr_in));
 	if (adr_client == NULL) {
 		logString("MALLOC FAIL : argClient->adr_client");
-		close(sock);
-		return EXIT_FAILURE;
+		goto cleanFail;
 	}
+	(*argClient)->adr_client=adr_client;
 	//memset(adr_client, 0, sizeof(struct sockaddr_in));
 	adr_client->sin_family	= AF_INET;
 	adr_client->sin_port	= htons(UDP_PORT_DRONE);
 
 	if(inet_aton(adresse, &adr_client->sin_addr)==0){
-		printf("ERROR IP ADRESSE INVALIDE FORMAT : %s\n",adresse);
+		//printf("ERROR IP ADRESSE INVALIDE FORMAT : %s\n",adresse);
 		logString("FAIL INET_ATON IP ADRESS");
-		close(sock);
-		return EXIT_FAILURE;
+		goto cleanFail;
 	}
-	(*argClient)->adr_client=adr_client;
+
 
 	return 0;
+
+
+cleanFail:
+	if(sock!=-1){
+		close(sock);
+	}
+	clean_args_CLIENT(*argClient);
+	return -1;
+
 }
 
 void clean_args_CLIENT(args_CLIENT * arg) {
 	if (arg != NULL) {
 		clean_PMutex(arg->pmutexClient);
+		free(arg->adr_client);
 		free(arg);
 		arg = NULL;
 	}
@@ -151,18 +157,11 @@ void dataControllerToMessage(int sizeFloat,char * output,DataController * dataCo
 
 void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWithInfo){
 
-	/*
-	char *result;
-    if((result=(char *)malloc(strlen(s1)+strlen(s2)+2))==NULL){
-    	return NULL;
-    }
-	 */
     char space[2];
     space[0]=' ';
     space[1]=0;
 
     strcpy(messageWithInfo, typeMsg);
-    //strcat(messageWithInfo,(const char *) &space);
     strcat(messageWithInfo, s1);
     strcat(messageWithInfo,(const char *) &space);
     strcat(messageWithInfo, s2);
@@ -262,9 +261,9 @@ void *thread_UDP_CLIENT(void *args) {
 
 	int flag;
 	char messageReceve[SIZE_SOCKET_MESSAGE];
-	int resultMessageReceve=0;
+	//int resultMessageReceve=0;
 
-	int TMPvalueClientStop=0;
+	//int TMPvalueClientStop=0;
 	while (runClient) {
 
 
