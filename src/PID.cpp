@@ -53,10 +53,11 @@ void clean_args_PID(args_PID * arg) {
 
 
 void * thread_PID(void * args);
+
 /**
  * return 0 if Succes
  */
-int init_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * argPID){
+int start_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * argPID){
     
     pthread_attr_t attributs;
     if(init_Attr_Pthread(&attributs,CPU_PRIORITY_PID,CPU_CORE_PID,threadPID_stack_buf)){

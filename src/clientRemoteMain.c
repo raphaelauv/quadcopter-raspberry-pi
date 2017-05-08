@@ -1,12 +1,12 @@
 #include "client.h"
 #include "Controller/controller.h"
 
-volatile sig_atomic_t boolStopClient;
-volatile sig_atomic_t boolStopController;
+volatile sig_atomic_t signalClientStop;
+volatile sig_atomic_t signalControllerStop;
 
 void handler_SIGINT_client(int i){
-	boolStopClient=1;
-	boolStopController=1;
+	signalClientStop=1;
+	signalControllerStop=1;
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
 }
 
@@ -34,12 +34,12 @@ int main(int argc, char *argv[]){
 	logString(array);
 
 	args_CONTROLLER * argController;
-	if(init_args_CONTROLLER(&argController,&boolStopController)){
+	if(init_args_CONTROLLER(&argController,&signalControllerStop)){
 		return EXIT_FAILURE;
 	}
 
 	args_CLIENT * argClient;	
-	if(init_args_CLIENT(&argClient,adresse,argController,&boolStopClient)){
+	if(init_args_CLIENT(&argClient,adresse,argController,&signalClientStop)){
 		exitValue=1;
 		goto cleanAndExit;
 	}

@@ -5,7 +5,7 @@ void dataControllerToMessage(int sizeFloat,char * output,DataController * dataCo
 void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWithInfo);
 
 
-int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController,volatile sig_atomic_t * boolStopClient){
+int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController,volatile sig_atomic_t * signalClientStop){
 
 
 	* argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
@@ -16,7 +16,7 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 
 	(*argClient)->adresse=adresse;
 	(*argClient)->argController=argController;
-	(*argClient)->boolStopClient=boolStopClient;
+	(*argClient)->signalClientStop=signalClientStop;
 
 	(*argClient)->clientStop=0;
 	PMutex * mutex = (PMutex *) malloc(sizeof(PMutex));
@@ -95,7 +95,7 @@ void set_Client_Stop(args_CLIENT * argClient){
 }
 int is_Client_Stop(args_CLIENT * argClient){
 	//first look to glabal signal value
-	int value=*(argClient->boolStopClient);
+	int value=*(argClient->signalClientStop);
 	if(value){
 		set_Client_Stop(argClient);
 		return value;
@@ -186,6 +186,7 @@ void cleanMessageReceve(char * message,int size){
 int testCloseDrone(int sock,struct sockaddr_in * adr_client , char * message) {
 	int stopNotReceve = 1;
 	int cmp=0;
+	logString("THREAD CLIENT : STOP MESSAGE SENDING");
 	while (stopNotReceve) {
 		char messageReceve[SIZE_SOCKET_MESSAGE];
 		recvfrom(sock, messageReceve, SIZE_SOCKET_MESSAGE, 0, NULL, NULL); //NON BLOCKING

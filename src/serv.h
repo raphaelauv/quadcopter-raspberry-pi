@@ -15,13 +15,13 @@ typedef struct args_SERVER {
 	int sock;
 	int servStop;
 	PMutex * pmutexServ;
-	volatile sig_atomic_t * boolStopServ;
+	volatile sig_atomic_t * signalServStop;
 	PMutex * pmutexRemoteConnect;
 	DataController * dataController;
 	PID_INFO * pidInfo;
 } args_SERVER;
 
-int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ);
+int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * signalServStop);
 void clean_args_SERVER(args_SERVER * arg);
 
 void set_Serv_Stop(args_SERVER * argServ);

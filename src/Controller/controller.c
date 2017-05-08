@@ -16,7 +16,7 @@ void set_Controller_Stop(args_CONTROLLER * argControler){
 
 int is_Controller_Stop(args_CONTROLLER * argControler){
 	//first look to glabal signal value
-	int value=*(argControler->boolStopController);
+	int value=*(argControler->signalControllerStop);
 	if(value){
 		set_Controller_Stop(argControler);
 		return value;
@@ -47,7 +47,7 @@ void *thread_CONTROLLER(void *args) {
 	return NULL;
 }
 
-int init_args_CONTROLLER(args_CONTROLLER ** argController,volatile sig_atomic_t * boolStopController){
+int init_args_CONTROLLER(args_CONTROLLER ** argController,volatile sig_atomic_t * signalControllerStop){
 
 
 	DataController * dataController;
@@ -63,7 +63,7 @@ int init_args_CONTROLLER(args_CONTROLLER ** argController,volatile sig_atomic_t 
 
 
 	(*argController)->controllerStop=0;
-	(*argController)->boolStopController=boolStopController;
+	(*argController)->signalControllerStop=signalControllerStop;
 
 	pmutexControllerPlug =(PMutex *) malloc(sizeof(PMutex));
 	if (pmutexControllerPlug == NULL) {

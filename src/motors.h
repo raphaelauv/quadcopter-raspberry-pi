@@ -14,13 +14,15 @@ typedef struct MotorsAll {
 	PCA9685 * motors;
 	PMutex * MutexSetValues;
 	int motorStop;
-	volatile sig_atomic_t * boolMotorStop;
+	volatile sig_atomic_t * signalMotorStop;
 } MotorsAll;
 
-int init_MotorsAll(MotorsAll ** motorsAll,volatile sig_atomic_t * boolMotorStop);
+int init_MotorsAll(MotorsAll ** motorsAll,volatile sig_atomic_t * signalMotorStop);
+void clean_MotorsAll(MotorsAll * arg);
+
 int set_power(MotorsAll * MotorsAll, int * powers);
 void set_Motor_Stop(MotorsAll * MotorsAll);
 int is_Motor_Stop(MotorsAll * MotorsAll);
-void clean_MotorsAll(MotorsAll * arg);
+
 
 #endif

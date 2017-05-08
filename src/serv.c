@@ -8,7 +8,7 @@ void set_Serv_Stop(args_SERVER * argServ){
 int is_Serv_Stop(args_SERVER * argServ){
 
 	//first look to glabal signal value
-	int value=*(argServ->boolStopServ);
+	int value=*(argServ->signalServStop);
 	if(value){
 		set_Serv_Stop(argServ);
 		return value;
@@ -22,16 +22,16 @@ int is_Serv_Stop(args_SERVER * argServ){
 	}
 }
 
-int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ){
+int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * signalServStop){
 
 	PMutex * PmutexPID_INFO;
 	PMutex * PmutexDataControler;
 	PMutex * PmutexRemoteConnect;
-	PMutex * mutexServ;
+	PMutex * PmutexServ;
 
 	PID_INFO * pidInfo;
 	DataController * dataControl;
-	int sockTmp=-1;
+
 	struct sockaddr_in adr_svr;
 	memset(&adr_svr, 0, sizeof(adr_svr));
 	adr_svr.sin_family 		= AF_INET;
@@ -48,7 +48,7 @@ int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ
 
 
 	if (((*argServ)->sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
-		logString("open Socket error");
+		logString("SOCKET FAIL : open Socket error");
 		goto cleanFail;
 	}
 
@@ -111,17 +111,17 @@ int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * boolStopServ
 	(*argServ)->pmutexRemoteConnect = PmutexRemoteConnect;
 	init_PMutex(PmutexRemoteConnect);
 
-	(*argServ)->boolStopServ=boolStopServ;
+	(*argServ)->signalServStop=signalServStop;
 	(*argServ)->servStop=0;
 
 
-	mutexServ = (PMutex *) malloc(sizeof(PMutex));
-	if (mutexServ == NULL) {
+	PmutexServ = (PMutex *) malloc(sizeof(PMutex));
+	if (PmutexServ == NULL) {
 		logString("MALLOC FAIL : mutexServ");
 		goto cleanFail;
 	}
-	(*argServ)->pmutexServ=mutexServ;
-	init_PMutex(mutexServ);//TODO
+	(*argServ)->pmutexServ=PmutexServ;
+	init_PMutex(PmutexServ);
 
 
 	return 0;
@@ -342,10 +342,10 @@ void *thread_UDP_SERVER(void *args) {
 			counterMsg++;
 			if(counterMsg%freqConfirm==0){
 
-				float voltageVale;
+				float voltageValue;
 
 				pthread_mutex_lock(&(pidInfo->pmutex->mutex));
-				voltageVale=pidInfo->battery;
+				voltageValue=pidInfo->battery;
 				pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
 
 				//TODO

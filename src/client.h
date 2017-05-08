@@ -11,13 +11,13 @@ typedef struct args_CLIENT {
 	char * adresse;
 	int clientStop;
 	PMutex * pmutexClient;
-	volatile sig_atomic_t * boolStopClient;
+	volatile sig_atomic_t * signalClientStop;
 	struct sockaddr_in * adr_client;
 	args_CONTROLLER * argController;
 } args_CLIENT;
 
 
-int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController,volatile sig_atomic_t * boolStopClient);
+int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController,volatile sig_atomic_t * signalClientStop);
 void clean_args_CLIENT(args_CLIENT * arg);
 
 void set_Client_Stop(args_CLIENT * argClient);

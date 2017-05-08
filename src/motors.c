@@ -1,6 +1,6 @@
 #include "motors.h"
 
-int init_MotorsAll(MotorsAll ** motorsAll , volatile sig_atomic_t * boolStopMotor){
+int init_MotorsAll(MotorsAll ** motorsAll , volatile sig_atomic_t * signalMotorStop){
 
 	int testError=0;
 	PCA9685 * pcaMotors;
@@ -9,7 +9,7 @@ int init_MotorsAll(MotorsAll ** motorsAll , volatile sig_atomic_t * boolStopMoto
 	*motorsAll = (MotorsAll *) malloc(sizeof(MotorsAll));
 	if (*motorsAll == NULL) {
 		logString("MALLOC FAIL : init_MotorsAll motorsAll");
-		goto cleanFail;
+		return -1;
 	}
 
 	setMode_PCA9685(FLAG_CUSTOM_I2C);
@@ -29,7 +29,7 @@ int init_MotorsAll(MotorsAll ** motorsAll , volatile sig_atomic_t * boolStopMoto
 	init_PMutex(mutexValues);
 
 
-	(*motorsAll)->boolMotorStop=boolStopMotor;
+	(*motorsAll)->signalMotorStop=signalMotorStop;
 	(*motorsAll)->motorStop=0;
 
 
@@ -62,54 +62,51 @@ void clean_MotorsAll(MotorsAll * arg) {
 	}
 }
 
+/*
+ * Return -1 if fail , 0 if succes , 1 if motorsAreStop
+ */
 int set_power(MotorsAll * MotorsAll, int * powers){
 
-	int result=0;
+	int errors=0;
+	int isStop=0;
+
 
 	pthread_mutex_lock(&MotorsAll->MutexSetValues->mutex);
 
-	result= (MotorsAll->motorStop);
+	isStop= (MotorsAll->motorStop);
 
 	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
 
 		#ifdef __arm__
-		if(result==0){
-			PCA9685_setPWM_1(MotorsAll->motors, i + MINIMUM_LED_VALUE, powers[i]);
+		if(isStop==0){
+			errors+=PCA9685_setPWM_1(MotorsAll->motors, i + MINIMUM_LED_VALUE, 0);
 		}else{
-			PCA9685_setPWM_1(MotorsAll->motors, i + MINIMUM_LED_VALUE, 0);
+			errors+=PCA9685_setPWM_1(MotorsAll->motors, i + MINIMUM_LED_VALUE, powers[i]);
 		}
 		#endif
 	}
 
 	pthread_mutex_unlock(&MotorsAll->MutexSetValues->mutex);
 
-	return result;
+	if(errors){
+		return -1;
+	}
+
+
+	return isStop;
 }
 
 void set_Motor_Stop(MotorsAll * MotorsAll){
-
 	pthread_mutex_lock(&MotorsAll->MutexSetValues->mutex);
 	MotorsAll->motorStop=1;
 	pthread_mutex_unlock(&MotorsAll->MutexSetValues->mutex);
 	set_power(MotorsAll,NULL);
-
-
-	//TODO -> to delete
-	/* 
-	int tabMin[NUMBER_OF_MOTORS];
-	for (int i = 0; i < NUMBER_OF_MOTORS; i++) {
-		tabMin[i] = MOTOR_LOW_TIME;
-	}
-
-	set_power3(MotorsAll3,tabMin);
-	*/
-	
 }
 
 int is_Motor_Stop(MotorsAll * MotorsAll){
 
-	//first look to glabal signal value
-	int value = *(MotorsAll->boolMotorStop);
+	//first look to global signal value
+	int value = *(MotorsAll->signalMotorStop);
 	if(value){
 		pthread_mutex_lock(&MotorsAll->MutexSetValues->mutex);
 		MotorsAll->motorStop=1;

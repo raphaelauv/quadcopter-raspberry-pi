@@ -4,13 +4,13 @@
 #include "PID.hpp"
 #include "Calibration/calibrate.h"
 
-volatile sig_atomic_t boolStopMotor;
-volatile sig_atomic_t boolStopServ;
+volatile sig_atomic_t signalMotorStop;
+volatile sig_atomic_t signalServStop;
 
 
 void handler_SIGINT_Drone(int i){
-	boolStopServ=1;
-	boolStopMotor=1;
+	signalServStop=1;
+	signalMotorStop=1;
 	logString("THREAD MAIN : SIGINT catched -> process to stop");
 }
 
@@ -36,12 +36,12 @@ int main (int argc, char *argv[]){
 	}
 
 	args_SERVER * argServ;
-	if(init_args_SERVER(&argServ,&boolStopServ)){
+	if(init_args_SERVER(&argServ,&signalServStop)){
 		return EXIT_FAILURE;
 	}
 
 	MotorsAll * motorsAll;
-	if (init_MotorsAll(&motorsAll,&boolStopMotor)) {
+	if (init_MotorsAll(&motorsAll,&signalMotorStop)) {
 		exitValue=1;
 		goto cleanAndExit;
 	}
@@ -84,7 +84,7 @@ int main (int argc, char *argv[]){
 		}
 	}
 
-	if(init_thread_PID(&threadPID,threadPID_stack_buf,argPID)){
+	if(start_thread_PID(&threadPID,threadPID_stack_buf,argPID)){
 		logString("THREAD MAIN : ERROR pthread_create PID\n");
 		set_Motor_Stop(motorsAll);
 		set_Serv_Stop(argServ);
