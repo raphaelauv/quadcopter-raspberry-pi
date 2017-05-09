@@ -9,3 +9,13 @@ Vin min=3.2V ->Val Numérique Min = 655.
 Diode led. + Resistance. 
 Calcule de la resistance.
 R= (U - Udiode) / Idiode (Udiode et Idiode se trouve dans la datasheet des diode. )
+
+
+
+----------------------------------
+
+1 carte PWM		18,79€ + 
+1 moteur		
+1 helice		
+1 montage ADC	 
+1 carte WIFI 	12€
