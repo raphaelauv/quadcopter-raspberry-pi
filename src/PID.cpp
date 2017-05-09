@@ -438,7 +438,7 @@ void * thread_PID(void * args){
             gyro_y=imuData.gyro.y();
             gyro_z=imuData.gyro.z();
 
-			printf("GYRO : X : %f  Y : %f  Z : %f \n",gyro_x, gyro_y, gyro_z);
+			//printf("GYRO : X : %f  Y : %f  Z : %f \n",gyro_x, gyro_y, gyro_z);
 
             input_pid_pitch=(input_pid_pitch*0.7) + ((gyro_y-gyro_cal[0])*(180/M_PI)*0.3);
             input_pid_roll=(input_pid_pitch*0.7) + ((gyro_x-gyro_cal[1])*(180/M_PI)*0.3);
@@ -457,12 +457,12 @@ void * thread_PID(void * args){
             client_roll=powerController[2] * PID_ANGLE_PRECISION_MULTIPLE;
             client_yaw=powerController[0] * PID_ANGLE_PRECISION_MULTIPLE;
             
-            log_angle_pitch=imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE;
-            client_pitch-= log_angle_pitch * PID_ANGLE_MULTIPLE;
+            //log_angle_pitch=imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE;
+            //client_pitch-= log_angle_pitch * PID_ANGLE_MULTIPLE;
             client_pitch/=3;
 
-            log_angle_roll = imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE;
-            client_roll-= log_angle_roll * PID_ANGLE_MULTIPLE;
+            //log_angle_roll = imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE;
+            //client_roll-= log_angle_roll * PID_ANGLE_MULTIPLE;
             client_roll/=3;
             
             client_yaw/=3;
