@@ -163,9 +163,16 @@ void * thread_PID(void * args){
     int puissance_motor1 = MOTOR_LOW_TIME;
     int puissance_motor2 = MOTOR_LOW_TIME;
     int puissance_motor3 = MOTOR_LOW_TIME;
-    int powerTab[NUMBER_OF_MOTORS]={MOTOR_LOW_TIME,MOTOR_LOW_TIME,MOTOR_LOW_TIME,MOTOR_LOW_TIME};
-    int powerController[NUMBER_OF_MOTORS]={0};
+    int powerTab[NUMBER_OF_MOTORS];
+    int powerController[NUMBER_OF_MOTORS];
     
+    int powerMinRotate[NUMBER_OF_MOTORS];
+    for(int i=0;i<NUMBER_OF_MOTORS;i++){
+    	powerController[i]=0;
+    	powerTab[i]=MOTOR_LOW_TIME;
+    	powerMinRotate[i]=MOTOR_MIN_ROTATE_TIME;
+    }
+
     
     RTIMU_DATA imuData;
     float gyro_cal[3]={0,0,0};
@@ -176,8 +183,6 @@ void * thread_PID(void * args){
 	int log_angle_pitch;
 	int log_angle_roll;
 	char arrayLog[SIZE_MAX_LOG];
-
-
 
     struct timespec t0, t1 ,tim;
     int modeCalibration=isCalibration();
@@ -213,7 +218,6 @@ void * thread_PID(void * args){
     int lastCounterSecuTimer=counterSecuTimer;
     int nanoSleepTimeIntervalOfSecurityTimer = NSEC_TO_SEC / PID_TIMER_VERIF_FREQUENCY;
     char tmpFlagRemoteMSG=0;
-    int powerMinRotate[NUMBER_OF_MOTORS]={MOTOR_MIN_ROTATE_TIME,MOTOR_MIN_ROTATE_TIME,MOTOR_MIN_ROTATE_TIME,MOTOR_MIN_ROTATE_TIME};
     int nbRotateSecuTimer=0;
 
 
@@ -316,10 +320,10 @@ void * thread_PID(void * args){
 		}
 
 		if(nbRotateSecuTimer>0){
-			set_power(controle_vol->motorsAll,powerMinRotate);
+			//set_power(controle_vol->motorsAll,powerMinRotate);
 			nbRotateSecuTimer--;
 		}else{
-			set_power(controle_vol->motorsAll,powerTab);
+			//set_power(controle_vol->motorsAll,powerTab);
 		}
     }
     /****************END SECURITY TIMER*************************/
