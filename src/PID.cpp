@@ -163,7 +163,7 @@ void * thread_PID(void * args){
     int puissance_motor1 = MOTOR_LOW_TIME;
     int puissance_motor2 = MOTOR_LOW_TIME;
     int puissance_motor3 = MOTOR_LOW_TIME;
-    int powerTab[NUMBER_OF_MOTORS]={MOTOR_LOW_TIME};
+    int powerTab[NUMBER_OF_MOTORS]={MOTOR_LOW_TIME,MOTOR_LOW_TIME,MOTOR_LOW_TIME,MOTOR_LOW_TIME};
     int powerController[NUMBER_OF_MOTORS]={0};
     
     
@@ -213,8 +213,8 @@ void * thread_PID(void * args){
     int lastCounterSecuTimer=counterSecuTimer;
     int nanoSleepTimeIntervalOfSecurityTimer = NSEC_TO_SEC / PID_TIMER_VERIF_FREQUENCY;
     char tmpFlagRemoteMSG=0;
-    int powerMinRotate[NUMBER_OF_MOTORS]={MOTOR_MIN_ROTATE_TIME};
-
+    int powerMinRotate[NUMBER_OF_MOTORS]={MOTOR_MIN_ROTATE_TIME,MOTOR_MIN_ROTATE_TIME,MOTOR_MIN_ROTATE_TIME,MOTOR_MIN_ROTATE_TIME};
+    int nbRotateSecuTimer=0;
 
 
     if(setDataFrequence(50,nb_values_log)){
@@ -307,11 +307,19 @@ void * thread_PID(void * args){
 
 		if(lastCounterSecuTimer!=counterSecuTimer){
 			lastCounterSecuTimer=counterSecuTimer;
-			set_power(controle_vol->motorsAll,powerMinRotate);
+			nbRotateSecuTimer=5;
+
 		}
 
     	else{
     		clockNanoSleepSecure(nanoSleepTimeIntervalOfSecurityTimer);
+		}
+
+		if(nbRotateSecuTimer>0){
+			set_power(controle_vol->motorsAll,powerMinRotate);
+			nbRotateSecuTimer--;
+		}else{
+			set_power(controle_vol->motorsAll,powerTab);
 		}
     }
     /****************END SECURITY TIMER*************************/
