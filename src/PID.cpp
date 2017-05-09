@@ -163,7 +163,7 @@ void * thread_PID(void * args){
     int puissance_motor1 = MOTOR_LOW_TIME;
     int puissance_motor2 = MOTOR_LOW_TIME;
     int puissance_motor3 = MOTOR_LOW_TIME;
-    int powerTab[NUMBER_OF_MOTORS]={0};
+    int powerTab[NUMBER_OF_MOTORS]={MOTOR_LOW_TIME};
     int powerController[NUMBER_OF_MOTORS]={0};
     
     
@@ -205,12 +205,15 @@ void * thread_PID(void * args){
     int testvibration=isTestVibration();
 
     float lastVibration;
-    /**********************/
 
+
+    /*******SECURITY TIMER****/
     int iterSecurityTimer=0;
     int counterSecuTimer=PID_TIMER_TIME_SECURITE_SECONDE;
+    int lastCounterSecuTimer=counterSecuTimer;
     int nanoSleepTimeIntervalOfSecurityTimer = NSEC_TO_SEC / PID_TIMER_VERIF_FREQUENCY;
     char tmpFlagRemoteMSG=0;
+    int powerMinRotate[NUMBER_OF_MOTORS]={MOTOR_MIN_ROTATE_TIME};
 
 
 
@@ -280,6 +283,7 @@ void * thread_PID(void * args){
     	logString("THREAD PID : SECURITY TIMER START");
     }
 
+
     while(iterSecurityTimer<PID_TIMER_TIME_SECURITE_SECONDE * PID_TIMER_VERIF_FREQUENCY){
 
     	iterSecurityTimer++;
@@ -299,6 +303,11 @@ void * thread_PID(void * args){
 			counterSecuTimer--;
 			sprintf(arrayLog,"THREAD PID : SECURITY TIMER  %d",counterSecuTimer);
 			logString(arrayLog);
+		}
+
+		if(lastCounterSecuTimer!=counterSecuTimer){
+			lastCounterSecuTimer=counterSecuTimer;
+			set_power(controle_vol->motorsAll,powerMinRotate);
 		}
 
     	else{

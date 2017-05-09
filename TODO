@@ -1,13 +1,14 @@
 #############################################################
 #							TODO							#
 
-Reste a faire :
-
 	-Un schema des branchement du drone					(Andres)
 	-Lancement du script au boot du Raspberry 99%
 	-comparer lib I2C avec WinringPiI2C
 
+	-Diagramme d'execution
+	-Cablage et fixation des composant sur le drone
+	-Decollage automatique
 
-	-Doit t’on faire la calibration du gyroscope?
-
-	-Calibrer vibration avec accelorometre
+	-Vibration
+	-Niveau de Battery 
+	-Valeurs de PID
