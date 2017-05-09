@@ -79,9 +79,9 @@ int set_power(MotorsAll * MotorsAll, int * powers){
 
 		#ifdef __arm__
 		if(isStop==0){
-			errors+=PCA9685_setPWM_1(MotorsAll->motors, i + MINIMUM_LED_VALUE, 0);
-		}else{
 			errors+=PCA9685_setPWM_1(MotorsAll->motors, i + MINIMUM_LED_VALUE, powers[i]);
+		}else{
+			errors+=PCA9685_setPWM_1(MotorsAll->motors, i + MINIMUM_LED_VALUE, 0);
 		}
 		#endif
 	}
