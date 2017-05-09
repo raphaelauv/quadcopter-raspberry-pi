@@ -319,6 +319,7 @@ void * thread_PID(void * args){
     		clockNanoSleepSecure(nanoSleepTimeIntervalOfSecurityTimer);
 		}
 
+		//for very lite rotation of propeller during the timer security
 		if(nbRotateSecuTimer>0){
 			//set_power(controle_vol->motorsAll,powerMinRotate);
 			nbRotateSecuTimer--;
@@ -562,6 +563,8 @@ void * thread_PID(void * args){
             
 
             /*******************BATTERY MOTOR CALIB**************/
+
+            //TODO
             if(batteryValue<=BATTERY_HIGH_LIMIT && batteryValue>=BATTERY_LOW_LIMIT){
 			/*
 				int a=10;
@@ -571,11 +574,15 @@ void * thread_PID(void * args){
 				puissance_motor2 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor2) / 100 ;
 				puissance_motor3 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor3) / 100 ;
 				*/
+
+            	/*
 				puissance_motor0 += (1240 - batteryValue) /3500 * puissance_motor0 ;
 				puissance_motor1 += (1240 - batteryValue) /3500 * puissance_motor1 ;
 				puissance_motor2 += (1240 - batteryValue) /3500 * puissance_motor2 ;
 				puissance_motor3 += (1240 - batteryValue) /3500 * puissance_motor3 ;
 				
+				*/
+
             }
             /*****************END BATTERY MOTOR CALIB*************/
 
