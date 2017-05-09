@@ -12,9 +12,9 @@
 
 /*********************API************************/
 
-#define P 1
-#define I 0
-#define D 15
+#define P 2
+#define I 0.01
+#define D 20
 
 #define MAX_CONTROLLER_VALUE 100
 #define PID_MAX_ANGLE 35
@@ -47,8 +47,8 @@ int start_thread_PID(pthread_t * threadPID,void *threadPID_stack_buf,args_PID * 
 #define PID_MAX_ROLL 400
 
 //PID yaw
-#define PID_GAIN_P_YAW 3
-#define PID_GAIN_I_YAW 0.01
+#define PID_GAIN_P_YAW 0
+#define PID_GAIN_I_YAW 0
 #define PID_MAX_YAW 400
 
 

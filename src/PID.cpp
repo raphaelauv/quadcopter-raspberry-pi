@@ -441,13 +441,13 @@ void * thread_PID(void * args){
 			//printf("GYRO : X : %f  Y : %f  Z : %f \n",gyro_x, gyro_y, gyro_z);
 
             input_pid_pitch=(input_pid_pitch*0.7) + ((gyro_y-gyro_cal[0])*(180/M_PI)*0.3);
-            input_pid_roll=(input_pid_pitch*0.7) + ((gyro_x-gyro_cal[1])*(180/M_PI)*0.3);
-            input_pid_yaw=(input_pid_pitch*0.7) + ((gyro_z-gyro_cal[2])*(180/M_PI)*0.3);
+            input_pid_roll=(input_pid_roll*0.7) + ((gyro_x-gyro_cal[1])*(180/M_PI)*0.3);
+            input_pid_yaw=(input_pid_yaw*0.7) + ((gyro_z-gyro_cal[2])*(180/M_PI)*0.3);
             
 
             //TODO MOTOR_LOW_TIME or MOTOR_MIN_ROTATE_TIME ??
             if(powerController[1]>=0){
-                client_gaz=(powerController[1]*4.5) + MOTOR_MIN_ROTATE_TIME;
+                client_gaz=(powerController[1]*7.5) + MOTOR_MIN_ROTATE_TIME;
             }
             else{
                 client_gaz = MOTOR_MIN_ROTATE_TIME;
