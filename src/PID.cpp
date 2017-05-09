@@ -188,6 +188,9 @@ void * thread_PID(void * args){
     int iterBatteryPrint=0;
     int readSensorSucces=0;
 
+	float gyro_x;
+	float gyro_y;
+	float gyro_z;
 
     /********VIBRATION******/
     float acc_total_vector[VIBRATION_Moving_average]={0};
@@ -196,6 +199,7 @@ void * thread_PID(void * args){
     float acc_x;
     float acc_y;
     float acc_z;
+
     int iterAccelPrint=0;
     int iterVibration;
     int testvibration=isTestVibration();
@@ -430,9 +434,15 @@ void * thread_PID(void * args){
             /*********************************************************/
             /*					PID                                  */
             
-            input_pid_pitch=(input_pid_pitch*0.7) + ((imuData.gyro.y()-gyro_cal[0])*(180/M_PI)*0.3);
-            input_pid_roll=(input_pid_pitch*0.7) + ((imuData.gyro.x()-gyro_cal[1])*(180/M_PI)*0.3);
-            input_pid_yaw=(input_pid_pitch*0.7) + ((imuData.gyro.z()-gyro_cal[2])*(180/M_PI)*0.3);
+            gyro_x=imuData.gyro.x();
+            gyro_y=imuData.gyro.y();
+            gyro_z=imuData.gyro.z();
+
+			printf("GYRO : X : %f  Y : %f  Z : %f \n",gyro_x, gyro_y, gyro_z);
+
+            input_pid_pitch=(input_pid_pitch*0.7) + ((gyro_y-gyro_cal[0])*(180/M_PI)*0.3);
+            input_pid_roll=(input_pid_pitch*0.7) + ((gyro_x-gyro_cal[1])*(180/M_PI)*0.3);
+            input_pid_yaw=(input_pid_pitch*0.7) + ((gyro_z-gyro_cal[2])*(180/M_PI)*0.3);
             
 
             //TODO MOTOR_LOW_TIME or MOTOR_MIN_ROTATE_TIME ??
