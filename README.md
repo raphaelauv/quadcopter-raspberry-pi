@@ -11,7 +11,10 @@ Clone this git with this specific command ( without sudo !!)
 	pi@raspberry ~$ git clone git@moule.informatique.univ-paris-diderot.fr:thibaud/drone.git ~/drone
 ```
 
-Active SSH and I2C , Install RTIMULib2 inside Lib folder ( follow Readme instructions )
+
+Active SSH and I2C , Install RTIMULib2 inside Lib folder ( follow the Readme instructions of RTIMULib2)
+
+
 
 ```
 Patch the Raspberry witch the kernel_4.4.47_RT.tgz :
@@ -26,57 +29,69 @@ Patch the Raspberry witch the kernel_4.4.47_RT.tgz :
 ```
 
 ```
-Disable USB RT PREEMPT LIMITATION -> add to /boot/cmdline.txt : 
+Disable USB RT PREEMPT LIMITATION -> pi@raspberry ~$ sudo nano /boot/cmdline.txt
+
+	add those lines : 
 
 	dwc_otg.fiq_enable=0
 	dwc_otg.fiq_fsm_enable=0
 ```
 
 ```
-Disable Garde-fou -> add to .profile:
+Disable Garde-fou -> pi@raspberry ~$ sudo nano .profile
+
+	add this line
 
 	sudo sysctl kernel.sched_rt_runtime_us=-1
 ```
 
 ```
-Frequence I2C -> sudo nano /etc/modprobe.d/i2c.conf :
+Frequence I2C -> pi@raspberry ~$ sudo nano /etc/modprobe.d/i2c.conf
+	
+	add this line
 
 	options i2c_bcm2708 baudrate=400000
 ```
 
-Edit the boot file of raspberrypi :
+```
+Edit the boot file of raspberrypi ->  pi@raspberry ~$ sudo nano /etc/rc.local
 	
-	sudo nano /etc/rc.local
+	add this line at the end
 
-	and add :  sh /home/pi/drone/startScript.sh &
+	sh /home/pi/drone/startScript.sh &
+```
 
-	
+```
+Edit the config file of raspberrypi -> pi@raspberry ~$ sudo nano /boot/config.txt
 
+	Make sure it contains the settings of the file present in the git
+```
 
 ### Compilation
 
 
-##### * CLIENT/CONTROLLER
+#### CLIENT/CONTROLLER
 
-dependencies : SDL (for XBOX360 Controller) libsdl1.2-dev
+dependencies : SDL (for XBOX360  and similar Controller) libsdl1.2-dev
 
 	make client
+
 
 XBOX360 controller calibration ->   jstest-gtk
 	https://apps.ubuntu.com/cat/applications/jstest-gtk/
 
-Emulate controller XBOX360 from DualShocks
- * active bluetooth 
-	* bouton playstation + share -> Flashing light
-	* "ds4drv --emulate-xboxdrv"
+	Emulate controller XBOX360 from DualShocks
+	active bluetooth 
+	bouton playstation + share -> Flashing light
+	"ds4drv --emulate-xboxdrv"
 
 
 
-##### * DRONE
+#### DRONE
 
 	make drone
 
-### Execution
+## Execution
 
 for the Drone on the Raspberry Pi 2 :
 
@@ -88,7 +103,7 @@ for the Client/Controller :
 
 
 
-##For calibration
+## For calibration
 
 this for testing vibrations
 
