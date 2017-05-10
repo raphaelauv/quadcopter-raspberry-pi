@@ -78,12 +78,11 @@ dependencies : SDL (for XBOX360  and similar Controller) libsdl1.2-dev
 
 
 XBOX360 controller calibration ->   jstest-gtk
-	https://apps.ubuntu.com/cat/applications/jstest-gtk/
-
-	Emulate controller XBOX360 from DualShocks
-	active bluetooth 
-	bouton playstation + share -> Flashing light
-	"ds4drv --emulate-xboxdrv"
+https://apps.ubuntu.com/cat/applications/jstest-gtk/
+Emulate controller XBOX360 from DualShocks
+active bluetooth 
+bouton playstation + share -> Flashing light
+"ds4drv --emulate-xboxdrv"
 
 
 
@@ -105,6 +104,6 @@ for the Client/Controller :
 
 ## For calibration
 
-this for testing vibrations
+Testing vibrations
 
-sudo ./droneMain --verb --testpower --data --noC --vibration
+	sudo ./droneMain --verb --testpower --data --vibration
