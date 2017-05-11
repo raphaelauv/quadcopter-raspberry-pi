@@ -202,9 +202,14 @@ void control(args_CONTROLLER * argsControl) {
 		quitter=1;
 		logString("THREAD CONTROLLER : ERROR no Controller plug");
 	}
-	float tmpM0, tmpM1, tmpM2, tmpM3;
 
-	float manualTmpM1=0;
+	float arrayValController[CONTROLLER_NUMBER_AXES];
+	float arrayValAsk[CONTROLLER_NUMBER_AXES];
+
+	for(int i=0;i<CONTROLLER_NUMBER_AXES;i++){
+		arrayValController[i]=0;
+		arrayValAsk[i]=0;
+	}
 
 	while (!quitter) {
 
@@ -316,45 +321,84 @@ void control(args_CONTROLLER * argsControl) {
 			 (float) input.axes[4] * 5.0 / 32768 + 5;
 			 */
 
+
+
 			//tmpM0 = Rotation axe lacet (Rotation) (y)
-			tmpM0 = modele ?
+		arrayValController[0] = modele ?
 					pourcent(input.axes[0], XBOX_CONTROLLER_MAX_VALUE) :
 					pourcent(input.axes[2], XBOX_CONTROLLER_MAX_VALUE);
 
 
 			//tmpM1 = monter ou descendre (UpDown)
-			tmpM1 = modele ?
+		arrayValController[1] = modele ?
 					pourcent(-1 * input.axes[1], XBOX_CONTROLLER_MAX_VALUE) :
 					(diff_axes(input.axes[5], input.axes[4], XBOX_CONTROLLER_MAX_VALUE));
 
-			/*
-			if(tmpM1>50){
-				manualTmpM1++;
-			}
-
-			if(tmpM1<-50){
-				manualTmpM1-=2;
-			}
-			*/
 
 			//tmpM2 = rotation axe roulis (LeftRight) (z)
-			tmpM2 = modele ?
+			arrayValController[2] = modele ?
 					pourcent(input.axes[3], XBOX_CONTROLLER_MAX_VALUE) :
 					pourcent(input.axes[0], XBOX_CONTROLLER_MAX_VALUE);
 
 			//tmpM2 = rotation axe tangage (FrontBack) (x)
-			tmpM3 = modele ?
+			arrayValController[3] = modele ?
 					pourcent(-1 * input.axes[4], XBOX_CONTROLLER_MAX_VALUE) :
 					pourcent(-1 * input.axes[1], XBOX_CONTROLLER_MAX_VALUE);
 
+
+
+			/******************CONTROLLER FLANGE***********************/
+
+			for(int i =0; i<CONTROLLER_NUMBER_AXES;i++){
+
+				if (arrayValController[i] > CONTROLLER_LIMIT_PRECISION) {
+					if (arrayValController[i] >= arrayValAsk[i]) {
+						arrayValAsk[i] += (arrayValController[i] - arrayValAsk[i])/ CONTROLLER_FLANGE;
+					}else{
+						arrayValAsk[i] -= (arrayValAsk[i] - arrayValController[i] )/ CONTROLLER_FLANGE;
+					}
+				}
+
+
+				else if(arrayValController[i]< - CONTROLLER_LIMIT_PRECISION){
+					if (arrayValController[i] <= arrayValAsk[i]) {
+					arrayValAsk[i] += (arrayValController[i] - arrayValAsk[i])/ CONTROLLER_FLANGE;
+					}else{
+						arrayValAsk[i] -= (arrayValAsk[i] - arrayValController[i] )/ CONTROLLER_FLANGE;
+					}
+				}
+
+				else{
+
+					if (arrayValAsk[i] == 0 || (arrayValAsk[i] < CONTROLLER_FLANGE && arrayValAsk[i] > -CONTROLLER_FLANGE)) {
+						arrayValAsk[i] = 0;
+					} else if (arrayValAsk[i] >= CONTROLLER_FLANGE) {
+						arrayValAsk[i] -= CONTROLLER_FLANGE;
+					} else if (arrayValAsk[i] <= -CONTROLLER_FLANGE) {
+						arrayValAsk[i] += CONTROLLER_FLANGE;
+					}
+				}
+
+
+				if(arrayValAsk[i]>99){
+					arrayValAsk[i]=100;
+				}
+
+				if(arrayValAsk[i]<-99){
+					arrayValAsk[i]=-100;
+				}
+
+
+			}
+
+			/******************************************************/
+
 			pthread_mutex_lock(&dataControl->pmutex->mutex);
 
-
-			dataControl->axe_Rotation = tmpM0;
-			dataControl->axe_UpDown = tmpM1;
-			//manette->axe_UpDown = manualTmpM1;
-			dataControl->axe_LeftRight = tmpM2;
-			dataControl->axe_FrontBack = tmpM3;
+			dataControl->axe_Rotation = arrayValAsk[0];
+			dataControl->axe_UpDown = arrayValAsk[1];
+			dataControl->axe_LeftRight = arrayValAsk[2];
+			dataControl->axe_FrontBack = arrayValAsk[3];
 
 			pthread_cond_signal(&dataControl->pmutex->condition);
 			pthread_mutex_unlock(&dataControl->pmutex->mutex);
@@ -366,10 +410,9 @@ void control(args_CONTROLLER * argsControl) {
 						manette->axe_LeftRight, manette->axe_FrontBack);
 			*/
 
-
 	}
 
-	/* diverses destruction ...*/
-	detruireInput(&input); // on détruit la structure input
-	SDL_Quit(); // on quitte la SDL
+
+	detruireInput(&input); // destroy structur input
+	SDL_Quit(); // quit SDL
 }
