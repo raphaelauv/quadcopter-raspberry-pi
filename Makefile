@@ -23,7 +23,7 @@ SRC_drone = $(SRC_basic) src/serv.c src/Calibration/calibrate.c src/ADC/MCP3008.
 
 SRC_drone_CPP = src/PID.cpp src/sensor.cpp 
 
-SRC_client = $(SRC_basic)  src/client.c src/Controller/controller.c src/Controller/manette.c 
+SRC_client = $(SRC_basic)  src/client.c src/Controller/controller.c src/Controller/SDL_joystick.c 
 
 OBJdroneMain= $(SRC_drone:.c=.o) $(SRC_drone_CPP:.cpp=.o)
 #src/sensor.o src/PID.o 

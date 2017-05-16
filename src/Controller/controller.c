@@ -128,14 +128,14 @@ void clean_args_CONTROLLER(args_CONTROLLER * arg) {
 
 //TODO no need for a global value
 int isControllerConnect=0;
-inputt input;
+inputSDLjoystick input;
 
 char is_connect() {
 	//char name[100];
 	//strcpy(name, "Microsoft X-Box 360 pad");
 
 	if (isControllerConnect == 0) {
-		initialiserInput(&input, 0); // on l'initialise au joystick n°0
+		init_inputSDLjoystick(&input, 0); // on l'initialise au joystick n°0
 	}
 
 	const char * tmp = SDL_JoystickName(0);
@@ -245,7 +245,7 @@ void control(args_CONTROLLER * argsControl) {
 				logString(array);
 				isControllerConnect = 0;
 				printf("isControllerConnect : %d\n",isControllerConnect);
-				detruireInput(&input);
+				clean_inputSDLjoystick(&input);
 			}
 
 
@@ -415,6 +415,6 @@ void control(args_CONTROLLER * argsControl) {
 	}
 
 
-	detruireInput(&input); // destroy structur input
+	clean_inputSDLjoystick(&input); // destroy structur input
 	SDL_Quit(); // quit SDL
 }

@@ -1,7 +1,7 @@
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
-#include "manette.h"
+#include "SDL_joystick.h"
 
 #define CONTROLLER_NUMBER_AXES 4
 

@@ -1,5 +1,5 @@
-#ifndef MANETTE_H_
-#define MANETTE_H
+#ifndef SDL_joystick_H_
+#define SDL_joystick_H
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_events.h>
@@ -19,7 +19,7 @@ typedef struct inputTrackball{ // je crée une structure car les trackballs ont 
 	int yrel; // valeur y réelle
 } inputTrackball;
 
-typedef struct inputt {
+typedef struct inputSDLjoystick {
 
 	SDL_Joystick *joystick; // le joystick
 
@@ -33,13 +33,13 @@ typedef struct inputt {
 
 	int numero; // le numero
 
-} inputt;
+} inputSDLjoystick;
 
-void initialiserInput(inputt *input, int numeroJoystick); // initialise en fonction du numéro du joystick
+void init_inputSDLjoystick(inputSDLjoystick *input, int numeroJoystick); // initialise en fonction du numéro du joystick
 
-void detruireInput(inputt *input); // libère la mémoire allouée
+void clean_inputSDLjoystick(inputSDLjoystick *input); // libère la mémoire allouée
 
-void updateEvent(inputt *input); // récupère les évènements
+void updateEvent(inputSDLjoystick *input); // récupère les évènements
 
 
-#endif /* MANETTE_H */
+#endif /* SDL_joystick_H */

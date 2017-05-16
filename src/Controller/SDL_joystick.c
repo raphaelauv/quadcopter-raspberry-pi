@@ -1,6 +1,6 @@
-#include "manette.h"
+#include "SDL_joystick.h"
 
-void initialiserInput(inputt *input, int numeroJoystick) {
+void init_inputSDLjoystick(inputSDLjoystick *input, int numeroJoystick) {
 	if (numeroJoystick < SDL_NumJoysticks()) // on vérifie qu'il y a bien un bon numéro de joystick
 			{
 		SDL_JoystickEventState(SDL_ENABLE);
@@ -16,19 +16,19 @@ void initialiserInput(inputt *input, int numeroJoystick) {
 
 		input->boutons = (char*) malloc(SDL_JoystickNumButtons(input->joystick) * sizeof(char));
 		if(input->boutons == NULL){
-			logString("MALLOC FAIL : initialiserInput SDL_JoystickNumButtons -> boutons");	
+			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> boutons");	
 		}
 		input->axes = (int*) malloc(SDL_JoystickNumAxes(input->joystick) * sizeof(int));
 		if(input->axes == NULL){
-			logString("MALLOC FAIL : initialiserInput SDL_JoystickNumButtons -> axes");	
+			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> axes");	
 		}
 		input->chapeaux = (int*) malloc(SDL_JoystickNumHats(input->joystick) * sizeof(int));
 		if(input->chapeaux == NULL){
-			logString("MALLOC FAIL : initialiserInput SDL_JoystickNumButtons -> chapeaux");	
+			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> chapeaux");	
 		}
 		input->trackballs = (inputTrackball*) malloc(SDL_JoystickNumBalls(input->joystick)* sizeof(inputTrackball));
 		if(input->trackballs == NULL){
-			logString("MALLOC FAIL : initialiserInput SDL_JoystickNumButtons -> trackballs");	
+			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> trackballs");	
 		}
 
 
@@ -56,7 +56,7 @@ void initialiserInput(inputt *input, int numeroJoystick) {
 		input->trackballs = NULL;
 	}
 }
-void detruireInput(inputt *input) {
+void clean_inputSDLjoystick(inputSDLjoystick *input) {
 	if (input->joystick != NULL) // on vérifie que le joystick existe bien
 	{
 		input->numero = 0; // on le remet à zéro
@@ -70,7 +70,7 @@ void detruireInput(inputt *input) {
 	}
 }
 
-void updateEvent(inputt *input) {
+void updateEvent(inputSDLjoystick *input) {
 	static SDL_Event evenements; // en statique car appelle plusieurs fois par seconde
 	for (int i = 0; i < SDL_JoystickNumBalls(input->joystick); i++) {
 		//on met à zéro
