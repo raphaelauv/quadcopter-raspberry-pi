@@ -11,7 +11,7 @@ int init_args_PID(args_PID ** argPID){
     
     
 #ifdef __arm__
-    RTIMU *imu;
+    RTIMU *imu = NULL;
     imu = sensorInit();
     
     if(imu==NULL){

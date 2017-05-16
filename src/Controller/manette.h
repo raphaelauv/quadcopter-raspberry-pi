@@ -6,8 +6,8 @@
 //TODO SDL2 ne fait pas fonctionner la manette xbox360 , a corrigé
 //#include <SDL2/SDL_events.h>
 //#include <SDL2/SDL.h>
-#include <stdlib.h>
-#include <stdio.h>
+
+#include "../concurrent.h"
 
 
 // Copier sur cette adresse ->https://openclassrooms.com/courses/la-gestion-du-joystick-avec-la-sdl;

@@ -3,8 +3,8 @@
 int init_MotorsAll(MotorsAll ** motorsAll , volatile sig_atomic_t * signalMotorStop){
 
 	int testError=0;
-	PCA9685 * pcaMotors;
-	PMutex * mutexValues;
+	PCA9685 * pcaMotors = NULL;
+	PMutex * mutexValues = NULL;
 
 	*motorsAll = (MotorsAll *) malloc(sizeof(MotorsAll));
 	if (*motorsAll == NULL) {

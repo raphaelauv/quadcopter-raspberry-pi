@@ -2,7 +2,6 @@
 #define CONTROLLER_H_
 
 #include "manette.h"
-#include "../concurrent.h"
 
 #define CONTROLLER_NUMBER_AXES 4
 

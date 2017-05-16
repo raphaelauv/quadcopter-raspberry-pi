@@ -19,7 +19,7 @@ int main (int argc, char *argv[]){
 	int exitValue=0;
 	pthread_t threadServer;
 	pthread_t threadPID;
-	void *threadPID_stack_buf=NULL;
+	void *threadPID_stack_buf = NULL;
 
 	init_mask(handler_SIGINT_Drone);
 	
@@ -35,18 +35,19 @@ int main (int argc, char *argv[]){
 		readIpAdresse(myIP, 64);
 	}
 
-	args_SERVER * argServ;
+	args_SERVER * argServ = NULL;
+	MotorsAll * motorsAll = NULL;
+	args_PID * argPID = NULL;
+
 	if(init_args_SERVER(&argServ,&signalServStop)){
 		return EXIT_FAILURE;
 	}
 
-	MotorsAll * motorsAll;
 	if (init_MotorsAll(&motorsAll,&signalMotorStop)) {
 		exitValue=1;
 		goto cleanAndExit;
 	}
-
-	args_PID * argPID;
+	
 	if (init_args_PID(&argPID)) {
 		exitValue=1;
 		goto cleanAndExit;

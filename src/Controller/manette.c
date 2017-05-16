@@ -8,15 +8,29 @@ void initialiserInput(inputt *input, int numeroJoystick) {
 		input->numero = numeroJoystick; // je pense que vous comprenez cette ligne...
 
 		/* on alloue chaque éléments en fonctions de combien il y en a */
-		input->boutons = (char*) malloc(
-				SDL_JoystickNumButtons(input->joystick) * sizeof(char));
-		input->axes = (int*) malloc(
-				SDL_JoystickNumAxes(input->joystick) * sizeof(int));
-		input->chapeaux = (int*) malloc(
-				SDL_JoystickNumHats(input->joystick) * sizeof(int));
-		input->trackballs = (inputTrackball*) malloc(
-				SDL_JoystickNumBalls(input->joystick)
-						* sizeof(inputTrackball));
+
+		input->boutons = NULL;
+		input->axes = NULL;
+		input->chapeaux = NULL;
+		input->trackballs = NULL;
+
+		input->boutons = (char*) malloc(SDL_JoystickNumButtons(input->joystick) * sizeof(char));
+		if(input->boutons == NULL){
+			logString("MALLOC FAIL : initialiserInput SDL_JoystickNumButtons -> boutons");	
+		}
+		input->axes = (int*) malloc(SDL_JoystickNumAxes(input->joystick) * sizeof(int));
+		if(input->axes == NULL){
+			logString("MALLOC FAIL : initialiserInput SDL_JoystickNumButtons -> axes");	
+		}
+		input->chapeaux = (int*) malloc(SDL_JoystickNumHats(input->joystick) * sizeof(int));
+		if(input->chapeaux == NULL){
+			logString("MALLOC FAIL : initialiserInput SDL_JoystickNumButtons -> chapeaux");	
+		}
+		input->trackballs = (inputTrackball*) malloc(SDL_JoystickNumBalls(input->joystick)* sizeof(inputTrackball));
+		if(input->trackballs == NULL){
+			logString("MALLOC FAIL : initialiserInput SDL_JoystickNumButtons -> trackballs");	
+		}
+
 
 		for (int i = 0; i < SDL_JoystickNumButtons(input->joystick); i++) // tant qu'on a pas atteint le nombre max de boutons
 			input->boutons[i] = 0; // on met les valeurs à 0

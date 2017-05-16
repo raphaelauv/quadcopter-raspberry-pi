@@ -7,7 +7,7 @@ void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWi
 
 int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController,volatile sig_atomic_t * signalClientStop){
 
-	struct sockaddr_in * adr_client;
+	struct sockaddr_in * adr_client = NULL;
 
 	* argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
 	if (*argClient == NULL) {
@@ -20,7 +20,8 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 	(*argClient)->signalClientStop=signalClientStop;
 
 	(*argClient)->clientStop=0;
-	PMutex * mutex = (PMutex *) malloc(sizeof(PMutex));
+	PMutex * mutex = NULL;
+	mutex =	(PMutex *) malloc(sizeof(PMutex));
 	if (mutex == NULL) {
 		logString("MALLOC FAIL : barrier");
 		return -1;

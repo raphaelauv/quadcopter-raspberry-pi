@@ -24,13 +24,13 @@ int is_Serv_Stop(args_SERVER * argServ){
 
 int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * signalServStop){
 
-	PMutex * PmutexPID_INFO;
-	PMutex * PmutexDataControler;
-	PMutex * PmutexRemoteConnect;
-	PMutex * PmutexServ;
+	PMutex * PmutexPID_INFO = NULL;
+	PMutex * PmutexDataControler = NULL;
+	PMutex * PmutexRemoteConnect = NULL;
+	PMutex * PmutexServ = NULL;
 
-	PID_INFO * pidInfo;
-	DataController * dataControl;
+	PID_INFO * pidInfo = NULL;
+	DataController * dataControl = NULL;
 
 	struct sockaddr_in adr_svr;
 	memset(&adr_svr, 0, sizeof(adr_svr));

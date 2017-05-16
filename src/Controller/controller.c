@@ -50,10 +50,10 @@ void *thread_CONTROLLER(void *args) {
 int init_args_CONTROLLER(args_CONTROLLER ** argController,volatile sig_atomic_t * signalControllerStop){
 
 
-	DataController * dataController;
-	PMutex * pmutexControllerPlug;
-	PMutex * pmutexArg_Controller;
-	PMutex * pmutexController;
+	DataController * dataController = NULL;
+	PMutex * pmutexControllerPlug = NULL;
+	PMutex * pmutexArg_Controller = NULL;
+	PMutex * pmutexController = NULL;
 
 	*argController = (args_CONTROLLER *) malloc(sizeof(args_CONTROLLER));
 	if (*argController == NULL) {
@@ -125,6 +125,8 @@ void clean_args_CONTROLLER(args_CONTROLLER * arg) {
 	}
 }
 
+
+//TODO no need for a global value
 int isControllerConnect=0;
 inputt input;
 

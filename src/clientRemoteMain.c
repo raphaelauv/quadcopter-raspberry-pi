@@ -33,12 +33,12 @@ int main(int argc, char *argv[]){
 	sprintf(array, "THREAD MAIN : adresse enter : %s",argv[1]);
 	logString(array);
 
-	args_CONTROLLER * argController;
+	args_CONTROLLER * argController = NULL;
 	if(init_args_CONTROLLER(&argController,&signalControllerStop)){
 		return EXIT_FAILURE;
 	}
 
-	args_CLIENT * argClient;	
+	args_CLIENT * argClient = NULL;	
 	if(init_args_CLIENT(&argClient,adresse,argController,&signalClientStop)){
 		exitValue=1;
 		goto cleanAndExit;
