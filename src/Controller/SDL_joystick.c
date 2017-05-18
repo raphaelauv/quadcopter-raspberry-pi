@@ -3,7 +3,6 @@
 #include <SDL/SDL_events.h>
 #include "../concurrent.h"
 
-
 // Thank to this tutoriel->https://openclassrooms.com/courses/la-gestion-du-joystick-avec-la-sdl;
 
 //TODO SDL2 ne fait pas fonctionner la manette xbox360 , a corrigé
@@ -12,19 +11,22 @@
 
 
 int init_inputJoystick(inputJoystick *input, int joystickNumber) {
-	if (joystickNumber < SDL_NumJoysticks()) // on vérifie qu'il y a bien un bon numéro de joystick
-			{
+
+	if(input==NULL){
+		return -1;
+	}
+
+	if (joystickNumber < SDL_NumJoysticks()){ // on vérifie qu'il y a bien un bon numéro de joystick
+			
 		SDL_JoystickEventState(SDL_ENABLE);
+
+		clean_inputJoystick(input);
+
 		input->joystick = SDL_JoystickOpen(joystickNumber); // on met le joystick à numéro correspondant
 		input->number = joystickNumber; // je pense que vous comprenez cette ligne...
 
 		SDL_Joystick * sdlJoystick =(SDL_Joystick *) input->joystick;
 		/* on alloue chaque éléments en fonctions de combien il y en a */
-
-		input->boutons = NULL;
-		input->axes = NULL;
-		input->chapeaux = NULL;
-		input->trackballs = NULL;
 
 		int error=0;
 		input->boutons = (char*) malloc(SDL_JoystickNumButtons(sdlJoystick) * sizeof(char));
@@ -49,8 +51,7 @@ int init_inputJoystick(inputJoystick *input, int joystickNumber) {
 		}
 
 		if(error){
-			//TODO gotoClean
-			return -1;
+			goto cleanFail;
 		}
 
 		for (int i = 0; i < SDL_JoystickNumButtons(sdlJoystick); i++) // tant qu'on a pas atteint le nombre max de boutons
@@ -68,29 +69,44 @@ int init_inputJoystick(inputJoystick *input, int joystickNumber) {
 		return 0;
 	}
 
-	else {
-		// si le numéro du joystick n'était pas correct
-		// on met tout à NULL
-		input->joystick = NULL;
+	else {// si le numéro du joystick n'était pas correct
+		goto cleanFail;
+	}
+
+
+cleanFail:
+	clean_inputJoystick(input);
+	return -1;
+
+}
+void clean_inputJoystick(inputJoystick *input) {
+	if (input != NULL){
+	
+		if(input->boutons!=NULL){
+			free(input->boutons);	
+		}
+		if(input->axes!=NULL){
+			free(input->axes);	
+		}
+		if(input->chapeaux!=NULL){
+			free(input->chapeaux);	
+		}
+		if(input->trackballs!=NULL){
+			free(input->trackballs);	
+		}
+
+		SDL_Joystick * sdlJoystick =(SDL_Joystick *) input->joystick;
+		if(sdlJoystick!=NULL){
+			SDL_JoystickClose(sdlJoystick);	
+		}
+
 		input->boutons = NULL;
 		input->axes = NULL;
 		input->chapeaux = NULL;
 		input->trackballs = NULL;
-		return -1;
-	}
-}
-void clean_inputJoystick(inputJoystick *input) {
-	if (input->joystick != NULL) // on vérifie que le joystick existe bien
-	{
+		input->joystick=NULL;
 		input->number = 0; // on le remet à zéro
-		SDL_Joystick * sdlJoystick =(SDL_Joystick *) input->joystick;
-
-		// on libère tout
-		free(input->boutons);
-		free(input->axes);
-		free(input->chapeaux);
-		free(input->trackballs);
-		SDL_JoystickClose(sdlJoystick);
+		
 	}
 }
 

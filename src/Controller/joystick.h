@@ -1,6 +1,8 @@
 #ifndef JOYSTICK_H_
 #define JOYSTICK_H_
 
+#define JOYSTICK_MAX_VALUE 32768
+
 typedef struct inputTrackball{ //structure pour les trackballs qui ont 2 variables à prendre en compte
 	int xrel;	// valeur x réelle
 	int yrel;	// valeur y réelle

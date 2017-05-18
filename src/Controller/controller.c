@@ -127,25 +127,23 @@ void clean_args_CONTROLLER(args_CONTROLLER * arg) {
 
 //TODO no need for a global value
 int isControllerConnect=0;
-inputJoystick input;
 
-int is_connect() {
+int is_connect(inputJoystick * input) {
 	//char name[100];
 	//strcpy(name, "Microsoft X-Box 360 pad");
 
-	if (isControllerConnect == 0) {
-		init_inputJoystick(&input, 0); // on l'initialise au joystick n°0
+	if (!isControllerConnect) {
+		init_inputJoystick(input, 0); // on l'initialise au joystick n°0
 	}
 
 	char * tmp = isConnect_Joystick(0);
 	if (tmp != NULL) {
-		if(isControllerConnect==0){
+		if(!isControllerConnect){
 			isControllerConnect=1;
 			char array[SIZE_MAX_LOG];
 			sprintf(array, "THREAD CONTROLLER : CONTROLLER CONNECT : %s", tmp);
 			logString(array);
 		}
-
 		return 1;
 	}
 	return 0;
@@ -166,6 +164,8 @@ void control(args_CONTROLLER * argsControl) {
 	DataController * dataControl = argsControl->dataControl;
 	int local_period=(1.0/FREQUENCY_CONTROLLER)*USEC_TO_SEC;
 	init_Joystick();//TODO test return value
+
+	inputJoystick input;
 
 	int modele;
 	int firstConnectMade=0;
@@ -191,12 +191,12 @@ void control(args_CONTROLLER * argsControl) {
 			break;
 		}
 
-		if (!is_connect()) {
+		if (!is_connect(&input)) {
 			char array[SIZE_MAX_LOG];
 
 			if (firstConnectMade) {
 
-
+				//PAUSE MSG
 				pthread_mutex_lock(&dataControl->pmutex->mutex);
 				dataControl->flag = 1;
 				dataControl->axe_Rotation = 0;
@@ -208,14 +208,17 @@ void control(args_CONTROLLER * argsControl) {
 				pthread_mutex_unlock(&dataControl->pmutex->mutex);
 			}
 
+			// Controller have just been disconnected
 			if (isControllerConnect == 1) {
+
 				pthread_mutex_lock(&dataControl->pmutex->mutex);
-				dataControl->flag = 1;
+				dataControl->flag = 1;// TODO not necessery
 				pthread_mutex_unlock(&dataControl->pmutex->mutex);
+
 				sprintf(array,"THREAD CONTROLLER : ERROR NO MORE Controller %d",dataControl->flag);
 				logString(array);
 				isControllerConnect = 0;
-				printf("isControllerConnect : %d\n",isControllerConnect);
+				//printf("isControllerConnect : %d\n",isControllerConnect);
 				clean_inputJoystick(&input);
 			}
 
@@ -271,7 +274,7 @@ void control(args_CONTROLLER * argsControl) {
 
 
 			while (!modele
-					&& (input.axes[4] != -XBOX_CONTROLLER_MAX_VALUE || input.axes[5] != -XBOX_CONTROLLER_MAX_VALUE)) {
+					&& (input.axes[4] != -JOYSTICK_MAX_VALUE || input.axes[5] != -JOYSTICK_MAX_VALUE)) {
 				update_eventJoystick(&input);
 			}
 			sleep(1);
@@ -298,25 +301,25 @@ void control(args_CONTROLLER * argsControl) {
 
 			//tmpM0 = Rotation axe lacet (Rotation) (y)
 		arrayValController[0] = modele ?
-					pourcent(input.axes[0], XBOX_CONTROLLER_MAX_VALUE) :
-					pourcent(input.axes[2], XBOX_CONTROLLER_MAX_VALUE);
+					pourcent(input.axes[0], JOYSTICK_MAX_VALUE) :
+					pourcent(input.axes[2], JOYSTICK_MAX_VALUE);
 
 
 			//tmpM1 = monter ou descendre (UpDown)
 		arrayValController[1] = modele ?
-					pourcent(-1 * input.axes[1], XBOX_CONTROLLER_MAX_VALUE) :
-					(diff_axes(input.axes[5], input.axes[4], XBOX_CONTROLLER_MAX_VALUE));
+					pourcent(-1 * input.axes[1], JOYSTICK_MAX_VALUE) :
+					(diff_axes(input.axes[5], input.axes[4], JOYSTICK_MAX_VALUE));
 
 
 			//tmpM2 = rotation axe roulis (LeftRight) (z)
 			arrayValController[2] = modele ?
-					pourcent(input.axes[3], XBOX_CONTROLLER_MAX_VALUE) :
-					pourcent(input.axes[0], XBOX_CONTROLLER_MAX_VALUE);
+					pourcent(input.axes[3], JOYSTICK_MAX_VALUE) :
+					pourcent(input.axes[0], JOYSTICK_MAX_VALUE);
 
 			//tmpM2 = rotation axe tangage (FrontBack) (x)
 			arrayValController[3] = modele ?
-					pourcent(-1 * input.axes[4], XBOX_CONTROLLER_MAX_VALUE) :
-					pourcent(-1 * input.axes[1], XBOX_CONTROLLER_MAX_VALUE);
+					pourcent(-1 * input.axes[4], JOYSTICK_MAX_VALUE) :
+					pourcent(-1 * input.axes[1], JOYSTICK_MAX_VALUE);
 
 
 
