@@ -1,13 +1,13 @@
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
+
 #include "joystick.h"
+#include "../concurrent.h"
 
 #define CONTROLLER_NUMBER_AXES 4
-
 #define CONTROLLER_LIMIT_PRECISION 20				// Values under 20 and -20 on the remote are not evaluate
 #define CONTROLLER_FLANGE 8							// Higher is the value higher is the flange
-
 #define XBOX_CONTROLLER_MAX_VALUE 32768
 
 typedef struct args_CONTROLLER {
@@ -18,8 +18,6 @@ typedef struct args_CONTROLLER {
 
 	PMutex * pmutexControllerPlug;
 	DataController * dataControl;
-
-
 } args_CONTROLLER;
 
 void set_Controller_Stop(args_CONTROLLER * argControler);

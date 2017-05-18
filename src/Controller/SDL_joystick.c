@@ -1,6 +1,11 @@
 #include "joystick.h"
 #include <SDL/SDL.h>
 #include <SDL/SDL_events.h>
+#include "../concurrent.h"
+
+
+// Thank to this tutoriel->https://openclassrooms.com/courses/la-gestion-du-joystick-avec-la-sdl;
+
 //TODO SDL2 ne fait pas fonctionner la manette xbox360 , a corrigé
 //#include <SDL2/SDL_events.h>
 //#include <SDL2/SDL.h>
