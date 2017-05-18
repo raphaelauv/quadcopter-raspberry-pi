@@ -3,7 +3,7 @@
 
 /*
 #ifdef __cplusplus
-extern "C" {
+#define NULL nullptr
 #endif
 */
 

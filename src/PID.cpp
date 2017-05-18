@@ -620,6 +620,7 @@ void * thread_PID(void * args){
             	//nothing to apply because we are in a calibrate mode execution
             }else{
             	set_power(controle_vol->motorsAll,powerTab);
+                //TODO test return value of set_power and take a decision !!
             }
             
             /*************************END PID****************************/

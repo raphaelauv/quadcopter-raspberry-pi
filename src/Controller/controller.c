@@ -61,7 +61,6 @@ int init_args_CONTROLLER(args_CONTROLLER ** argController,volatile sig_atomic_t 
 		return -1;
 	}
 
-
 	(*argController)->controllerStop=0;
 	(*argController)->signalControllerStop=signalControllerStop;
 
@@ -128,17 +127,17 @@ void clean_args_CONTROLLER(args_CONTROLLER * arg) {
 
 //TODO no need for a global value
 int isControllerConnect=0;
-inputSDLjoystick input;
+inputJoystick input;
 
-char is_connect() {
+int is_connect() {
 	//char name[100];
 	//strcpy(name, "Microsoft X-Box 360 pad");
 
 	if (isControllerConnect == 0) {
-		init_inputSDLjoystick(&input, 0); // on l'initialise au joystick n°0
+		init_inputJoystick(&input, 0); // on l'initialise au joystick n°0
 	}
 
-	const char * tmp = SDL_JoystickName(0);
+	char * tmp = isConnect_Joystick(0);
 	if (tmp != NULL) {
 		if(isControllerConnect==0){
 			isControllerConnect=1;
@@ -166,41 +165,13 @@ float diff_axes(int axe_down, int axe_up, int val_max) {
 void control(args_CONTROLLER * argsControl) {
 	DataController * dataControl = argsControl->dataControl;
 	int local_period=(1.0/FREQUENCY_CONTROLLER)*USEC_TO_SEC;
-	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK); // on initialise les sous-programmes vidéo et joystick
-
-	/*
-	 if(verbose){ // code from http://askubuntu.com/questions/366994/how-to-identify-game-controller-for-sdl2-in-ubuntu
-	 int num_joysticks = SDL_NumJoysticks();
-	 int i;
-	 for(i = 0; i < num_joysticks; ++i)
-	 {
-	 SDL_Joystick* js = SDL_JoystickOpen(i);
-	 if (js)
-	 {
-	 SDL_JoystickGUID guid = SDL_JoystickGetGUID(js);
-	 char guid_str[1024];
-	 SDL_JoystickGetGUIDString(guid, guid_str, sizeof(guid_str));
-	 const char* name = SDL_JoystickName(js);
-
-	 int num_axes = SDL_JoystickNumAxes(js);
-	 int num_buttons = SDL_JoystickNumButtons(js);
-	 int num_hats = SDL_JoystickNumHats(js);
-	 int num_balls = SDL_JoystickNumBalls(js);
-
-	 printf("%s \"%s\" axes:%d buttons:%d hats:%d balls:%d\n",
-	 guid_str, name,
-	 num_axes, num_buttons, num_hats, num_balls);
-
-	 SDL_JoystickClose(js);
-	 }
-	 }
-	 }*/
+	init_Joystick();//TODO test return value
 
 	int modele;
 	int firstConnectMade=0;
 	int quitter=0;
 
-	if ((SDL_NumJoysticks() <= 0)){
+	if (numberOfConnected_Joystick () <= 0){
 		quitter=1;
 		logString("THREAD CONTROLLER : ERROR no Controller plug");
 	}
@@ -245,7 +216,7 @@ void control(args_CONTROLLER * argsControl) {
 				logString(array);
 				isControllerConnect = 0;
 				printf("isControllerConnect : %d\n",isControllerConnect);
-				clean_inputSDLjoystick(&input);
+				clean_inputJoystick(&input);
 			}
 
 
@@ -265,7 +236,7 @@ void control(args_CONTROLLER * argsControl) {
 			continue;
 		}
 
-		updateEvent(&input); // on récupère les évènements
+		update_eventJoystick(&input); // on récupère les évènements
 
 		if (input.boutons[4] && input.boutons[5]
 				&& ((input.boutons[6] && input.boutons[7])
@@ -301,7 +272,7 @@ void control(args_CONTROLLER * argsControl) {
 
 			while (!modele
 					&& (input.axes[4] != -XBOX_CONTROLLER_MAX_VALUE || input.axes[5] != -XBOX_CONTROLLER_MAX_VALUE)) {
-				updateEvent(&input);
+				update_eventJoystick(&input);
 			}
 			sleep(1);
 			signalController(argsControl);
@@ -415,6 +386,6 @@ void control(args_CONTROLLER * argsControl) {
 	}
 
 
-	clean_inputSDLjoystick(&input); // destroy structur input
-	SDL_Quit(); // quit SDL
+	clean_inputJoystick(&input); // destroy structur input
+	clean_Joystick();
 }

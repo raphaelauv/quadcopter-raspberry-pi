@@ -19,7 +19,7 @@ int idFileData=-1;
 void closeLogFile(){
 
 	if(idFileLog!=-1){
-		fsync(idFileLog);
+		fsync(idFileLog);//TODO test return value
 		close(idFileLog);
 		idFileLog=-1;
 	}
