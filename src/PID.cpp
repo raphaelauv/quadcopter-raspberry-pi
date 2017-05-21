@@ -185,6 +185,8 @@ void * thread_PID(void * args){
 	int log_angle_roll;
 	char arrayLog[SIZE_MAX_LOG];
 
+	char arrayDATA[SIZE_MAX_LOG];
+
     struct timespec t0, t1 ,tim;
     int modeCalibration=isCalibration();
 
@@ -386,12 +388,6 @@ void * thread_PID(void * args){
 			sprintf(arrayLog,"THREAD PID : Battery Value : %f",voltageValue);
 			logString(arrayLog);
 			iterBatteryPrint = 0;
-
-			pthread_mutex_lock(&(pidInfo->pmutex->mutex));
-
-			pidInfo->battery = voltageValue;
-
-			pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
 		}
 
 
@@ -649,7 +645,15 @@ void * thread_PID(void * args){
             logTab[14]=(int) (output_pid_yaw * LOG_FLOAT_MULTIPLIER);
 
             logTab[15]=(int) batteryValue;
-            logDataFreq(logTab,nb_values_log);
+            logDataFreq(logTab,nb_values_log,arrayDATA);
+
+			pthread_mutex_lock(&(pidInfo->pmutex->mutex));
+
+			for(int i=0;i<SIZE_MAX_LOG;i++){
+				pidInfo->logData[i]=arrayDATA[i];
+			}
+			pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
+
             /**************************END LOG***************************/
             
 

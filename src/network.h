@@ -26,7 +26,7 @@ extern "C" {
 
 #include "concurrent.h"
 
-#define SIZE_SOCKET_MESSAGE 100
+#define SIZE_SOCKET_MESSAGE 450
 
 #define SIZE_MSG_HEADER_REMOTE 7
 

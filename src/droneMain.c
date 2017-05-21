@@ -127,8 +127,6 @@ int main (int argc, char *argv[]){
 		}
 	}
 
-
-
 cleanAndExit:
 
 	if(threadPID_stack_buf!=NULL){

@@ -63,7 +63,7 @@ int isTestVibration();
 void closeLogFile();
 void logString(char * str);
 
-int logDataFreq(int * array,int size);
+int logDataFreq(int * arrayLog,int nbValueToLog,char * arrayStrToFill);
 int setDataStringTitle(char * titles);
 
 int setDataFrequence(int freq,int nb_values);

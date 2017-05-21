@@ -300,22 +300,22 @@ int setDataStringTitle(char * titles){
 
 int lastDataIndex=0;
 
-int logDataFreq(int * arrayLog,int size){
+int logDataFreq(int * arrayLog,int nbValueToLog,char * arrayStrToFill){
 
 	if(idFileData==-1){return -1;}
 
-	if(size!=NB_VALUES_TO_LOG){return -1;}
+	if(nbValueToLog!=NB_VALUES_TO_LOG){return -1;}
 
 	if(arrayLog==NULL){return -1;}
 
-	for(int i=0;i<size;i++){
+	for(int i=0;i<nbValueToLog;i++){
 		arrayData[i]+=arrayLog[i];
 	}
 
 	lastDataIndex++;
 
 	if (lastDataIndex == log_frequence) {
-		char arrayStr[SIZE_MAX_LOG];
+		//char arrayStrToFill[SIZE_MAX_LOG];
 		int moyenneArray[NB_VALUES_TO_LOG];
 		int cmp=0;
 
@@ -329,7 +329,7 @@ int logDataFreq(int * arrayLog,int size){
 			moyenneArray[i]=cmp;
 			arrayData[i]=0;
 
-			 tmp= sprintf (&(arrayStr[n]), "%d ", moyenneArray[i]);
+			 tmp= sprintf (&(arrayStrToFill[n]), "%d ", moyenneArray[i]);
 			 if(tmp>=0){
 				 n+=tmp;
 			 }else{
@@ -338,7 +338,7 @@ int logDataFreq(int * arrayLog,int size){
 
 		}
 
-		logDataString(arrayStr);
+		logDataString(arrayStrToFill);
 		lastDataIndex = 0;
 	}
 

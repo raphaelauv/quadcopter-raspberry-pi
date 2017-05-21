@@ -346,11 +346,18 @@ void *thread_UDP_SERVER(void *args) {
 				float voltageValue;
 
 				pthread_mutex_lock(&(pidInfo->pmutex->mutex));
-				voltageValue=pidInfo->battery;
+				//voltageValue=pidInfo->battery;
+
+				char arrayDATA[SIZE_MAX_LOG];
+				for (int i = 0; i < SIZE_MAX_LOG; i++) {
+					arrayDATA[i]=pidInfo->logData[i];
+				}
+
 				pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
 
-				//TODO
-				char confirm[8] = "CONFIRM";
+				char confirm[SIZE_SOCKET_MESSAGE];
+				sprintf(confirm, "CONFIRM | DATA : %s", arrayDATA);
+
 				if (sendNetwork(sock, &adr_send, confirm) == -1) {
 					logString("THREAD SERV : NETWORK ERROR DURING -> SEND CONFIRM");
 					//TODO
