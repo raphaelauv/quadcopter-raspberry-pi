@@ -8,6 +8,8 @@ void concat(const char *typeMsg,const char *s1, const char *s2, char * messageWi
 int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * argController,volatile sig_atomic_t * signalClientStop){
 
 	struct sockaddr_in * adr_client = NULL;
+	PMutex * mutex = NULL;
+	int sock=-1;
 
 	* argClient =(args_CLIENT *) malloc(sizeof(args_CLIENT));
 	if (*argClient == NULL) {
@@ -15,21 +17,21 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 		return -1;
 	}
 
-	(*argClient)->adresse=adresse;//TODO
+	(*argClient)->adresse=adresse;//TODO do a copy
 	(*argClient)->argController=argController;
 	(*argClient)->signalClientStop=signalClientStop;
-
 	(*argClient)->clientStop=0;
-	PMutex * mutex = NULL;
+
+
 	mutex =	(PMutex *) malloc(sizeof(PMutex));
 	if (mutex == NULL) {
-		logString("MALLOC FAIL : barrier");
-		return -1;
+		logString("MALLOC FAIL : init_args_CLIENT mutex");
+		goto cleanFail;
 	}
 	(*argClient)->pmutexClient=mutex;
 	init_PMutex(mutex);
 
-	int sock=-1;
+
 	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) == -1) {
 		logString("args_CLIENT CLIENT : Socket error");
 		goto cleanFail;
@@ -57,14 +59,17 @@ int init_args_CLIENT(args_CLIENT ** argClient,char * adresse,args_CONTROLLER * a
 
 
 	adr_client=(struct sockaddr_in *) calloc(1,sizeof(struct sockaddr_in));
+	//memset(adr_client, 0, sizeof(struct sockaddr_in));
 	if (adr_client == NULL) {
 		logString("MALLOC FAIL : argClient->adr_client");
 		goto cleanFail;
 	}
-	(*argClient)->adr_client=adr_client;
-	//memset(adr_client, 0, sizeof(struct sockaddr_in));
+
+
 	adr_client->sin_family	= AF_INET;
 	adr_client->sin_port	= htons(UDP_PORT_DRONE);
+
+	(*argClient)->adr_client=adr_client;
 
 	if(inet_aton(adresse, &adr_client->sin_addr)==0){
 		//printf("ERROR IP ADRESSE INVALIDE FORMAT : %s\n",adresse);
@@ -81,6 +86,7 @@ cleanFail:
 		close(sock);
 	}
 	clean_args_CLIENT(*argClient);
+	*argClient=NULL;
 	return -1;
 
 }
@@ -90,7 +96,6 @@ void clean_args_CLIENT(args_CLIENT * arg) {
 		clean_PMutex(arg->pmutexClient);
 		free(arg->adr_client);
 		free(arg);
-		arg = NULL;
 	}
 }
 

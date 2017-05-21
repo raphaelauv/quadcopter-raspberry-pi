@@ -22,7 +22,9 @@ int init_Joystick();
 void clean_Joystick();
 
 int numberOfConnected_Joystick();
-int init_inputJoystick(inputJoystick *input, int joystickNumber); 	// initialise en fonction du numéro du joystick
+
+void init_inputJoystick(inputJoystick *input);						// init input
+int update_inputJoystick(inputJoystick *input, int joystickNumber); // update en fonction du numéro du joystick
 void clean_inputJoystick(inputJoystick *input); 					// free memory and close joystick 
 int update_eventJoystick(inputJoystick *input);						// update the events of the joystick
 

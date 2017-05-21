@@ -49,6 +49,7 @@ int init_MotorsAll(MotorsAll ** motorsAll , volatile sig_atomic_t * signalMotorS
 
 cleanFail:
 	clean_MotorsAll(*motorsAll);
+	*motorsAll=NULL;
 	return -1;
 
 }

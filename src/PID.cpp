@@ -2,7 +2,11 @@
 
 
 int init_args_PID(args_PID ** argPID){
-    
+
+#ifdef __arm__
+	RTIMU *imu = NULL;
+#endif
+
     *argPID =(args_PID *) malloc(sizeof(args_PID));
     if (*argPID == NULL) {
         logString("MALLOC FAIL : init_args_PID");
@@ -11,9 +15,7 @@ int init_args_PID(args_PID ** argPID){
     
     
 #ifdef __arm__
-    RTIMU *imu = NULL;
     imu = sensorInit();
-    
     if(imu==NULL){
         logString("ERROR NEW FAIL RTIMU ->imu");
         goto cleanFail;
@@ -32,13 +34,12 @@ int init_args_PID(args_PID ** argPID){
 
 cleanFail:
 	clean_args_PID(*argPID);
+	*argPID=NULL;
 	return -1;
 }
 
 void clean_args_PID(args_PID * arg) {
     if (arg != NULL) {
-
-
 		#ifdef __arm__
         if( arg->imu !=NULL){
             delete(arg->imu);

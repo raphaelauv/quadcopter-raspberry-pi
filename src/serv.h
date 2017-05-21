@@ -11,7 +11,7 @@ extern "C" {
 #include "network.h"
 
 typedef struct args_SERVER {
-	char verbose;
+	//char verbose;
 	int sock;
 	int servStop;
 	PMutex * pmutexServ;

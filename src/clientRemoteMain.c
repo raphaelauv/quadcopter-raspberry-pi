@@ -45,7 +45,6 @@ int main(int argc, char *argv[]){
 	}
 
 
-
 	if(isControl()){
 
 		logString("THREAD MAIN : TEST CONTROLER");

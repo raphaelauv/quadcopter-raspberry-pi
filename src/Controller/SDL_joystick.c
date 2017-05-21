@@ -10,69 +10,79 @@
 //#include <SDL2/SDL.h>
 
 
-int init_inputJoystick(inputJoystick *input, int joystickNumber) {
+void init_inputJoystick(inputJoystick *input) {
+
+	input->axes = NULL;
+	input->boutons = NULL;
+	input->chapeaux = NULL;
+	input->joystick = NULL;
+	input->trackballs = NULL;
+	input->number = 0;
+}
+
+int update_inputJoystick(inputJoystick *input, int joystickNumber) {
 
 	if(input==NULL){
 		return -1;
 	}
 
-	if (joystickNumber < SDL_NumJoysticks()){ // on vérifie qu'il y a bien un bon numéro de joystick
+	if (joystickNumber < SDL_NumJoysticks()){ // tcheck the number of joysticks
 			
 		SDL_JoystickEventState(SDL_ENABLE);
 
 		clean_inputJoystick(input);
 
-		input->joystick = SDL_JoystickOpen(joystickNumber); // on met le joystick à numéro correspondant
-		input->number = joystickNumber; // je pense que vous comprenez cette ligne...
+		input->joystick = SDL_JoystickOpen(joystickNumber);
+		if(input->joystick == NULL){
+			// the joyStick is not ready
+			goto cleanFail;
+		}
+		input->number = joystickNumber;
 
 		SDL_Joystick * sdlJoystick =(SDL_Joystick *) input->joystick;
-		/* on alloue chaque éléments en fonctions de combien il y en a */
 
-		int error=0;
+
 		input->boutons = (char*) malloc(SDL_JoystickNumButtons(sdlJoystick) * sizeof(char));
 		if(input->boutons == NULL){
-			error=1;
-			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> boutons");	
+			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> boutons");
+			goto cleanFail;
 		}
 		input->axes = (int*) malloc(SDL_JoystickNumAxes(sdlJoystick) * sizeof(int));
 		if(input->axes == NULL){
-			error=1;
-			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> axes");	
+			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> axes");
+			goto cleanFail;
 		}
 		input->chapeaux = (int*) malloc(SDL_JoystickNumHats(sdlJoystick) * sizeof(int));
 		if(input->chapeaux == NULL){
-			error=1;
-			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> chapeaux");	
+			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> chapeaux");
+			goto cleanFail;
 		}
 		input->trackballs = (inputTrackball*) malloc(SDL_JoystickNumBalls(sdlJoystick)* sizeof(inputTrackball));
 		if(input->trackballs == NULL){
-			error=1;
-			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> trackballs");	
-		}
-
-		if(error){
+			logString("MALLOC FAIL : init_inputSDLjoystick SDL_JoystickNumButtons -> trackballs");
 			goto cleanFail;
 		}
 
-		for (int i = 0; i < SDL_JoystickNumButtons(sdlJoystick); i++) // tant qu'on a pas atteint le nombre max de boutons
-			input->boutons[i] = 0; // on met les valeurs à 0
-		for (int i = 0; i < SDL_JoystickNumAxes(sdlJoystick); i++) // tant qu'on a pas atteint le nombre max d'axes
-			input->axes[i] = 0; // on met aussi les valeurs à 0
-		for (int i = 0; i < SDL_JoystickNumHats(sdlJoystick); i++) // tant qu'on a pas atteint le nombre max de chapeaux
+
+		for (int i = 0; i < SDL_JoystickNumButtons(sdlJoystick); i++){
+			// tant qu'on a pas atteint le nombre max de boutons
+			input->boutons[i] = 0;
+		}
+		for (int i = 0; i < SDL_JoystickNumAxes(sdlJoystick); i++){
+			// tant qu'on a pas atteint le nombre max d'axes
+			input->axes[i] = 0;
+		}
+		for (int i = 0; i < SDL_JoystickNumHats(sdlJoystick); i++){
+			// tant qu'on a pas atteint le nombre max de chapeaux
 			input->chapeaux[i] = SDL_HAT_CENTERED; // on dit que les chapeaux son centrés
-		for (int i = 0; i < SDL_JoystickNumBalls(sdlJoystick); i++) // tant qu'il y a des trackballs
-				{
-			// on met à zéro
+		}
+		for (int i = 0; i < SDL_JoystickNumBalls(sdlJoystick); i++){
+			// tant qu'il y a des trackballs , on met à zéro
 			input->trackballs[i].xrel = 0;
 			input->trackballs[i].yrel = 0;
 		}
 		return 0;
 	}
-
-	else {// si le numéro du joystick n'était pas correct
-		goto cleanFail;
-	}
-
 
 cleanFail:
 	clean_inputJoystick(input);
@@ -100,13 +110,8 @@ void clean_inputJoystick(inputJoystick *input) {
 			SDL_JoystickClose(sdlJoystick);	
 		}
 
-		input->boutons = NULL;
-		input->axes = NULL;
-		input->chapeaux = NULL;
-		input->trackballs = NULL;
-		input->joystick=NULL;
-		input->number = 0; // on le remet à zéro
-		
+		init_inputJoystick(input);
+
 	}
 }
 

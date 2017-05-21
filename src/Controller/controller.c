@@ -109,8 +109,8 @@ int init_args_CONTROLLER(args_CONTROLLER ** argController,volatile sig_atomic_t 
 	return 0;
 
 cleanFail:
-
 	clean_args_CONTROLLER(*argController);
+	*argController=NULL;
 	return -1;
 }
 
@@ -133,7 +133,7 @@ int is_connect(inputJoystick * input) {
 	//strcpy(name, "Microsoft X-Box 360 pad");
 
 	if (!isControllerConnect) {
-		init_inputJoystick(input, 0); // on l'initialise au joystick n°0
+		update_inputJoystick(input, 0); // on l'initialise au joystick n°0
 	}
 
 	char * tmp = isConnect_Joystick(0);
@@ -163,18 +163,13 @@ float diff_axes(int axe_down, int axe_up, int val_max) {
 void control(args_CONTROLLER * argsControl) {
 	DataController * dataControl = argsControl->dataControl;
 	int local_period=(1.0/FREQUENCY_CONTROLLER)*USEC_TO_SEC;
-	init_Joystick();//TODO test return value
-
-	inputJoystick input;
 
 	int modele;
-	int firstConnectMade=0;
-	int quitter=0;
+	int firstConnectMade = 0;
+	int quitter = 0;
+	inputJoystick input;
 
-	if (numberOfConnected_Joystick () <= 0){
-		quitter=1;
-		logString("THREAD CONTROLLER : ERROR no Controller plug");
-	}
+	init_inputJoystick(&input);
 
 	float arrayValController[CONTROLLER_NUMBER_AXES];
 	float arrayValAsk[CONTROLLER_NUMBER_AXES];
@@ -182,6 +177,15 @@ void control(args_CONTROLLER * argsControl) {
 	for(int i=0;i<CONTROLLER_NUMBER_AXES;i++){
 		arrayValController[i]=0;
 		arrayValAsk[i]=0;
+	}
+
+	if(init_Joystick()){
+		quitter=1;
+	}else{
+		if (numberOfConnected_Joystick() <= 0) {
+			quitter = 1;
+			logString("THREAD CONTROLLER : ERROR no Controller plug");
+		}
 	}
 
 	while (!quitter) {
@@ -282,23 +286,6 @@ void control(args_CONTROLLER * argsControl) {
 		}
 
 
-			/*
-			 tmpM0 = (input.axes[0] < 0) ?
-			 (float) input.axes[0] * -1 * 5.0 / 32768 + 5 :
-			 (float) input.axes[0] * 5.0 / 32768 + 5;
-			 tmpM1 = (input.axes[1] < 0) ?
-			 (float) input.axes[1] * -1 * 5.0 / 32768 + 5 :
-			 (float) input.axes[1] * 5.0 / 32768 + 5;
-			 tmpM2 = (input.axes[3] < 0) ?
-			 (float) input.axes[3] * -1 * 5.0 / 32768 + 5 :
-			 (float) input.axes[3] * 5.0 / 32768 + 5;
-			 tmpM3 = (input.axes[4] < 0) ?
-			 (float) input.axes[4] * -1 * 5.0 / 32768 + 5 :
-			 (float) input.axes[4] * 5.0 / 32768 + 5;
-			 */
-
-
-
 			//tmpM0 = Rotation axe lacet (Rotation) (y)
 		arrayValController[0] = modele ?
 					pourcent(input.axes[0], JOYSTICK_MAX_VALUE) :
@@ -389,6 +376,6 @@ void control(args_CONTROLLER * argsControl) {
 	}
 
 
-	clean_inputJoystick(&input); // destroy structur input
+	clean_inputJoystick(&input); // clean structur input
 	clean_Joystick();
 }

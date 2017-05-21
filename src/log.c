@@ -5,7 +5,7 @@ int LOG_verbose_ON=0;
 int LOG_file_ON=0;
 int LOG_data_ON=0;
 
-char control=1;
+char doControl=1;
 char IP_Sound=0;
 char doCalibration=0;
 char doTestPower=0;
@@ -67,7 +67,7 @@ int isTestpower(){
 }
 
 int isControl(){
-	return control;
+	return doControl;
 }
 
 int isIpSound(){
@@ -147,7 +147,7 @@ int tokenAnalyse(int argc , char *argv[],int flag ){
 			} else {
 			*/
 				printf("No controller ON, ");
-				control = 0;
+				doControl = 0;
 			//}
 		}
 		else if (strcmp(argvv, OPTION_SOUND) == 0) {
@@ -277,19 +277,6 @@ void showArrayData(){
 }
 
 
-void fillStrLog(int size, ...){
-
-	va_list va;
-	va_start (va, size);
-
-	for (int i = 0; i < size; i++) {
-		int c = va_arg(va, int);
-	}
-
-}
-
-
-
 int cmpLogData=0;
 void logDataString(char * str){
 	if(str==NULL || idFileData==-1){return;}
@@ -351,7 +338,6 @@ int logDataFreq(int * arrayLog,int size){
 
 		}
 
-		//sprintf(arrayStr,"%d %d %d %d %d %d %d %d",moyenneArray[0],moyenneArray[1],moyenneArray[2],moyenneArray[3],moyenneArray[4],moyenneArray[5],moyenneArray[6],moyenneArray[7] );
 		logDataString(arrayStr);
 		lastDataIndex = 0;
 	}

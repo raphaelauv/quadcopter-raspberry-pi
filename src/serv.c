@@ -128,6 +128,7 @@ int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * signalServSt
 
 cleanFail:
 	clean_args_SERVER(*argServ);
+	*argServ=NULL;
 	return -1;
 
 }
