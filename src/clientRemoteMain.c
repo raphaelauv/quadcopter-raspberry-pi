@@ -65,6 +65,8 @@ int main(int argc, char *argv[]){
 
 		pthread_mutex_unlock(&argController->pmutexControllerPlug->mutex);
 		//TODO
+	}else{
+		argController->dataControl->flag=2;
 	}
 
 	if(!is_Controller_Stop(argController)){

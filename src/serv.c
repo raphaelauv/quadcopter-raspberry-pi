@@ -68,6 +68,7 @@ int init_args_SERVER(args_SERVER ** argServ,volatile sig_atomic_t * signalServSt
 	}
 	(*argServ)->pidInfo=pidInfo;
 
+	(*argServ)->pidInfo->connectionLost = 0;
 
 	PmutexPID_INFO = (PMutex *) malloc(sizeof(PMutex));
 	if (PmutexPID_INFO == NULL) {
@@ -197,7 +198,7 @@ int socketConnectionMade=0;
  */
 int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMessage,DataController * dataTmp){
 
-	if (receveNetwork(sock, NULL, buff) == -1) {
+	if (receveNetwork(sock, NULL, buff)) {
 		//TODO prendre decision sur controleur de vol , demander atterissage
 		logString("THREAD SERV : RECEVE NETWORK ERROR");
 		return 0;
@@ -265,18 +266,14 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 			argSERV->dataController->axe_LeftRight=dataTmp->axe_LeftRight;
 			argSERV->dataController->axe_FrontBack=dataTmp->axe_FrontBack;
 			argSERV->dataController->flag=dataTmp->flag;
-			argSERV->dataController->pmutex->var=1;
+			//argSERV->dataController->pmutex->var=1;
 
-			pthread_cond_signal(&(argSERV->dataController->pmutex->condition));
-			//TODO
+			//pthread_cond_signal(&(argSERV->dataController->pmutex->condition));
 
 			pthread_mutex_unlock(&(argSERV->dataController->pmutex->mutex));
 
 			if (dataTmp->flag == 0) {
-
 				logString("THREAD SERV : FLAG 0 MESSAGE");
-
-				//fini = 0;
 				return 0;
 			}
 			return 2;
@@ -294,6 +291,7 @@ int manageNewMessage(args_SERVER *argSERV,int sock,char * buff,int * cmpNumberMe
 void *thread_UDP_SERVER(void *args) {
 
 	args_SERVER *argSERV = (args_SERVER*) args;
+
 
 	PID_INFO * pidInfo =argSERV->pidInfo;
 
@@ -318,6 +316,7 @@ void *thread_UDP_SERVER(void *args) {
 	int freqConfirm=(int)FREQUENCY_CONTROLLER;
 
 	
+	int nbTimeOutInARow=0;
 	while(runServ){
 
 		if(is_Serv_Stop(argSERV)){
@@ -332,14 +331,35 @@ void *thread_UDP_SERVER(void *args) {
 		if (ret == 0) {
 
 			if (socketConnectionMade) {
-				logString("THREAD SERV : Timed out");
-				//TODO
+
+				if(nbTimeOutInARow>10){
+
+					pthread_mutex_lock(&(pidInfo->pmutex->mutex));
+					pidInfo->connectionLost = 1;
+					pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
+					pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
+					argSERV->dataController->axe_Rotation=0;
+					argSERV->dataController->axe_UpDown=0;
+					argSERV->dataController->axe_LeftRight=0;
+					argSERV->dataController->axe_FrontBack=0;
+					//argSERV->dataController->flag=dataTmp->flag; TODO
+					pthread_mutex_unlock(&(argSERV->dataController->pmutex->mutex));
+
+					logString("THREAD SERV : Timed out");
+				}else{
+					nbTimeOutInARow++;
+				}
 			}
 
 
 		} else if (FD_ISSET(sock, &rdfs)) {
 
-
+			if(nbTimeOutInARow>10){
+				pthread_mutex_lock(&(pidInfo->pmutex->mutex));
+				pidInfo->connectionLost = 0;
+				pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
+			}
+			nbTimeOutInARow=0;
 			counterMsg++;
 			if(counterMsg%freqConfirm==0){
 

@@ -108,7 +108,7 @@ int bindUDPSock(int * sock, struct sockaddr_in * adr_svr) {
  * Fill message with the receved message , message size should be at least SIZE_SOCKET_MESSAGE
  * Fill adr_svr with the receved Info
  *
- * Return -1 in case of Error else 0
+ * Return 1 in case of Error else 0
  */
 int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message) {
 	int sizeReveceTotal = 0;
@@ -119,14 +119,14 @@ int receveNetwork(int sock, struct sockaddr_in *adr_svr, char * message) {
 		resultReceve = recvfrom(sock, &message[sizeReveceTotal],
 				SIZE_SOCKET_MESSAGE - sizeReveceTotal, 0, NULL, NULL);
 
-		if (resultReceve == -1) {
+		if (resultReceve < 1) {
 			nbfail++;
 		} else {
 			sizeReveceTotal += resultReceve;
 		}
 	}
 	if (nbfail == 10) {
-		return -1;
+		return 1;
 	} else {
 		return 0;
 	}

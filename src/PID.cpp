@@ -95,7 +95,6 @@ int absValue(int val){
 }
 
 float batteryValue=0;
-float batteryTMPVALUE=0;
 
 int applyFiltreBatteryValue(){
 
@@ -105,10 +104,10 @@ int applyFiltreBatteryValue(){
 	}
 
 	//TODO PUT VALUES IN MACRO
-	batteryTMPVALUE=batteryTMPVALUE* 0.92 + (batteryVoltage+60)* 0.09509;
-	//	batteryTMPVALUE=(batteryTMPVALUE * CONVERTION_TO_VOLT);
+	batteryValue=batteryValue* 0.92 + (batteryVoltage+60)* 0.09509;
 
-	batteryValue=batteryTMPVALUE;
+
+	//batteryValue*=CONVERTION_TO_VOLT;
 
 	return 0;
 
@@ -132,8 +131,16 @@ void * thread_PID(void * args){
     long local_period=(1.0/FREQUENCY_PID) *SEC_TO_NSEC;
 
     
+    int nbSENSOR_read_fail_InARow = 0;
+
     //Consigne client
-    float client_gaz = MOTOR_LOW_TIME + 50;
+    float client_gaz = MOTOR_MIN_ROTATE_TIME;
+    float lastClient_gaz = client_gaz;
+    char connectionlost = 0;
+
+    int intervalReductionGAZ = 5;
+    int nbConnectionLost_InARow = 0;
+
     float client_pitch = 0;
     float client_roll=0;
     float client_yaw=0;
@@ -165,9 +172,9 @@ void * thread_PID(void * args){
     int puissance_motor2 = MOTOR_LOW_TIME;
     int puissance_motor3 = MOTOR_LOW_TIME;
     int powerTab[NUMBER_OF_MOTORS];
-    int powerController[NUMBER_OF_MOTORS];
-    
+    int powerController[4];
     int powerMinRotate[NUMBER_OF_MOTORS];
+
     for(int i=0;i<NUMBER_OF_MOTORS;i++){
     	powerController[i]=0;
     	powerTab[i]=MOTOR_LOW_TIME;
@@ -183,8 +190,8 @@ void * thread_PID(void * args){
 	int logTab[nb_values_log];
 	int log_angle_pitch;
 	int log_angle_roll;
-	char arrayLog[SIZE_MAX_LOG];
 
+	char arrayLog[SIZE_MAX_LOG];
 	char arrayDATA[SIZE_MAX_LOG];
 
     struct timespec t0, t1 ,tim;
@@ -201,7 +208,10 @@ void * thread_PID(void * args){
 	float gyro_z;
 
     /********VIBRATION******/
-    float acc_total_vector[VIBRATION_Moving_average]={0};
+    float acc_total_vector[VIBRATION_Moving_average];
+    for(int i=0;i<VIBRATION_Moving_average;i++){
+    	acc_total_vector[i]=0;
+    }
     float acc_av_vector;
     float vibration_total_result;
     float acc_x;
@@ -224,13 +234,14 @@ void * thread_PID(void * args){
     int nbRotateSecuTimer=0;
 
 
+    /*******DATA LOG FILE INIT****/
+    char * strNameColumnDATA ="Motor1 Motor2 Motor3 Motor4 anglePITCH angleROLL clientPITCH clientROLL clientYAW inputPidPITCH inputPidROLL inputPidYAW outputPidPITCH outputPidROLL outputPidYAW Battery";
     if(setDataFrequence(50,nb_values_log)){
     	logString("THREAD PID : ERROR setDataFrequence");
     	goto endPid;
     }
-    
-    if (setDataStringTitle(
-			"Motor1 Motor2 Motor3 Motor4 anglePITCH angleROLL clientPITCH clientROLL clientYAW inputPidPITCH inputPidROLL inputPidYAW outputPidPITCH outputPidROLL outputPidYAW Battery")) {
+
+    if (setDataStringTitle(strNameColumnDATA)) {
     	logString("THREAD PID : ERROR setDataStringTitle");
     	goto endPid;
 	}
@@ -354,17 +365,18 @@ void * thread_PID(void * args){
             if (data->flag== 0) {
                 pthread_mutex_unlock(&(mutexDataControler->mutex));
                 break;
-                //TODO
+                //TODO take a decision when the flag is at 0 from the remote
             }else{
-            	mutexDataControler->var = 0;
+            	//mutexDataControler->var = 0;
 				powerController[0] = data->axe_Rotation;
 				powerController[1] = data->axe_UpDown;
 				powerController[2] = data->axe_LeftRight;
 				powerController[3] =(-1) * data->axe_FrontBack;
 				pthread_mutex_unlock(&(mutexDataControler->mutex));
 
+
 				/*
-				Each motor is control directly by the pads of joystick
+				Each motor id directly control by the pads of joystick
 				powerTab[0] =absValue(powerController[0]);
 				powerTab[1] =absValue(powerController[1]);
 				powerTab[2] =absValue(powerController[2]);
@@ -404,6 +416,10 @@ void * thread_PID(void * args){
         }else{
         	logString("THREAD PID : SENSOR FAIL READ");
         	readSensorSucces=0;
+        	nbSENSOR_read_fail_InARow++;
+        	if(nbSENSOR_read_fail_InARow>10){
+        		//TODO
+        	}
         }
 		#endif
 
@@ -463,25 +479,52 @@ void * thread_PID(void * args){
             input_pid_roll=(input_pid_roll*0.7) + ((gyro_x-gyro_cal[1])*(180/M_PI)*0.3);
             input_pid_yaw=(input_pid_yaw*0.7) + ((gyro_z-gyro_cal[2])*(180/M_PI)*0.3);
             
+            pthread_mutex_lock(&(pidInfo->pmutex->mutex));
+			connectionlost = pidInfo->connectionLost;
+			pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
 
-            //TODO MOTOR_LOW_TIME or MOTOR_MIN_ROTATE_TIME ??
-            if(powerController[1]>=0){
-                client_gaz=(powerController[1]*7.5) + MOTOR_MIN_ROTATE_TIME;
+			if(connectionlost){
+				nbConnectionLost_InARow++;
+				if(nbConnectionLost_InARow%intervalReductionGAZ==0){
+					client_gaz = lastClient_gaz--;
+				}
+
+				if(client_gaz<1300){
+					client_gaz=1300;
+				}
+
+			}else{
+				nbConnectionLost_InARow=0;
+				if (powerController[1] > 0) {
+
+					//TODO add filter to limit burst du to reconnection
+
+					client_gaz = (powerController[1]* (MAX_POURCENTAGE_POWER_USER / 10))+ MOTOR_LOW_TIME;
+				}
+			}
+
+            if(client_gaz<MOTOR_MIN_ROTATE_TIME){
+            	client_gaz=MOTOR_MIN_ROTATE_TIME;
             }
-            else{
-                client_gaz = MOTOR_MIN_ROTATE_TIME;
-            }
-            
+
+            lastClient_gaz=client_gaz;
+
             client_pitch=powerController[3] * PID_ANGLE_PRECISION_MULTIPLE;
             client_roll=powerController[2] * PID_ANGLE_PRECISION_MULTIPLE;
             client_yaw=powerController[0] * PID_ANGLE_PRECISION_MULTIPLE;
             
-            //log_angle_pitch=imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE;
-            //client_pitch-= log_angle_pitch * PID_ANGLE_MULTIPLE;
+
+            //TODO , correct the vibration first , before use the ANGLES
+            /*
+            log_angle_pitch=imuData.fusionPose.y() * RTMATH_RAD_TO_DEGREE;
+            client_pitch-= log_angle_pitch * PID_ANGLE_MULTIPLE;
+            */
             client_pitch/=3;
 
-            //log_angle_roll = imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE;
-            //client_roll-= log_angle_roll * PID_ANGLE_MULTIPLE;
+            /*
+            log_angle_roll = imuData.fusionPose.x() * RTMATH_RAD_TO_DEGREE;
+            client_roll-= log_angle_roll * PID_ANGLE_MULTIPLE;
+            */
             client_roll/=3;
             
             client_yaw/=3;
@@ -564,6 +607,8 @@ void * thread_PID(void * args){
             //TODO
             if(batteryValue<=BATTERY_HIGH_LIMIT && batteryValue>=BATTERY_LOW_LIMIT){
 			/*
+			 *
+			 * NOT WORKING YET
 				int a=10;
             	int b=-20;
 				puissance_motor0 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor0) / 100 ;
@@ -572,7 +617,7 @@ void * thread_PID(void * args){
 				puissance_motor3 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor3) / 100 ;
 				*/
 
-            	/*
+            	/* WORKING , BUT NOT FULLY TEST
 				puissance_motor0 += (1240 - batteryValue) /3500 * puissance_motor0 ;
 				puissance_motor1 += (1240 - batteryValue) /3500 * puissance_motor1 ;
 				puissance_motor2 += (1240 - batteryValue) /3500 * puissance_motor2 ;
@@ -586,7 +631,7 @@ void * thread_PID(void * args){
 
             /*******************SECURITY VALUES MOTORS**************/
 
-            //NEVE STOP ROTATION OF PROPELLERS
+            //NEVER STOP ROTATION OF PROPELLERS
             if(puissance_motor0<MOTOR_MIN_ROTATE_TIME) puissance_motor0=MOTOR_MIN_ROTATE_TIME;
             if(puissance_motor1<MOTOR_MIN_ROTATE_TIME) puissance_motor1=MOTOR_MIN_ROTATE_TIME;
             if(puissance_motor2<MOTOR_MIN_ROTATE_TIME) puissance_motor2=MOTOR_MIN_ROTATE_TIME;
@@ -679,8 +724,7 @@ void * thread_PID(void * args){
 			sprintf(arrayLog,"THREAD PID : TIME : %ld\n",local_period-timeBetween);
 			logString(arrayLog);
 		}else{
-			//nanoSleepSecure( (local_period-timeBetween) * NSEC_TO_USEC_MULTIPLE);
-			//clock_nanosleep(CLOCK_MONOTONIC,0,&tim,NULL);
+
 			clockNanoSleepSecure(tim.tv_nsec);
 		}
 		/***********END SLEEP PID FREQUENCY***********/

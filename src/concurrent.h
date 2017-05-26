@@ -78,6 +78,7 @@ typedef struct DataController{
 
 typedef struct PID_INFO{
 	float battery;
+	char connectionLost;
 	char logData[SIZE_MAX_LOG];
 	PMutex * pmutex;
 }PID_INFO;

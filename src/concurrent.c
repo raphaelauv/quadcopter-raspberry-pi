@@ -70,9 +70,11 @@ int init_PID_INFO(PID_INFO ** pidInfo) {
 	*pidInfo = (PID_INFO *) malloc(sizeof(PID_INFO));
 	if (*pidInfo == NULL) {
 		logString("MALLOC FAIL : PID_INFO");
+		return 1;
 	}
 
-
+	(*pidInfo)->connectionLost = 0;
+	return 0;
 
 }
 

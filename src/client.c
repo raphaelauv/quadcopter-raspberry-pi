@@ -329,7 +329,6 @@ void *thread_UDP_CLIENT(void *args) {
 			continue;
 		}
 
-
 		if (recvfrom(sock, messageReceve, SIZE_SOCKET_MESSAGE, 0, NULL, NULL)> 0) {//NON BLOCKING
 
 			if (isMessageStop(messageReceve)) {

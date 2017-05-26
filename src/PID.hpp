@@ -18,6 +18,7 @@
 
 #define MAX_CONTROLLER_VALUE 100
 #define PID_MAX_ANGLE 35
+#define MAX_POURCENTAGE_POWER_USER 70			// 70% of MOTOR_HIGH_TIME
 
 typedef struct args_PID {
 	MotorsAll * motorsAll;
