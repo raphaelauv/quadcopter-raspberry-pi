@@ -141,6 +141,8 @@ void * thread_PID(void * args){
     int intervalReductionGAZ = 5;
     int nbConnectionLost_InARow = 0;
 
+    int nbConnectionLost_GAZMIN = 0;
+
     float client_pitch = 0;
     float client_roll=0;
     float client_yaw=0;
@@ -491,6 +493,19 @@ void * thread_PID(void * args){
 
 				if(client_gaz<1300){
 					client_gaz=1300;
+					nbConnectionLost_GAZMIN++;
+					if(nbConnectionLost_GAZMIN>FREQUENCY_PID *5){
+						client_gaz=1250;
+					}
+					if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 6) {
+						client_gaz = 1150;
+					}
+					if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 7) {
+						client_gaz = 1050;
+					}
+					if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 8) {
+						break;
+					}
 				}
 
 			}else{
