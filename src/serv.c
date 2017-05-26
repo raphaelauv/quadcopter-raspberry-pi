@@ -336,7 +336,9 @@ void *thread_UDP_SERVER(void *args) {
 
 					pthread_mutex_lock(&(pidInfo->pmutex->mutex));
 					pidInfo->connectionLost = 1;
+					//printf("CONNECT LOST MIS A 1\n");
 					pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
+
 					pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
 					argSERV->dataController->axe_Rotation=0;
 					argSERV->dataController->axe_UpDown=0;

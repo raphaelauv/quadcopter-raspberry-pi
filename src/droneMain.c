@@ -116,6 +116,7 @@ int main (int argc, char *argv[]){
 		goto cleanAndExit;
 	}
 
+	set_Serv_Stop(argServ);
 
 	if (isControl()) {
 		if (pthread_join(threadServer, NULL)) {

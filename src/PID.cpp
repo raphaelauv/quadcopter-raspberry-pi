@@ -133,6 +133,7 @@ void * thread_PID(void * args){
     
     int nbSENSOR_read_fail_InARow = 0;
 
+
     //Consigne client
     float client_gaz = MOTOR_MIN_ROTATE_TIME;
     float lastClient_gaz = client_gaz;
@@ -223,7 +224,6 @@ void * thread_PID(void * args){
     int iterAccelPrint=0;
     int iterVibration;
     int testvibration=isTestVibration();
-
     float lastVibration;
 
 
@@ -280,11 +280,15 @@ void * thread_PID(void * args){
 
 
     /*********************************************************/
-    /*				BATTERY INIT VALUE						*/
+    /*				BATTERY INIT VALUE	+ TEST MOTO			*/
 
     for(int i=0;i<FREQUENCY_PID;i++){
     	if(applyFiltreBatteryValue()){
     		logString("THREAD PID : ERROR BATTERY VALUE");
+    		goto endPid;
+    	}
+
+    	if(set_power(controle_vol->motorsAll, powerTab)){
     		goto endPid;
     	}
     }
@@ -411,10 +415,63 @@ void * thread_PID(void * args){
 		}
 
         /************************END BATTERIE****************************/
+
+
+		/************************POWER CLIENT****************************/
+		pthread_mutex_lock(&(pidInfo->pmutex->mutex));
+		connectionlost = pidInfo->connectionLost;
+		pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
+
+		if (connectionlost) {
+
+			nbConnectionLost_InARow++;
+			if (nbConnectionLost_InARow % intervalReductionGAZ == 0) {
+				client_gaz = lastClient_gaz--;
+			}
+
+			if (client_gaz <= 1300) {
+
+				nbConnectionLost_GAZMIN++;
+
+				if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 11) {
+					break;
+				}else if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 9) {
+					client_gaz = 1050;
+				}
+				else if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 7) {
+					client_gaz = 1150;
+				}
+				else if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 5) {
+					client_gaz = 1250;
+				}else{
+					client_gaz = 1300;
+				}
+
+			}
+
+		} else {
+			nbConnectionLost_InARow = 0;
+			if (powerController[1] > 0) {
+
+				//TODO add filter to limit burst du to reconnection
+
+				client_gaz = (powerController[1]
+						* (MAX_POURCENTAGE_POWER_USER / 10)) + MOTOR_LOW_TIME;
+			}
+		}
+
+		if (client_gaz < MOTOR_MIN_ROTATE_TIME) {
+			client_gaz = MOTOR_MIN_ROTATE_TIME;
+		}
+
+		lastClient_gaz = client_gaz;
+
+		/***********************END POWER CLIENT**************************/
         
 		#ifdef __arm__
         if(imu->IMURead()){
         	readSensorSucces=1;
+        	nbSENSOR_read_fail_InARow=0;
         }else{
         	logString("THREAD PID : SENSOR FAIL READ");
         	readSensorSucces=0;
@@ -430,14 +487,12 @@ void * thread_PID(void * args){
             imuData = imu->getIMUData();
 			#endif
 
-
+            /*************************VIBRATION**********************/
             if(testvibration){
 
                 acc_x=imuData.accel.x();
                 acc_y=imuData.accel.y();
                 acc_z=imuData.accel.z();
-
-
     			acc_total_vector[0] = sqrtf((acc_x * acc_x) + (acc_y * acc_y) + (acc_z * acc_z));
 
     			acc_av_vector = acc_total_vector[0];
@@ -463,13 +518,11 @@ void * thread_PID(void * args){
     				iterAccelPrint = 0;
     				printf("ACCEL : X : %f  Y : %f  Z : %f | VECTEUR : %f | VIBRATION : %f \n", acc_x, acc_y, acc_z,acc_total_vector[0],lastVibration);
     			}
-    			
             }
+            /**********************END VIBRATION**********************/
 
 
-
-            /*********************************************************/
-            /*					PID                                  */
+            /*************************PID*****************************/
             
             gyro_x=imuData.gyro.x();
             gyro_y=imuData.gyro.y();
@@ -481,48 +534,7 @@ void * thread_PID(void * args){
             input_pid_roll=(input_pid_roll*0.7) + ((gyro_x-gyro_cal[1])*(180/M_PI)*0.3);
             input_pid_yaw=(input_pid_yaw*0.7) + ((gyro_z-gyro_cal[2])*(180/M_PI)*0.3);
             
-            pthread_mutex_lock(&(pidInfo->pmutex->mutex));
-			connectionlost = pidInfo->connectionLost;
-			pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
-
-			if(connectionlost){
-				nbConnectionLost_InARow++;
-				if(nbConnectionLost_InARow%intervalReductionGAZ==0){
-					client_gaz = lastClient_gaz--;
-				}
-
-				if(client_gaz<1300){
-					client_gaz=1300;
-					nbConnectionLost_GAZMIN++;
-					if(nbConnectionLost_GAZMIN>FREQUENCY_PID *5){
-						client_gaz=1250;
-					}
-					if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 6) {
-						client_gaz = 1150;
-					}
-					if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 7) {
-						client_gaz = 1050;
-					}
-					if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 8) {
-						break;
-					}
-				}
-
-			}else{
-				nbConnectionLost_InARow=0;
-				if (powerController[1] > 0) {
-
-					//TODO add filter to limit burst du to reconnection
-
-					client_gaz = (powerController[1]* (MAX_POURCENTAGE_POWER_USER / 10))+ MOTOR_LOW_TIME;
-				}
-			}
-
-            if(client_gaz<MOTOR_MIN_ROTATE_TIME){
-            	client_gaz=MOTOR_MIN_ROTATE_TIME;
-            }
-
-            lastClient_gaz=client_gaz;
+            //*power client
 
             client_pitch=powerController[3] * PID_ANGLE_PRECISION_MULTIPLE;
             client_roll=powerController[2] * PID_ANGLE_PRECISION_MULTIPLE;
@@ -611,113 +623,118 @@ void * thread_PID(void * args){
             
             
             
-            puissance_motor0=client_gaz  - output_pid_pitch + output_pid_roll - output_pid_yaw;
+            puissance_motor0=client_gaz - output_pid_pitch + output_pid_roll - output_pid_yaw;
             puissance_motor1=client_gaz + output_pid_pitch + output_pid_roll + output_pid_yaw;
             puissance_motor2=client_gaz + output_pid_pitch - output_pid_roll - output_pid_yaw;
             puissance_motor3=client_gaz - output_pid_pitch - output_pid_roll + output_pid_yaw;
-            
 
-            /*******************BATTERY MOTOR CALIB**************/
-
-            //TODO
-            if(batteryValue<=BATTERY_HIGH_LIMIT && batteryValue>=BATTERY_LOW_LIMIT){
-			/*
-			 *
-			 * NOT WORKING YET
-				int a=10;
-            	int b=-20;
-				puissance_motor0 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor0) / 100 ;
-				puissance_motor1 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor1) / 100 ;
-				puissance_motor2 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor2) / 100 ;
-				puissance_motor3 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor3) / 100 ;
-				*/
-
-            	/* WORKING , BUT NOT FULLY TEST
-				puissance_motor0 += (1240 - batteryValue) /3500 * puissance_motor0 ;
-				puissance_motor1 += (1240 - batteryValue) /3500 * puissance_motor1 ;
-				puissance_motor2 += (1240 - batteryValue) /3500 * puissance_motor2 ;
-				puissance_motor3 += (1240 - batteryValue) /3500 * puissance_motor3 ;
-				
-				*/
-
-            }
-            /*****************END BATTERY MOTOR CALIB*************/
-
-
-            /*******************SECURITY VALUES MOTORS**************/
-
-            //NEVER STOP ROTATION OF PROPELLERS
-            if(puissance_motor0<MOTOR_MIN_ROTATE_TIME) puissance_motor0=MOTOR_MIN_ROTATE_TIME;
-            if(puissance_motor1<MOTOR_MIN_ROTATE_TIME) puissance_motor1=MOTOR_MIN_ROTATE_TIME;
-            if(puissance_motor2<MOTOR_MIN_ROTATE_TIME) puissance_motor2=MOTOR_MIN_ROTATE_TIME;
-            if(puissance_motor3<MOTOR_MIN_ROTATE_TIME) puissance_motor3=MOTOR_MIN_ROTATE_TIME;
-            
-            //MAXIMUM TO ASK IS LIMIT OF MOTORS
-            if(puissance_motor0>MOTOR_HIGH_TIME) puissance_motor0=MOTOR_HIGH_TIME;
-            if(puissance_motor1>MOTOR_HIGH_TIME) puissance_motor1=MOTOR_HIGH_TIME;
-            if(puissance_motor2>MOTOR_HIGH_TIME) puissance_motor2=MOTOR_HIGH_TIME;
-            if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
-            
-            /****************END SECURITY VALUES MOTORS************/
-		/*
-            iterPrintPower++;
-            if (iterPrintPower > (FREQUENCY_PID * 5)) {
-				iterPrintPower=0;
-				printf("PUISSANCE : %d %d %d %d \n", puissance_motor0,puissance_motor1,puissance_motor2,puissance_motor3);
-			}
-
-		*/
-
-			powerTab[0] = puissance_motor0;
-			powerTab[1] = puissance_motor1;
-			powerTab[2] = puissance_motor2;
-			powerTab[3] = puissance_motor3;
-            
-            if(modeCalibration){
-            	//nothing to apply because we are in a calibrate mode execution
-            }else{
-            	set_power(controle_vol->motorsAll,powerTab);
-                //TODO test return value of set_power and take a decision !!
-            }
-            
-            /*************************END PID****************************/
-            
-            
-            /****************************LOG*****************************/
-            logTab[0]=powerTab[0];
-            logTab[1]=powerTab[1];
-            logTab[2]=powerTab[2];
-            logTab[3]=powerTab[3];
-
-            logTab[4]=(int)log_angle_pitch;
-            logTab[5]=(int)log_angle_roll;
-
-            logTab[6]=(int) (client_pitch * LOG_FLOAT_MULTIPLIER);
-            logTab[7]=(int) (client_roll * LOG_FLOAT_MULTIPLIER);
-            logTab[8]=(int) (client_yaw  * LOG_FLOAT_MULTIPLIER);
-
-            logTab[9]=(int) (input_pid_pitch  * LOG_FLOAT_MULTIPLIER);
-            logTab[10]=(int) (input_pid_roll * LOG_FLOAT_MULTIPLIER);
-            logTab[11]=(int) (input_pid_yaw * LOG_FLOAT_MULTIPLIER);
-
-            logTab[12]=(int) (output_pid_pitch * LOG_FLOAT_MULTIPLIER);
-            logTab[13]=(int) (output_pid_roll * LOG_FLOAT_MULTIPLIER);
-            logTab[14]=(int) (output_pid_yaw * LOG_FLOAT_MULTIPLIER);
-
-            logTab[15]=(int) batteryValue;
-            logDataFreq(logTab,nb_values_log,arrayDATA);
-
-			pthread_mutex_lock(&(pidInfo->pmutex->mutex));
-
-			for(int i=0;i<SIZE_MAX_LOG;i++){
-				pidInfo->logData[i]=arrayDATA[i];
-			}
-			pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
-
-            /**************************END LOG***************************/
-            
-
+            /***********************END PID**********************/
         }
+
+
+        /*******************BATTERY MOTOR CALIB**************/
+
+		  //TODO
+		 if(batteryValue<=BATTERY_HIGH_LIMIT && batteryValue>=BATTERY_LOW_LIMIT){
+		/*
+		 *
+		 * NOT WORKING YET
+			int a=10;
+			int b=-20;
+			puissance_motor0 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor0) / 100 ;
+			puissance_motor1 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor1) / 100 ;
+			puissance_motor2 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor2) / 100 ;
+			puissance_motor3 +=  ((100 -   ((a*(batteryValue*0.01)) + b))  *puissance_motor3) / 100 ;
+			*/
+
+			/* WORKING , BUT NOT FULLY TEST
+			puissance_motor0 += (1240 - batteryValue) /3500 * puissance_motor0 ;
+			puissance_motor1 += (1240 - batteryValue) /3500 * puissance_motor1 ;
+			puissance_motor2 += (1240 - batteryValue) /3500 * puissance_motor2 ;
+			puissance_motor3 += (1240 - batteryValue) /3500 * puissance_motor3 ;
+
+			*/
+
+		  }
+		  /*****************END BATTERY MOTOR CALIB*************/
+
+
+		  /*******************SECURITY VALUES MOTORS**************/
+
+		  //NEVER STOP ROTATION OF PROPELLERS
+		  if(puissance_motor0<MOTOR_MIN_ROTATE_TIME) puissance_motor0=MOTOR_MIN_ROTATE_TIME;
+		  if(puissance_motor1<MOTOR_MIN_ROTATE_TIME) puissance_motor1=MOTOR_MIN_ROTATE_TIME;
+		  if(puissance_motor2<MOTOR_MIN_ROTATE_TIME) puissance_motor2=MOTOR_MIN_ROTATE_TIME;
+		  if(puissance_motor3<MOTOR_MIN_ROTATE_TIME) puissance_motor3=MOTOR_MIN_ROTATE_TIME;
+
+		  //MAXIMUM TO ASK IS LIMIT OF MOTORS
+		  if(puissance_motor0>MOTOR_HIGH_TIME) puissance_motor0=MOTOR_HIGH_TIME;
+		  if(puissance_motor1>MOTOR_HIGH_TIME) puissance_motor1=MOTOR_HIGH_TIME;
+		  if(puissance_motor2>MOTOR_HIGH_TIME) puissance_motor2=MOTOR_HIGH_TIME;
+		  if(puissance_motor3>MOTOR_HIGH_TIME) puissance_motor3=MOTOR_HIGH_TIME;
+
+		  /****************END SECURITY VALUES MOTORS************/
+	/*
+		  iterPrintPower++;
+		  if (iterPrintPower > (FREQUENCY_PID * 5)) {
+			iterPrintPower=0;
+			printf("PUISSANCE : %d %d %d %d \n", puissance_motor0,puissance_motor1,puissance_motor2,puissance_motor3);
+		}
+
+	*/
+
+		powerTab[0] = puissance_motor0;
+		powerTab[1] = puissance_motor1;
+		powerTab[2] = puissance_motor2;
+		powerTab[3] = puissance_motor3;
+
+		if (modeCalibration) {
+			//nothing to apply because we are in a calibrate mode execution
+		} else {
+			set_power(controle_vol->motorsAll, powerTab);
+			//TODO test return value of set_power and take a decision !!
+		}
+
+		/*************************END PID****************************/
+
+
+		/****************************LOG*****************************/
+		logTab[0]=powerTab[0];
+		logTab[1]=powerTab[1];
+		logTab[2]=powerTab[2];
+		logTab[3]=powerTab[3];
+
+		logTab[4]=(int)log_angle_pitch;
+		logTab[5]=(int)log_angle_roll;
+
+		logTab[6]=(int) (client_pitch * LOG_FLOAT_MULTIPLIER);
+		logTab[7]=(int) (client_roll * LOG_FLOAT_MULTIPLIER);
+		logTab[8]=(int) (client_yaw  * LOG_FLOAT_MULTIPLIER);
+
+		logTab[9]=(int) (input_pid_pitch  * LOG_FLOAT_MULTIPLIER);
+		logTab[10]=(int) (input_pid_roll * LOG_FLOAT_MULTIPLIER);
+		logTab[11]=(int) (input_pid_yaw * LOG_FLOAT_MULTIPLIER);
+
+		logTab[12]=(int) (output_pid_pitch * LOG_FLOAT_MULTIPLIER);
+		logTab[13]=(int) (output_pid_roll * LOG_FLOAT_MULTIPLIER);
+		logTab[14]=(int) (output_pid_yaw * LOG_FLOAT_MULTIPLIER);
+
+		logTab[15]=(int) batteryValue;
+		logDataFreq(logTab,nb_values_log,arrayDATA);
+
+		pthread_mutex_lock(&(pidInfo->pmutex->mutex));
+
+		for(int i=0;i<SIZE_MAX_LOG;i++){
+			pidInfo->logData[i]=arrayDATA[i];
+		}
+		pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
+
+		/**************************END LOG***************************/
+
+
+
+
+
 
         
         /***********SLEEP PID FREQUENCY****************/
