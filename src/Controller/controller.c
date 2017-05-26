@@ -171,6 +171,8 @@ void control(args_CONTROLLER * argsControl) {
 
 	init_inputJoystick(&input);
 
+	float lastPowerASK=0;
+
 	float arrayValController[CONTROLLER_NUMBER_AXES];
 	float arrayValAsk[CONTROLLER_NUMBER_AXES];
 
@@ -314,6 +316,12 @@ void control(args_CONTROLLER * argsControl) {
 
 			for(int i =0; i<CONTROLLER_NUMBER_AXES;i++){
 
+				if(i==1){
+					if(CONTROLLER_UP_DOWN_VARIABLE_MODE){
+						continue;
+					}
+				}
+
 				if (arrayValController[i] > CONTROLLER_LIMIT_PRECISION) {
 					if (arrayValController[i] >= arrayValAsk[i]) {
 						arrayValAsk[i] += (arrayValController[i] - arrayValAsk[i])/ CONTROLLER_FLANGE;
@@ -344,14 +352,40 @@ void control(args_CONTROLLER * argsControl) {
 
 
 				if(arrayValAsk[i]>99){
-					arrayValAsk[i]=100;
+					arrayValAsk[i]=CONTROLLER_MAX;
 				}
 
 				if(arrayValAsk[i]<-99){
-					arrayValAsk[i]=-100;
+					arrayValAsk[i]=-CONTROLLER_MAX;
 				}
 
 
+			}
+
+			for(int i =0; i<CONTROLLER_NUMBER_AXES;i++){
+				if(i==1){
+					//NO limition for axe_UpDown , but variable use
+
+					if(CONTROLLER_UP_DOWN_VARIABLE_MODE){
+						if(arrayValController[i]>CONTROLLER_LIMIT_PRECISION){
+							lastPowerASK+=2;
+						}else if(arrayValController[i]< - CONTROLLER_LIMIT_PRECISION){
+							lastPowerASK-=2;
+						}
+
+						arrayValAsk[i]=lastPowerASK;
+					}
+				}else{
+					if(arrayValAsk[i]>0){
+						if(arrayValAsk[i]>CONTROLLER_LIMIT){
+							arrayValAsk[i]=CONTROLLER_LIMIT;
+						}
+					}else{
+						if (arrayValAsk[i] < - CONTROLLER_LIMIT) {
+							arrayValAsk[i] = - CONTROLLER_LIMIT;
+						}
+					}
+				}
 			}
 
 			/******************************************************/

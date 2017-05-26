@@ -8,6 +8,12 @@
 #define CONTROLLER_LIMIT_PRECISION 10				// Values under k and -k on the remote are not evaluate
 #define CONTROLLER_FLANGE 8							// Higher is the value, higher is the flange
 
+#define CONTROLLER_LIMIT 50
+
+#define CONTROLLER_MAX 100
+
+#define CONTROLLER_UP_DOWN_VARIABLE_MODE 1
+
 typedef struct args_CONTROLLER {
 
 	volatile sig_atomic_t * signalControllerStop;
