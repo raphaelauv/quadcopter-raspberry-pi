@@ -371,7 +371,7 @@ void * thread_PID(void * args){
             if (data->flag== 0) {
                 pthread_mutex_unlock(&(mutexDataControler->mutex));
                 break;
-                //TODO take a decision when the flag is at 0 from the remote
+                //TODO take a different decision when the flag is at 0 from the remote
             }else{
             	//mutexDataControler->var = 0;
 				powerController[0] = data->axe_Rotation;
@@ -434,6 +434,7 @@ void * thread_PID(void * args){
 				nbConnectionLost_GAZMIN++;
 
 				if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 11) {
+					logString("THREAD PID : CONNECTION FAIL PID GO END");
 					break;
 				}else if (nbConnectionLost_GAZMIN > FREQUENCY_PID * 9) {
 					client_gaz = 1050;
@@ -730,11 +731,6 @@ void * thread_PID(void * args){
 		pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
 
 		/**************************END LOG***************************/
-
-
-
-
-
 
         
         /***********SLEEP PID FREQUENCY****************/

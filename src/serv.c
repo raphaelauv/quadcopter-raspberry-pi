@@ -332,21 +332,18 @@ void *thread_UDP_SERVER(void *args) {
 
 			if (socketConnectionMade) {
 
-				if(nbTimeOutInARow>10){
+				pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
+				argSERV->dataController->axe_Rotation=0;
+				argSERV->dataController->axe_UpDown=0;
+				argSERV->dataController->axe_LeftRight=0;
+				argSERV->dataController->axe_FrontBack=0;
+				//argSERV->dataController->flag=dataTmp->flag; TODO
+				pthread_mutex_unlock(&(argSERV->dataController->pmutex->mutex));
 
+				if(nbTimeOutInARow>10){
 					pthread_mutex_lock(&(pidInfo->pmutex->mutex));
 					pidInfo->connectionLost = 1;
-					//printf("CONNECT LOST MIS A 1\n");
 					pthread_mutex_unlock(&(pidInfo->pmutex->mutex));
-
-					pthread_mutex_lock(&argSERV->dataController->pmutex->mutex);
-					argSERV->dataController->axe_Rotation=0;
-					argSERV->dataController->axe_UpDown=0;
-					argSERV->dataController->axe_LeftRight=0;
-					argSERV->dataController->axe_FrontBack=0;
-					//argSERV->dataController->flag=dataTmp->flag; TODO
-					pthread_mutex_unlock(&(argSERV->dataController->pmutex->mutex));
-
 					logString("THREAD SERV : Timed out");
 				}else{
 					nbTimeOutInARow++;
