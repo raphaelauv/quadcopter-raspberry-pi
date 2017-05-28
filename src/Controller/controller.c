@@ -369,10 +369,20 @@ void control(args_CONTROLLER * argsControl) {
 					if(CONTROLLER_UP_DOWN_VARIABLE_MODE){
 						if(arrayValController[i]>CONTROLLER_LIMIT_PRECISION){
 							lastPowerASK+=2;
+
+							if(lastPowerASK>CONTROLLER_MAX){
+								lastPowerASK=CONTROLLER_MAX;
+							}
+
+
 						}else if(arrayValController[i]< - CONTROLLER_LIMIT_PRECISION){
 							lastPowerASK-=2;
-						}
 
+							if(lastPowerASK<0){
+								lastPowerASK=0;
+							}
+						}
+						
 						arrayValAsk[i]=lastPowerASK;
 					}
 				}else{
