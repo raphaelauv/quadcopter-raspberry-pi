@@ -452,7 +452,7 @@ void * thread_PID(void * args){
 
 		} else {
 			nbConnectionLost_InARow = 0;
-			if (powerController[1] > 0) {
+			if (powerController[1] >= 0) {
 
 				//TODO add filter to limit burst du to reconnection
 
