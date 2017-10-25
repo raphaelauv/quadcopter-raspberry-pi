@@ -1,4 +1,13 @@
-# PROJET DRONE M1 INFORMATIQUE
+# DRONE quadcopter on a raspberry-pi
+
+https://vimeo.com/219726521
+
+
+
+<a href="https://vimeo.com/219726521" target="_blank"><img src="https://user-images.githubusercontent.com/10202690/32027519-ce650de6-b9e9-11e7-86b3-66e38aafdbc4.gif" alt="alt text" width="500" height="whatever"></a>
+
+<img src="https://user-images.githubusercontent.com/10202690/32025639-592c9e8e-b9e1-11e7-8fee-897b930bd3d0.jpg" alt="alt text" width="500" height="whatever">
+<img src="https://user-images.githubusercontent.com/10202690/32025949-622249f2-b9e2-11e7-953c-f4a228931363.jpg" alt="alt text" width="500" height="whatever">
 
 
 ### PREPARATION Raspberry Pi 2
