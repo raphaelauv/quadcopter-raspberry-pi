@@ -17,7 +17,7 @@ Install RASPBIAN JESSIE Kernel version : 4.4 on the Raspberry Pi 2
 ```
 Clone this git with this specific command ( without sudo !!)
 
-	pi@raspberry ~$ git clone git@moule.informatique.univ-paris-diderot.fr:thibaud/drone.git ~/drone
+	pi@raspberry ~$ git clone REPO_URL ~/drone
 ```
 
 
